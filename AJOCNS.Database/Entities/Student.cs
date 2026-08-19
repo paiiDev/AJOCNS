@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AJOCNS.Database.DataAccess;
+namespace AJOCNS.Database.Entities;
 
 public partial class Student
 {
     public int StudentId { get; set; }
 
     public int UserId { get; set; }
+
+    public string? Srn { get; set; }
 
     public string Name { get; set; } = null!;
 

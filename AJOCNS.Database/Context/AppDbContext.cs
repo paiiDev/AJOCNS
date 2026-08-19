@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using AJOCNS.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace AJOCNS.Database.DataAccess;
+namespace AJOCNS.Database.Context;
 
 public partial class AppDbContext : DbContext
 {
@@ -15,11 +16,13 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<AcacdmicYear> AcacdmicYears { get; set; }
+    public virtual DbSet<AcademicYear> AcademicYears { get; set; }
 
     public virtual DbSet<Admin> Admins { get; set; }
 
     public virtual DbSet<Company> Companies { get; set; }
+
+    public virtual DbSet<Degree> Degrees { get; set; }
 
     public virtual DbSet<EmploymentRecord> EmploymentRecords { get; set; }
 
@@ -45,19 +48,22 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+  
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AcacdmicYear>(entity =>
+        modelBuilder.Entity<AcademicYear>(entity =>
         {
-            entity.HasKey(e => e.AcyId);
+            entity.HasKey(e => e.AcyId).HasName("PK_Acacdmic_Years");
 
-            entity.ToTable("Acacdmic_Years");
+            entity.ToTable("Academic_Years");
 
-            entity.HasIndex(e => e.AcademicYear, "UQ_Acacdmic_Years_AcademicYear").IsUnique();
+            entity.HasIndex(e => e.AcademicYear1, "UQ_Acacdmic_Years_AcademicYear").IsUnique();
 
             entity.Property(e => e.AcyId).HasColumnName("ACY_ID");
-            entity.Property(e => e.AcademicYear).HasMaxLength(20);
+            entity.Property(e => e.AcademicYear1)
+                .HasMaxLength(20)
+                .HasColumnName("AcademicYear");
         });
 
         modelBuilder.Entity<Admin>(entity =>
@@ -80,6 +86,13 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.CompanyId).HasColumnName("Company_ID");
             entity.Property(e => e.CompanyName).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<Degree>(entity =>
+        {
+            entity.Property(e => e.DegreeId).HasColumnName("Degree_ID");
+            entity.Property(e => e.DegreeCode).HasMaxLength(100);
+            entity.Property(e => e.DegreeName).HasMaxLength(200);
         });
 
         modelBuilder.Entity<EmploymentRecord>(entity =>
@@ -259,14 +272,16 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(50)
                 .HasDefaultValue("Pending")
                 .HasColumnName("Acc_Status");
-            entity.Property(e => e.Degree).HasMaxLength(150);
+            entity.Property(e => e.DegreeId).HasColumnName("Degree_ID");
             entity.Property(e => e.Grn)
                 .HasMaxLength(100)
                 .HasColumnName("GRN");
             entity.Property(e => e.OfficialName).HasMaxLength(255);
-            entity.Property(e => e.Uni)
-                .HasMaxLength(100)
-                .HasColumnName("UNI");
+
+            entity.HasOne(d => d.Degree).WithMany(p => p.GraduationRecords)
+                .HasForeignKey(d => d.DegreeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Degree_GraduationRecoreds");
         });
 
         modelBuilder.Entity<Major>(entity =>
@@ -317,6 +332,8 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => e.GrecordId, "UQ_Students_GRecord").IsUnique();
 
+            entity.HasIndex(e => e.Srn, "UQ_Students_SRN").IsUnique();
+
             entity.HasIndex(e => e.UserId, "UQ_Students_User").IsUnique();
 
             entity.Property(e => e.StudentId).HasColumnName("Student_ID");
@@ -326,6 +343,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.MajorId).HasColumnName("Major_ID");
             entity.Property(e => e.Name).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(30);
+            entity.Property(e => e.Srn)
+                .HasMaxLength(100)
+                .HasColumnName("SRN");
             entity.Property(e => e.UserId).HasColumnName("User_ID");
 
             entity.HasOne(d => d.Grecord).WithOne(p => p.Student)

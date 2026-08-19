@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Admin Dashboard | AJOCNS PUPL</title>
+
+    <!-- Tabler Core CSS via CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/css/tabler.min.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        /* PUPL Branding Colors Overrides */
+        :root {
+            --tblr-primary: #0ea5e9; /* Sky Blue */
+            --tblr-primary-darken: #0284c7;
+            --brand-navy: #0b1e40;
+            --brand-gold: #f0b429;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        /* Top Navbar Customization */
+        .navbar-custom {
+            background-color: var(--brand-navy);
+            border-bottom: 3px solid var(--brand-gold);
+            position: relative;
+            z-index: 1050;
+        }
+
+            .navbar-custom .navbar-brand,
+            .navbar-custom .nav-link,
+            .navbar-custom .nav-link-title {
+                color: #ffffff !important;
+            }
+
+                .navbar-custom .nav-link:hover {
+                    color: var(--tblr-primary) !important;
+                }
+
+        /* Card Styling */
+        .card {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            border-radius: 12px;
+        }
+
+        .card-header {
+            background-color: transparent;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .status-badge {
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body class="layout-fluid">
+    <div class="page">
+
+
+        <!-- Page Content -->
+        <div class="page-wrapper">
+            <!-- Page Header -->
+            <div class="page-header d-print-none">
+                <div class="container-xl">
+                    <div class="row g-2 align-items-center">
+                        <div class="col">
+                            <div class="page-pretitle text-muted">Overview</div>
+                            <h2 class="page-title" style="color: var(--brand-navy);">System Dashboard</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Body -->
+            <div class="page-body">
+                <div class="container-xl">
+
+                    <!-- Row 1: Analytics / Stats Cards -->
+                    <div class="row row-deck row-cards mb-4">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="subheader">Verified Students</div>
+                                    </div>
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="h1 mb-0 me-2">1,240</div>
+                                        <div class="me-auto"><span class="text-green d-inline-flex align-items-center lh-1"><i class="fa-solid fa-arrow-trend-up me-1"></i>8%</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="subheader">Active Mentors (Alumni)</div>
+                                    </div>
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="h1 mb-0 me-2">320</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card bg-primary-lt">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="subheader text-primary fw-bold">Pending Approvals</div>
+                                    </div>
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="h1 mb-0 me-2 text-primary">12</div>
+                                        <span class="badge bg-primary text-white ms-auto">Requires Action</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="subheader">Total Events Hosted</div>
+                                    </div>
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="h1 mb-0 me-2">45</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Main Features (Approvals & Master Data) -->
+                    <div class="row row-cards">
+
+                        <!-- Pending Approvals Table -->
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h3 class="card-title fw-bold" style="color: var(--brand-navy);">Pending Approvals</h3>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table card-table table-vcenter text-nowrap datatable">
+                                        <thead>
+                                            <tr>
+                                                <th>Request By</th>
+                                                <th>Type</th>
+                                                <th>Date Submitted</th>
+                                                <th>Status</th>
+                                                <th class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-bold">Tech Innovators Co.</div>
+                                                    <div class="text-muted small">hr@techinnovators.com</div>
+                                                </td>
+                                                <td><span class="badge bg-purple-lt">External Partner</span></td>
+                                                <td>2 hours ago</td>
+                                                <td><span class="status-badge bg-warning-lt text-warning">Pending Review</span></td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-sm btn-success text-white"><i class="fa-solid fa-check me-1"></i> Approve</button>
+                                                    <button class="btn btn-sm btn-outline-danger ms-1"><i class="fa-solid fa-xmark"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-bold">Career Fair 2026</div>
+                                                    <div class="text-muted small">Req by: U Kyaw (Mentor)</div>
+                                                </td>
+                                                <td><span class="badge bg-blue-lt">Event Hosting</span></td>
+                                                <td>1 day ago</td>
+                                                <td><span class="status-badge bg-warning-lt text-warning">Pending Review</span></td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-sm btn-success text-white"><i class="fa-solid fa-check me-1"></i> Approve</button>
+                                                    <button class="btn btn-sm btn-outline-danger ms-1"><i class="fa-solid fa-xmark"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Master Data Quick Links -->
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title fw-bold" style="color: var(--brand-navy);">Master Data Controls</h3>
+                                </div>
+                                <div class="list-group list-group-flush list-group-hoverable">
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto"><span class="badge bg-primary rounded-circle p-2"><i class="fa-solid fa-file-csv text-white"></i></span></div>
+                                            <div class="col text-truncate">
+                                                <a href="#" class="text-reset d-block fw-bold">Graduation Records</a>
+                                                <div class="d-block text-muted text-truncate mt-n1">Upload or manage verified SRNs</div>
+                                            </div>
+                                            <div class="col-auto"><a href="#" class="list-group-item-actions"><i class="fa-solid fa-chevron-right text-muted"></i></a></div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto"><span class="badge bg-success rounded-circle p-2"><i class="fa-solid fa-book-open text-white"></i></span></div>
+                                            <div class="col text-truncate">
+                                                <a href="#" class="text-reset d-block fw-bold">Majors & Degrees</a>
+                                                <div class="d-block text-muted text-truncate mt-n1">Manage university faculties</div>
+                                            </div>
+                                            <div class="col-auto"><a href="#" class="list-group-item-actions"><i class="fa-solid fa-chevron-right text-muted"></i></a></div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto"><span class="badge bg-warning rounded-circle p-2"><i class="fa-solid fa-calendar-days text-white"></i></span></div>
+                                            <div class="col text-truncate">
+                                                <a href="#" class="text-reset d-block fw-bold">Academic Years</a>
+                                                <div class="d-block text-muted text-truncate mt-n1">Configure current batches</div>
+                                            </div>
+                                            <div class="col-auto"><a href="#" class="list-group-item-actions"><i class="fa-solid fa-chevron-right text-muted"></i></a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer footer-transparent d-print-none mt-auto">
+                <div class="container-xl text-center">
+                    <p class="text-muted mb-0 small">&copy; 2026 AJOM PUPL System. All rights reserved.</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Tabler Core JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
+</body>
+</html>

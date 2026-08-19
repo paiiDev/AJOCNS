@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AJOCNS.Database.DataAccess;
+namespace AJOCNS.Database.Entities;
 
 public partial class EventType
 {

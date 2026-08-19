@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AJOCNS.Database.DataAccess;
+namespace AJOCNS.Database.Entities;
 
 public partial class GraduationRecord
 {
@@ -9,15 +9,15 @@ public partial class GraduationRecord
 
     public string OfficialName { get; set; } = null!;
 
-    public string? Uni { get; set; }
-
     public string Grn { get; set; } = null!;
 
     public short GraduationYear { get; set; }
 
-    public string Degree { get; set; } = null!;
+    public int DegreeId { get; set; }
 
     public string AccStatus { get; set; } = null!;
+
+    public virtual Degree Degree { get; set; } = null!;
 
     public virtual Mentor? Mentor { get; set; }
 
