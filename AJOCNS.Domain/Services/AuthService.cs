@@ -32,13 +32,12 @@ namespace AJOCNS.Domain.Services
             else
             {
                 bool isPasswordValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
-                string name = await _userRepo.GetUserNameAsync(user.UserId, user.Role);
                 if (!isPasswordValid)
                 {
                     return Result<AuthResultDto>.Failure("Invalid credentials.");
                 }
 
-
+                string name = await _userRepo.GetUserNameAsync(user.UserId, user.Role);
 
                 return Result<AuthResultDto>.Success(new AuthResultDto 
                 { UserId = user.UserId, 

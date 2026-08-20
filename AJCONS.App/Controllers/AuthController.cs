@@ -1,8 +1,8 @@
 ﻿using AJOCNS.Domain.Interfaces;
+using AJOCNS.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Claims;
 
 namespace AJOCNS.App.Controllers
@@ -49,13 +49,13 @@ namespace AJOCNS.App.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View("Index", dto);
+                return View(dto);
             }
             var result = await _authService.LoginAsync(dto);
             if (!result.IsSuccess)
             {
                 ModelState.AddModelError(string.Empty, result.ErrorMessage);
-                return View("Index", dto);
+                return View(dto);
             }
 
             var claims = new List<Claim>

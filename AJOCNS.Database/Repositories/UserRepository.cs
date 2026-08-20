@@ -21,22 +21,22 @@ namespace AJOCNS.Database.Repositories
             if (role == "Admin")
             {
                 var admin = await _context.Admins.FindAsync(userId);
-                return admin?.Name;
+                return admin?.Name ?? string.Empty;
             }
             else if (role == "Student")
             {
                 var student = await _context.Students.FindAsync(userId);
-                return student?.Name;
+                return student?.Name ?? string.Empty;
             }
             else if (role == "Mentor")
             {
                 var mentor = await _context.Mentors.FindAsync(userId);
-                return mentor?.Name;
+                return mentor?.Name ?? string.Empty;
             }
             else if (role == "ExternalPartner")
             {
                 var externalPartner = await _context.ExternalPartners.FindAsync(userId);
-                return externalPartner?.Name;
+                return externalPartner?.Name ?? string.Empty;
             }
             else
             {
