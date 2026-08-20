@@ -1,13 +1,10 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Admin Dashboard | AJOCNS PUPL</title>
+@{
+    ViewData["Title"] = "Admin Dashboard | AJOCNS PUPL";
+}
 
-    <!-- Tabler Core CSS via CDN -->
+@section Styles {
+    <!-- Admin dashboard styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/css/tabler.min.css">
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
@@ -60,9 +57,9 @@
             border-radius: 6px;
         }
     </style>
-</head>
-<body class="layout-fluid">
-    <div class="page">
+}
+
+<div class="page layout-fluid">
 
 
         <!-- Page Content -->
@@ -243,9 +240,4 @@
                 </div>
             </footer>
         </div>
-    </div>
-
-    <!-- Tabler Core JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
-</body>
-</html>
+</div>
