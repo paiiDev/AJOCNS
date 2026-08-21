@@ -24,9 +24,9 @@
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
             <div class="card adminlte-card">
-                <div class="card-header py-3 d-flex flex-wrap gap-3 justify-content-around align-items-center">
+                <div class="card-header py-3 d-flex flex-wrap gap-4 justify-content-between align-items-center">
                     <h3 class="card-title fw-bold mb-0">Student directory</h3>
-                    <div class="input-group input-group-sm" style="max-width:260px">
+                    <div class="input-group input-group-sm ms-auto" style="max-width:300px">
                         <span class="input-group-text bg-white">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span><input id="studentSearch" class="form-control" type="search"
@@ -64,10 +64,37 @@
                                             </div>
                                         </td>
                                         <td>@student.Major</td>
-                                        <td>@(string.IsNullOrEmpty(student.Phone) ? "Not provided" : student.Phone)</td>
-                                        <td>@(string.IsNullOrEmpty(student.FatherName) ? "Need to be fill by student" : student.FatherName)</td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(student.Phone))
+                                            {
+                                                <span class="text-warning fst-italic">Not provided</span>
+                                            }
+                                            else
+                                            {
+                                                @student.Phone
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(student.FatherName))
+                                            {
+                                                <span class="text-warning fst-italic">Not provided</span>
+                                            }
+                                            else
+                                            {
+                                                @student.FatherName
+                                            }
+                                        </td>
 
-                                        <td>@(string.IsNullOrEmpty(student.Address) ? "Need to be fill by student" : student.Address)</td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(student.Address))
+                                            {
+                                                <span class="text-warning fst-italic">Not provided</span>
+                                            }
+                                            else
+                                            {
+                                                @student.Address
+                                            }
+                                        </td>
 
                                         <td>
                                             @if (student.GraduationStatus == "2")

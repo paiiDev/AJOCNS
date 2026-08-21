@@ -38,7 +38,7 @@
                     </div>
                     <!-- /.card-header -->
                     <!-- form start -->
-                    <form asp-action="Register" method="post">
+                    <form asp-action="Register" asp-asp-controller="Admin" method="post">
                         <div class="card-body">
 
                             @if (!ViewData.ModelState.IsValid)
@@ -104,9 +104,8 @@
                                     <div class="form-group">
                                         <label asp-for="GraduationStatus">Programme Status <span class="text-danger">*</span></label>
                                         <select asp-for="GraduationStatus" class="form-control custom-select">
-                                            <option value="">-- Select Status --</option>
-                                            <option value="Unddergraduate">Undergraduate</option>
-                                            <option value="Graduated">Graduated (Alumni)</option>
+                                            <option value="">-- Select Programme --</option>
+                                            <option value="Undergraduate">Undergraduate</option>
                                         </select>
                                         <span asp-validation-for="GraduationStatus" class="text-danger font-weight-bold text-sm"></span>
                                     </div>

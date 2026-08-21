@@ -31,7 +31,16 @@
                 {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-circle-user me-1"></i> @userName</a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0"><li><span class="dropdown-item-text text-muted small">@userRole</span></li><li><hr class="dropdown-divider" /></li><li><form asp-controller="Auth" asp-action="Logout" method="post"><button class="dropdown-item text-danger" type="submit"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</button></form></li></ul>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><span class="dropdown-item-text text-muted small">@userRole</span></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form id="logoutForm" asp-controller="Auth" asp-action="Logout" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button class="dropdown-item text-danger" type="button" id="btnLogout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</button>
+                                </form>
+                            </li>
+                        </ul>
                     </li>
                 }
                 else
@@ -42,3 +51,21 @@
         </div>
     </div>
 </nav>
+<script>
+    document.getElementById('btnLogout')?.addEventListener('click', function () {
+        Swal.fire({
+            title: 'Logout?',
+            text: 'Are you sure you want to logout?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, logout',
+            cancelButtonText: 'Cancel'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                document.getElementById('logoutForm').submit();
+            }
+        });
+    });
+</script>

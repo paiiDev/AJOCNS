@@ -49,6 +49,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcademicYear>(entity =>
@@ -329,7 +330,9 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => e.MajorId, "IX_Students_Major_ID");
 
-            entity.HasIndex(e => e.GrecordId, "UQ_Students_GRecord").IsUnique();
+            entity.HasIndex(e => e.GrecordId, "UQ_Students_GRecord")
+                .IsUnique()
+                .HasFilter("([GRecord_Id] IS NOT NULL)");
 
             entity.HasIndex(e => e.Srn, "UQ_Students_SRN").IsUnique();
 

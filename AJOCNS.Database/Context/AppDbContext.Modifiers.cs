@@ -14,6 +14,7 @@ namespace AJOCNS.Database.Context
         {
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
             modelBuilder.Entity<Event>().HasQueryFilter(e => !e.IsDeleted);
+
         }
     }
 }

@@ -54,7 +54,7 @@ namespace AJOCNS.App.Controllers
             var result = await _authService.LoginAsync(dto);
             if (!result.IsSuccess)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                ViewData["SweetAlert_Error"] = result.ErrorMessage;
                 return View(dto);
             }
 
@@ -96,8 +96,8 @@ namespace AJOCNS.App.Controllers
             else
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                ModelState.AddModelError(string.Empty, "Invalid role.");
-                return View("Index", dto);
+                ViewData["SweetAlert_Error"] = "Invalid role.";
+                return View(dto);
             }
         }
 

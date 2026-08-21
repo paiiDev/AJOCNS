@@ -21,6 +21,9 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+
     <style>
         :root {
             --brand-navy: #0b1e40;
@@ -174,5 +177,16 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Access Denied',
+            text: 'You do not have permission to view this page. Please login with the correct account.',
+            confirmButtonText: 'Understood',
+            customClass: { confirmButton: 'btn btn-primary' },
+            buttonsStyling: false
+        });
+    </script>
 </body>
 </html>

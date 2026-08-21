@@ -36,13 +36,7 @@ namespace AJOCNS.App.Controllers
         [HttpGet]
         public async Task<IActionResult> RegisterNewStudent()
         {
-            var majors =  await _studentRegistrationService.GetMajorsAsync();
-            if (!majors.IsSuccess)
-            {
-                ModelState.AddModelError("", "No majors found.");
-                return View();
-            }
-            ViewBag.Majors = majors;
+           await PopulateMajorsDropdownAsync();
             return View();
         }
 
@@ -59,16 +53,35 @@ namespace AJOCNS.App.Controllers
 
             if (result.IsSuccess)
             {
-                TempData["SuccessMessage"] = "Student registered and email sent successfully!";
-                return RedirectToAction("Index", "Admin");
+                TempData["SweetAlert_Type"] = "success";
+                TempData["SweetAlert_Title"] = "Registered!";
+                TempData["SweetAlert_Message"] = "Student registered and email sent successfully!";
+                return RedirectToAction("StudentManagement", "Admin");
             }
 
-            ModelState.AddModelError("", "Registration failed. Email might already exist.");
-            return View(dto);
+            TempData["SweetAlert_Type"] = "error";
+            TempData["SweetAlert_Title"] = "Registration Failed";
+            TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Email might already exist.";
+            await PopulateMajorsDropdownAsync();
+            return View("RegisterNewStudent",dto);
+        }
+
+        private async Task PopulateMajorsDropdownAsync()
+        {
+            var majors = await _studentRegistrationService.GetMajorsAsync();
+            if (majors.IsSuccess)
+            {
+                ViewBag.Majors = majors;
+            }
+            else
+            {
+                ModelState.AddModelError("", "No majors found.");
+                ViewBag.Majors = new List<string>();
+            }
         }
 
 
-    }
+        }
 
 
 }
