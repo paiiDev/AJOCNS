@@ -61,7 +61,42 @@ namespace AJOCNS.Domain.Services
                 return Result<bool>.Failure("Failed to save student");
             }
 
-            string body = $"Hello {studentRegistrationDto.Name}, your Student Registration Number (SRN) is {newSRN}. Your password is: {rawPassword}. Use this password to log in at AJOCNS.";
+            string body = $@"
+<div style='font-family: Arial, sans-serif; background-color: #f4f5f7; padding: 40px 20px; color: #333;'>
+    <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
+        
+        <!-- Header -->
+        <div style='background-color: #0056b3; color: #ffffff; padding: 20px; text-align: center;'>
+            <h2 style='margin: 0; font-size: 24px;'>Welcome to AJOCNS</h2>
+        </div>
+
+        <!-- Body -->
+        <div style='padding: 30px; line-height: 1.6; font-size: 16px;'>
+            <p>Hello! <strong>{studentRegistrationDto.Name}</strong>,</p>
+            <p>Your student account has been successfully created. Below are your official login credentials:</p>
+            
+            <!-- Credentials Box -->
+            <div style='background-col or: #f8f9fa; padding: 20px; border-left: 4px solid #0056b3; margin: 25px 0; border-radius: 4px;'>
+                <p style='margin: 0 0 10px 0;'><strong>Student Registration Number (SRN):</strong> <span style='color: #0056b3;'>{newSRN}</span></p>
+                <p style='margin: 0;'><strong>Temporary Password:</strong> <span>{rawPassword}</span></p>
+            </div>
+
+            <p>Please use these credentials to log in to the student portal. As a security measure, you will be asked to complete your profile upon your first login.</p>
+            
+            <!-- Login Button -->
+            <div style='text-align: center; margin-top: 35px;'>
+                <a href='https://your-domain.com/login' style='background-color: #0056b3; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Log In to Portal</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style='background-color: #f4f5f7; padding: 15px; text-align: center; font-size: 12px; color: #777777; border-top: 1px solid #e9ecef;'>
+            <p style='margin: 0;'>This is an automated message. Please do not reply to this email.</p>
+            <p style='margin: 5px 0 0 0;'>&copy; {DateTime.Now.Year} AJOCNS. All rights reserved.</p>
+        </div>
+
+    </div>
+</div>";
             await _emailService.SendEmailAsync(studentRegistrationDto.Email,"Welcome to AJOCNS", body);
 
             return Result<bool>.Success(true);

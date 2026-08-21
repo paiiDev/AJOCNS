@@ -15,7 +15,24 @@ namespace AJCONS.App.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Index", "Admin");
+                }
+
+                if (User.IsInRole("Student"))
+                {
+                    return RedirectToAction("Index", "Student");
+                }
+                if (User.IsInRole("ExternalPartner"))
+                {
+                    return RedirectToAction("Index", "ExternalPartner");
+                }
+            }
+
+                return View();
         }
 
         public IActionResult Privacy()

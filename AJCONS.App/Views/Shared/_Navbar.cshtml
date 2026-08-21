@@ -9,8 +9,8 @@
 <nav class="main-header navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(90deg, #073d78, #0b5cab); border-bottom: 3px solid #78b9f2;">
     <div class="container-fluid px-lg-4">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
-            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white text-academic" style="width: 34px; height: 34px;"><i class="fa-solid fa-graduation-cap"></i></span>
-            <span>AJCONS <small class="fw-normal opacity-75 d-none d-sm-inline">Academic Network</small></span>
+            <span class="d-inline-flex align-items-center justify-content-center navbar-brand" style="width: 34px; height: 34px;"> <img src="~/images/pupl.png" class="img-fluid" /></span>
+            <span>PUPL <small class="fw-normal opacity-75 d-none d-sm-inline">AJOCNS</small></span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#academicNavigation" aria-controls="academicNavigation" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="academicNavigation">
@@ -31,12 +31,12 @@
                 {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-circle-user me-1"></i> @userName</a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0"><li><span class="dropdown-item-text text-muted small">@userRole</span></li><li><hr class="dropdown-divider" /></li><li><form asp-controller="Auth" asp-action="Logout" method="post"><button class="dropdown-item text-danger" type="submit"><i class="fa-solid fa-right-from-bracket me-2"></i>Sign out</button></form></li></ul>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0"><li><span class="dropdown-item-text text-muted small">@userRole</span></li><li><hr class="dropdown-divider" /></li><li><form asp-controller="Auth" asp-action="Logout" method="post"><button class="dropdown-item text-danger" type="submit"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</button></form></li></ul>
                     </li>
                 }
                 else
                 {
-                    <li class="nav-item"><a class="nav-link" asp-controller="Auth" asp-action="Login">Sign in</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a></li>
                 }
             </ul>
         </div>
