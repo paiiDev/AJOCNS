@@ -1,137 +1,44 @@
-﻿@using System.Security.Claims
-
+@using System.Security.Claims
 @{
-    var userName = User.Identity?.Name ?? "Unknown User";
-    var userEmail = User.FindFirstValue(ClaimTypes.Email) ?? "";
-    var userRole = User.FindFirstValue(ClaimTypes.Role) ?? "User";
+    var userName = User.Identity?.Name ?? "Guest";
+    var userRole = User.FindFirstValue(ClaimTypes.Role) ?? "Visitor";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var isAdmin = User.IsInRole("Admin");
 }
-
-<!-- Top Navbar -->
-<header class="navbar navbar-expand-md navbar-custom d-print-none" style="position: relative; z-index: 1050;">
-    <div class="container-xl">
-        <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-            <a href="#" class="text-decoration-none d-flex align-items-center gap-2">
-                <i class="fa-solid fa-graduation-cap" style="color: var(--brand-gold); font-size: 1.8rem;"></i>
-                <span class="fw-bold" style="letter-spacing: 1px;">AJOCNS</span>
-            </a>
-        </h1>
-        <div class="navbar-nav flex-row order-md-last">
-            <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                    <span class="avatar avatar-sm bg-primary text-white">
-                        <i class="fa-solid @(userRole == "Admin" ? "fa-user-shield" : "fa-user")"></i>
-                    </span>
-                    <div class="d-none d-xl-block ps-2">
-                        <div>@userName</div>
-                        <div class="mt-1 small text-white-50">@userRole | @userEmail</div>
-                    </div>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="#" class="dropdown-item">My Profile</a>
-                    <a href="#" class="dropdown-item">Settings</a>
-                    <div class="dropdown-divider"></div>
-
-                    <!-- Logout Form -->
-                    <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0 p-0">
-                        <button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-start">
-                            <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
-                        </button>
-                    </form>
-                </div>
-            </div>
+<nav class="main-header navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(90deg, #073d78, #0b5cab); border-bottom: 3px solid #78b9f2;">
+    <div class="container-fluid px-lg-4">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white text-academic" style="width: 34px; height: 34px;"><i class="fa-solid fa-graduation-cap"></i></span>
+            <span>AJCONS <small class="fw-normal opacity-75 d-none d-sm-inline">Academic Network</small></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#academicNavigation" aria-controls="academicNavigation" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="academicNavigation">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                @if (isAdmin)
+                {
+                    <li class="nav-item"><a class="nav-link @(controller == "Admin" && action == "Index" ? "active" : "")" asp-controller="Admin" asp-action="Index"><i class="fa-solid fa-gauge-high me-1"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link @(controller == "Admin" && action == "StudentManagement" ? "active" : "")" asp-controller="Admin" asp-action="StudentManagement"><i class="fa-solid fa-user-graduate me-1"></i> Students</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#"><i class="fa-solid fa-circle-check me-1"></i> Approvals</a></li>
+                }
+                else if (User.Identity?.IsAuthenticated == true)
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house me-1"></i> Home</a></li>
+                }
+            </ul>
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-circle-user me-1"></i> @userName</a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0"><li><span class="dropdown-item-text text-muted small">@userRole</span></li><li><hr class="dropdown-divider" /></li><li><form asp-controller="Auth" asp-action="Logout" method="post"><button class="dropdown-item text-danger" type="submit"><i class="fa-solid fa-right-from-bracket me-2"></i>Sign out</button></form></li></ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Auth" asp-action="Login">Sign in</a></li>
+                }
+            </ul>
         </div>
     </div>
-</header>
-
-<!-- Secondary Navigation (Menu) -->
-<header class="navbar-expand-md">
-    <div class="collapse navbar-collapse" id="navbar-menu">
-        <div class="navbar">
-            <div class="container-xl">
-                <ul class="navbar-nav">
-
-                    <!-- 🔴 ADMIN MENU -->
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <li class="nav-item active">
-                            <a class="nav-link" href="#">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-chart-pie"></i></span>
-                                <span class="nav-link-title">Overview</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-check-to-slot"></i></span>
-                                <span class="nav-link-title">Approvals</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-database"></i></span>
-                                <span class="nav-link-title">Master Data</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-users"></i></span>
-                                <span class="nav-link-title">User Management</span>
-                            </a>
-                        </li>
-                    } else if (User.IsInRole("Student"))
-                    {
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-house-user"></i></span>
-                            <span class="nav-link-title">My Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-briefcase"></i></span>
-                            <span class="nav-link-title">Job Opportunities</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-calendar-star"></i></span>
-                            <span class="nav-link-title">Events</span>
-                        </a>
-                    </li>
-                    } else if (User.IsInRole("Mentor"))
-                    {
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-chalkboard-user"></i></span>
-                            <span class="nav-link-title">Mentor Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-handshake"></i></span>
-                            <span class="nav-link-title">Mentorship Requests</span>
-                        </a>
-                    </li>
-                    } else if (User.IsInRole("ExternalPartner"))
-                    {
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-building"></i></span>
-                            <span class="nav-link-title">Company Profile</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="fa-solid fa-file-signature"></i></span>
-                            <span class="nav-link-title">Post Jobs</span>
-                        </a>
-                    </li>
-                    }
-
-                </ul>
-            </div>
-        </div>
-    </div>
-</header>
+</nav>

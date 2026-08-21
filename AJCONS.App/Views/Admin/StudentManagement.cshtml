@@ -1,0 +1,117 @@
+@model IEnumerable<AJOCNS.Shared.DTOs.StudentRegistration.StudentDto>
+@{
+    ViewData["Title"] = "Student Management | AJCONS";
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                        Academic administration
+                    </div>
+                    <h1 class="h2 fw-bold mb-1">Student management</h1>
+                    <p class="text-muted mb-0">@(Model?.Count() ?? 0) registered student records.</p>
+                </div>
+                <a asp-action="RegisterNewStudent" class="btn btn-academic">
+                    <i class="fa-solid fa-user-plus me-2"></i>
+                    Add new student
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="card adminlte-card">
+                <div class="card-header py-3 d-flex flex-wrap gap-3 justify-content-between align-items-center">
+                    <h3 class="card-title fw-bold mb-0">Student directory</h3>
+                    <div class="input-group input-group-sm" style="max-width:260px">
+                        <span class="input-group-text bg-white">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span><input id="studentSearch" class="form-control" type="search"
+                                      placeholder="Search students" aria-label="Search students" />
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="studentsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">SRN</th>
+                                <th>Name</th>
+                                <th>Major</th>
+                                <th>Phone</th>
+                                <th>Father Name</th>
+                                <th>Address</th>
+                                <th>Graduation Status</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var student in Model)
+                                {
+                                   
+                                    <tr>
+                                        <td class="ps-4 text-muted fw-semibold">@student.Srn</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="avatar rounded-circle text-white fw-bold"
+                                                      style="background:#0b5cab">Stu</span><span>
+                                                    <strong class="d-block">@student.Name</strong>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>@student.Major</td>
+                                        <td>@(string.IsNullOrEmpty(student.Phone) ? "Not provided" : student.Phone)</td>
+                                        <td>@(string.IsNullOrEmpty(student.FatherName) ? "Need to be fill by student" : student.FatherName)</td>
+
+                                        <td>@(string.IsNullOrEmpty(student.Address) ? "Need to be fill by student" : student.Address)</td>
+
+                                        <td>
+                                            @if (student.GraduationStatus == "2")
+                                            {
+                                                <span class="badge text-bg-success">Graduated</span>
+                                            }
+                                            else
+                                            {
+
+                                                <span class="badge"
+                                                                                                                                                              style="background:#eaf4ff;color:#073d78">
+                                                    @(student.GraduationStatus ??
+                                                                                            "Undergraduate")
+                                    </span>
+                                                                        }
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <a href="#" class="btn btn-sm btn-outline-primary"
+                                               aria-label="Edit @student.Name"><i class="fa-solid fa-pen"></i></a><a href="#" class="btn btn-sm btn-outline-danger ms-1"
+                                                                                                                     aria-label="Delete @student.Name"><i class="fa-solid fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="fa-regular fa-folder-open fs-2 d-block mb-2"></i>No student records
+                                        found. Add a student to begin.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white text-muted small py-3">
+                    Student records are managed through the
+                    academic administration system.
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@section Scripts {
+    <script>document.getElementById('studentSearch')?.addEventListener('input', function () { const term = this.value.toLowerCase(); document.querySelectorAll('#studentsTable tbody tr').forEach(row => row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none'); });</script>
+}

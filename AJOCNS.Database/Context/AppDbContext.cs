@@ -48,8 +48,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-  
-
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcademicYear>(entity =>
@@ -339,6 +338,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.StudentId).HasColumnName("Student_ID");
             entity.Property(e => e.Address).HasMaxLength(500);
             entity.Property(e => e.FatherName).HasMaxLength(255);
+            entity.Property(e => e.GraduationStatus).HasMaxLength(50);
             entity.Property(e => e.GrecordId).HasColumnName("GRecord_Id");
             entity.Property(e => e.MajorId).HasColumnName("Major_ID");
             entity.Property(e => e.Name).HasMaxLength(255);

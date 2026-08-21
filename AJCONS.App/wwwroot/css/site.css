@@ -56,3 +56,52 @@ body {
 a {
     text-decoration: none;
 }
+
+/* PUPL Branding Colors Overrides */
+:root {
+    --tblr-primary: #0ea5e9; /* Sky Blue */
+    --tblr-primary-darken: #0284c7;
+    --brand-navy: #0b1e40;
+    --brand-gold: #f0b429;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Top Navbar Customization */
+.navbar-custom {
+    background-color: var(--brand-navy);
+    border-bottom: 3px solid var(--brand-gold);
+    position: relative;
+    z-index: 1050;
+}
+
+    .navbar-custom .navbar-brand,
+    .navbar-custom .nav-link,
+    .navbar-custom .nav-link-title {
+        color: #ffffff !important;
+    }
+
+        .navbar-custom .nav-link:hover {
+            color: var(--tblr-primary) !important;
+        }
+
+/* Card Styling */
+.card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    border-radius: 12px;
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.status-badge {
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 6px;
+}

@@ -1,0 +1,134 @@
+﻿@model AJOCNS.Shared.DTOs.StudentRegistration.StudentRegistrationDto
+@{
+    ViewData["Title"] = "Register New Student";
+    Layout = "_Layout";
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Register New Student</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item"><a href="#">Student Management</a></li>
+                    <li class="breadcrumb-item active">Register</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <!-- Form Column -->
+            <div class="col-md-8">
+                <!-- General form elements -->
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">Student Basic Information</h3>
+                        <div class="card-tools">
+                            <span class="badge badge-info">First-time Setup</span>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <!-- form start -->
+                    <form asp-action="Register" method="post">
+                        <div class="card-body">
+
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger alert-dismissible">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                    <h5><i class="icon fas fa-ban"></i> Alert!</h5>
+                                    <div asp-validation-summary="All" class="text-white mb-0"></div>
+                                </div>
+                            }
+
+                            <div class="row">
+                                <!-- Student Name -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Name">Full Name <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            </div>
+                                            <input asp-for="Name" class="form-control" placeholder="Enter full name">
+                                        </div>
+                                        <span asp-validation-for="Name" class="text-danger font-weight-bold text-sm"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Email">Email Address <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            </div>
+                                            <input asp-for="Email" type="email" class="form-control" placeholder="Enter email">
+                                        </div>
+                                        <span asp-validation-for="Email" class="text-danger font-weight-bold text-sm"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Major Dropdown -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Major_ID">Major / Degree <span class="text-danger">*</span></label>
+                                        <select asp-for="Major_ID" class="form-control custom-select">
+                                            <option value="">-- Select Major --</option>
+                                            @if (ViewBag.Majors != null && ViewBag.Majors.IsSuccess)
+                                            {
+                                                foreach (var major in ViewBag.Majors.Data)
+                                                {
+                                                    <option value="@major.Id">@major.MajorName</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="Major_ID" class="text-danger font-weight-bold text-sm"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Graduation Status Dropdown -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="GraduationStatus">Programme Status <span class="text-danger">*</span></label>
+                                        <select asp-for="GraduationStatus" class="form-control custom-select">
+                                            <option value="">-- Select Status --</option>
+                                            <option value="Unddergraduate">Undergraduate</option>
+                                            <option value="Graduated">Graduated (Alumni)</option>
+                                        </select>
+                                        <span asp-validation-for="GraduationStatus" class="text-danger font-weight-bold text-sm"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 text-muted text-sm">
+                                <i class="fas fa-info-circle text-info"></i> Note: The student's account will be created automatically. They will need to complete their full profile (Phone, Address, etc.) upon their first login.
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+
+                        <div class="card-footer text-right bg-white">
+                            <a asp-action="Index" class="btn btn-default mr-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus mr-1"></i> Register Student
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+    </div>
+</section>

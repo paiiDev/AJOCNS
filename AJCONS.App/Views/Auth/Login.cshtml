@@ -36,6 +36,10 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-light);
             min-height: 100vh;
+        }
+
+        body > .container {
+            min-height: calc(100vh - 69px);
             display: flex;
             align-items: center;
         }
@@ -135,6 +139,7 @@
     </style>
 </head>
 <body>
+    @await Html.PartialAsync("_Navbar")
 
     <div class="container">
         <div class="row justify-content-center">

@@ -9,7 +9,7 @@ public partial class Student
 
     public int UserId { get; set; }
 
-    public string? Srn { get; set; }
+    public string Srn { get; set; } = null!;
 
     public string Name { get; set; } = null!;
 
@@ -22,6 +22,8 @@ public partial class Student
     public int? GrecordId { get; set; }
 
     public int MajorId { get; set; }
+
+    public string? GraduationStatus { get; set; }
 
     public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 
