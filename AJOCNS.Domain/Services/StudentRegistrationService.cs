@@ -3,11 +3,6 @@ using AJOCNS.Database.Interfaces;
 using AJOCNS.Domain.Interfaces;
 using AJOCNS.Shared.Common;
 using AJOCNS.Shared.DTOs.StudentRegistration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AJOCNS.Domain.Services
 {
@@ -130,6 +125,7 @@ namespace AJOCNS.Domain.Services
             }
             var studentDtos = students.Select(s => new StudentDto
             {
+                StudentId = s.StudentId,
                 Name = s.Name,
                 Phone = s.Phone,
                 FatherName = s.FatherName,
@@ -155,6 +151,83 @@ namespace AJOCNS.Domain.Services
                 MajorName = m.MajorName
             }).ToList();
             return Result<List<MajorDto>>.Success(majorDtos);
+        }
+
+        public async Task<Result<EditStudentDto>> GetStudentByIdAsync(int studentId)
+        {
+            var student = await _studentRepo.GetStudentByIdAsync(studentId);
+            if (student is null)
+                return Result<EditStudentDto>.Failure("Student not found.");
+
+            var dto = new EditStudentDto
+            {
+                StudentId = student.StudentId,
+                Srn = student.Srn,
+                Name = student.Name,
+                Phone = student.Phone,
+                FatherName = student.FatherName,
+                Address = student.Address,
+                MajorId = student.MajorId,
+                GraduationStatus = student.GraduationStatus ?? "Undergraduate"
+            };
+
+            return Result<EditStudentDto>.Success(dto);
+        }
+
+        public async Task<Result<bool>> UpdateStudentAsync(EditStudentDto dto)
+        {
+            var student = await _studentRepo.GetStudentByIdAsync(dto.StudentId);
+            if (student is null)
+                return Result<bool>.Failure("Student not found.");
+
+            bool wasNotGraduated = student.GraduationStatus != "Graduated";
+            bool isNowGraduated = dto.GraduationStatus == "Graduated";
+
+            student.Name = dto.Name;
+            student.Phone = dto.Phone;
+            student.FatherName = dto.FatherName;
+            student.Address = dto.Address;
+            student.MajorId = dto.MajorId;
+            student.GraduationStatus = dto.GraduationStatus;
+
+            bool updated = await _studentRepo.UpdateStudentAsync(student);
+            if (!updated)
+                return Result<bool>.Failure("Failed to update student.");
+
+            if (wasNotGraduated && isNowGraduated && student.GrecordId is null)
+            {
+                string grn = GenerateNewGRN();
+                var record = new GraduationRecord
+                {
+                    OfficialName = student.Name,
+                    Grn = grn,
+                    GraduationYear = (short)DateTime.Now.Year,
+                    DegreeId = dto.MajorId,
+                    AccStatus = "Pending"
+                };
+
+                bool recordCreated = await _studentRepo.AddGraduationRecordAsync(record, dto.StudentId);
+                if (!recordCreated)
+                    return Result<bool>.Failure("Student updated but failed to create graduation record.");
+            }
+
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> DeleteStudentAsync(int studentId)
+        {
+            bool deleted = await _studentRepo.DeleteStudentAsync(studentId);
+            if (!deleted)
+                return Result<bool>.Failure("Failed to delete student.");
+
+            return Result<bool>.Success(true);
+        }
+
+        private string GenerateNewGRN()
+        {
+            string year = DateTime.Now.ToString("yyyy");
+            string random = new Random().Next(10000, 99999).ToString();
+            return $"PUPL-{year}-{random}";
         }
     }
 }

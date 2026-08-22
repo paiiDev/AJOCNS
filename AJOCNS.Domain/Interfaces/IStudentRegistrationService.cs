@@ -12,7 +12,9 @@ namespace AJOCNS.Domain.Interfaces
     {
         Task<Result<bool>> RegisterStudentAsync(StudentRegistrationDto studentRegistrationDto);
         Task<Result<List<StudentDto>>> GetAllStudentsAsync();
-
         Task<Result<List<MajorDto>>> GetMajorsAsync();
+        Task<Result<EditStudentDto>> GetStudentByIdAsync(int studentId);
+        Task<Result<bool>> UpdateStudentAsync(EditStudentDto dto);
+        Task<Result<bool>> DeleteStudentAsync(int studentId);
     }
 }

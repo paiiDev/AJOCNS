@@ -1,0 +1,161 @@
+@model AJOCNS.Shared.DTOs.StudentRegistration.EditStudentDto
+@{
+    ViewData["Title"] = "Edit Student";
+    Layout = "_Layout";
+}
+
+<section class="content-header py-4 py-lg-5">
+    <div class="container-fluid px-lg-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+            <div>
+                <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                    Academic administration
+                </div>
+                <h1 class="h2 fw-bold mb-1">Edit student record</h1>
+                <p class="text-muted mb-0">SRN: <strong>@Model.Srn</strong></p>
+            </div>
+            <a asp-action="StudentManagement" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-2"></i>Back to list
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="content pb-5">
+    <div class="container-fluid px-lg-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card adminlte-card">
+                    <div class="card-header py-3">
+                        <h3 class="card-title fw-bold mb-0">
+                            <i class="fa-solid fa-pen-to-square me-2 text-academic"></i>Student information
+                        </h3>
+                    </div>
+
+                    <form asp-action="EditStudent" asp-controller="Admin" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="StudentId" />
+                        <input type="hidden" asp-for="Srn" />
+
+                        <div class="card-body">
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger rounded-3" role="alert">
+                                    <div asp-validation-summary="All" class="mb-0 list-unstyled small"></div>
+                                </div>
+                            }
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Name" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-user text-muted"></i></span>
+                                            <input asp-for="Name" class="form-control" placeholder="Enter full name" />
+                                        </div>
+                                        <span asp-validation-for="Name" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Phone" class="form-label fw-semibold">Phone</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-phone text-muted"></i></span>
+                                            <input asp-for="Phone" class="form-control" placeholder="Enter phone number" />
+                                        </div>
+                                        <span asp-validation-for="Phone" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="FatherName" class="form-label fw-semibold">Father's Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-user-tie text-muted"></i></span>
+                                            <input asp-for="FatherName" class="form-control" placeholder="Enter father's name" />
+                                        </div>
+                                        <span asp-validation-for="FatherName" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="MajorId" class="form-label fw-semibold">Major / Degree <span class="text-danger">*</span></label>
+                                        <select asp-for="MajorId" class="form-select">
+                                            <option value="">-- Select Major --</option>
+                                            @if (ViewBag.Majors != null && ViewBag.Majors.IsSuccess)
+                                            {
+                                                foreach (var major in ViewBag.Majors.Data)
+                                                {
+                                                    <option value="@major.Id">@major.MajorName</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="MajorId" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Address" class="form-label fw-semibold">Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-location-dot text-muted"></i></span>
+                                            <input asp-for="Address" class="form-control" placeholder="Enter address" />
+                                        </div>
+                                        <span asp-validation-for="Address" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="GraduationStatus" class="form-label fw-semibold">Programme Status <span class="text-danger">*</span></label>
+                                        <select asp-for="GraduationStatus" class="form-select" id="graduationStatusSelect">
+                                            <option value="Undergraduate">Undergraduate</option>
+                                            <option value="Graduated">Graduated</option>
+                                            <option value="Dropout">Dropout</option>
+
+                                        </select>
+                                        <span asp-validation-for="GraduationStatus" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="graduationNotice" class="alert alert-info border-0 bg-info bg-opacity-10 text-info rounded-3 d-none mt-2">
+                                <i class="fa-solid fa-circle-info me-2"></i>
+                                Setting status to <strong>Graduated</strong> will automatically create a graduation record for this student.
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
+                            <a asp-action="StudentManagement" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-academic">
+                                <i class="fa-solid fa-check me-2"></i>Save changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var select = document.getElementById('graduationStatusSelect');
+            var notice = document.getElementById('graduationNotice');
+            function checkStatus() {
+                if (select.value === 'Graduated') {
+                    notice.classList.remove('d-none');
+                } else {
+                    notice.classList.add('d-none');
+                }
+            }
+            select.addEventListener('change', checkStatus);
+            checkStatus();
+        })();
+    </script>
+}

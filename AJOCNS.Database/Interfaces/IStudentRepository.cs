@@ -14,5 +14,10 @@ namespace AJOCNS.Database.Interfaces
         Task<bool> SaveStudentAsync(User newUser, Student newStudent);
         Task<List<Student>> GetAllStudentsAsync();
         Task<List<Major>> GetAllMajorsAsync();
+        Task<Student?> GetStudentByIdAsync(int studentId);
+        Task<bool> UpdateStudentAsync(Student student);
+        Task<bool> DeleteStudentAsync(int studentId);
+        Task<List<Degree>> GetDegreesAsync();
+        Task<bool> AddGraduationRecordAsync(GraduationRecord record, int studentId);
     }
 }

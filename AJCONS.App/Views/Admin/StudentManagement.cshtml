@@ -112,9 +112,13 @@
                                                                         }
                                         </td>
                                         <td class="text-end pe-4">
-                                            <a href="#" class="btn btn-sm btn-outline-primary"
-                                               aria-label="Edit @student.Name"><i class="fa-solid fa-pen"></i></a><a href="#" class="btn btn-sm btn-outline-danger ms-1"
-                                                                                                                     aria-label="Delete @student.Name"><i class="fa-solid fa-trash"></i></a>
+                                            <a asp-action="EditStudent" asp-route-id="@student.StudentId" class="btn btn-sm btn-outline-primary"
+                                               aria-label="Edit @student.Name"><i class="fa-solid fa-pen"></i></a>
+                                            <form asp-action="DeleteStudent" asp-route-id="@student.StudentId" method="post" class="d-inline delete-form">
+                                                @Html.AntiForgeryToken()
+                                                <button type="button" class="btn btn-sm btn-outline-danger ms-1 delete-btn"
+                                                        aria-label="Delete @student.Name" data-name="@student.Name"><i class="fa-solid fa-trash"></i></button>
+                                            </form>
                                         </td>
                                     </tr>
                                 }
@@ -140,5 +144,33 @@
     </section>
 </div>
 @section Scripts {
-    <script>document.getElementById('studentSearch')?.addEventListener('input', function () { const term = this.value.toLowerCase(); document.querySelectorAll('#studentsTable tbody tr').forEach(row => row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none'); });</script>
+    <script>
+        document.getElementById('studentSearch')?.addEventListener('input', function () {
+            var term = this.value.toLowerCase();
+            document.querySelectorAll('#studentsTable tbody tr').forEach(function (row) {
+                row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var name = this.getAttribute('data-name');
+                var form = this.closest('form');
+                Swal.fire({
+                    title: 'Delete student?',
+                    text: 'Are you sure you want to delete "' + name + '"? This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete',
+                    cancelButtonText: 'Cancel'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 }

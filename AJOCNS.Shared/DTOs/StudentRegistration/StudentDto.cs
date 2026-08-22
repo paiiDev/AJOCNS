@@ -8,7 +8,7 @@ namespace AJOCNS.Shared.DTOs.StudentRegistration
 {
     public class StudentDto
     {
-
+        public int StudentId { get; set; }
 
         public string Srn { get; set; } = null!;
 
@@ -23,7 +23,5 @@ namespace AJOCNS.Shared.DTOs.StudentRegistration
         public string Major { get; set; }
 
         public string? GraduationStatus { get; set; }
-
-
     }
 }
