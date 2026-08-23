@@ -87,9 +87,9 @@
                                         <label asp-for="Major_ID">Major / Degree <span class="text-danger">*</span></label>
                                         <select asp-for="Major_ID" class="form-control custom-select">
                                             <option value="">-- Select Major --</option>
-                                            @if (ViewBag.Majors != null && ViewBag.Majors.IsSuccess)
+                                            @if (ViewBag.FoundationMajors != null && ViewBag.FoundationMajors.IsSuccess)
                                             {
-                                                foreach (var major in ViewBag.Majors.Data)
+                                                foreach (var major in ViewBag.FoundationMajors.Data)
                                                 {
                                                     <option value="@major.Id">@major.MajorName</option>
                                                 }
@@ -119,7 +119,7 @@
                         <!-- /.card-body -->
 
                         <div class="card-footer text-right bg-white">
-                            <a asp-action="Index" class="btn btn-default mr-2">Cancel</a>
+                            <a asp-action="StudentManagement" class="btn btn-default mr-2">Cancel</a>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-user-plus mr-1"></i> Register Student
                             </button>

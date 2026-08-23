@@ -54,12 +54,71 @@ namespace AJOCNS.Database.Repositories
 
         public async Task<List<Student>> GetAllStudentsAsync()
         {
-           return await _context.Students.AsNoTracking().Where(g => g.GraduationStatus != "Dropout").Include(m =>  m.Major).Include(u => u.User).ToListAsync();
+           return await _context.Students.AsNoTracking().Include(m =>  m.Major).ToListAsync();
+        }
+
+        public async Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId)
+        {
+            var query = _context.Students.AsNoTracking().Include(s => s.Major).AsQueryable();
+
+            if (majorId.HasValue)
+            {
+                query = query.Where(s => s.MajorId == majorId.Value);
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(s => s.Srn)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        public async Task<bool> BulkUpdateMajorsAsync(Dictionary<int, int> studentMajorPairs)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var studentIds = studentMajorPairs.Keys.ToList();
+                var students = await _context.Students
+                    .Where(s => studentIds.Contains(s.StudentId))
+                    .ToListAsync();
+
+                if (students.Count == 0) return false;
+
+                foreach (var student in students)
+                {
+                    if (studentMajorPairs.TryGetValue(student.StudentId, out int majorId))
+                    {
+                        student.MajorId = majorId;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
         }
 
         public async Task<List<Major>> GetAllMajorsAsync()
         {
             return await _context.Majors.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<List<Major>> GetFoundationMajorsAsync()
+        {
+            return await _context.Majors
+                .Where(m => m.IsFoundation == true)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<Student?> GetStudentByIdAsync(int studentId)

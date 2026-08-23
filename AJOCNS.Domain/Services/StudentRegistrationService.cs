@@ -131,11 +131,54 @@ namespace AJOCNS.Domain.Services
                 FatherName = s.FatherName,
                 Address = s.Address,
                 Major = s.Major.MajorName,
+                MajorId = s.MajorId,
                 GraduationStatus = s.GraduationStatus,
                 Srn = s.Srn
             }).ToList();
 
             return Result<List<StudentDto>>.Success(studentDtos);
+        }
+
+        public async Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId)
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            var (items, totalCount) = await _studentRepo.GetStudentsPagedAsync(page, pageSize, majorId);
+
+            var paged = new PagedStudentDto
+            {
+                Students = items.Select(s => new StudentDto
+                {
+                    StudentId = s.StudentId,
+                    Name = s.Name,
+                    Phone = s.Phone,
+                    FatherName = s.FatherName,
+                    Address = s.Address,
+                    Major = s.Major.MajorName,
+                    MajorId = s.MajorId,
+                    GraduationStatus = s.GraduationStatus,
+                    Srn = s.Srn
+                }).ToList(),
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+
+            return Result<PagedStudentDto>.Success(paged);
+        }
+
+        public async Task<Result<bool>> BulkUpdateMajorsAsync(List<BulkMajorUpdateItemDto> updates)
+        {
+            if (updates is null || !updates.Any())
+                return Result<bool>.Failure("No updates provided.");
+
+            var pairs = updates.ToDictionary(u => u.StudentId, u => u.MajorId);
+            bool saved = await _studentRepo.BulkUpdateMajorsAsync(pairs);
+            if (!saved)
+                return Result<bool>.Failure("Failed to update student majors.");
+
+            return Result<bool>.Success(true);
         }
 
         public async Task<Result<List<MajorDto>>> GetMajorsAsync()
@@ -144,6 +187,21 @@ namespace AJOCNS.Domain.Services
             if(majors == null || !majors.Any())
             {
                 return Result<List<MajorDto>>.Failure("No majors found");
+            }
+            var majorDtos = majors.Select(m => new MajorDto
+            {
+                Id = m.MajorId,
+                MajorName = m.MajorName
+            }).ToList();
+            return Result<List<MajorDto>>.Success(majorDtos);
+        }
+
+        public async Task<Result<List<MajorDto>>> GetFoundationMajorsAsync()
+        {
+            var majors = await _studentRepo.GetFoundationMajorsAsync();
+            if (majors == null || !majors.Any())
+            {
+                return Result<List<MajorDto>>.Failure("No foundation majors found");
             }
             var majorDtos = majors.Select(m => new MajorDto
             {

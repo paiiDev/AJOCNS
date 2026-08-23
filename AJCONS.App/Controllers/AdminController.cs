@@ -22,21 +22,38 @@ namespace AJOCNS.App.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> StudentManagement()
+        public async Task<IActionResult> StudentManagement(int page = 1, int? majorId = null)
         {
-            var students = await _studentRegistrationService.GetAllStudentsAsync();
-            if (!students.IsSuccess)
+            const int pageSize = 10;
+
+            var majors = await _studentRegistrationService.GetMajorsAsync();
+            ViewBag.Majors = majors;
+            ViewBag.SelectedMajorId = majorId;
+
+            var result = await _studentRegistrationService.GetStudentsPagedAsync(page, pageSize, majorId);
+            if (!result.IsSuccess)
             {
-                ModelState.AddModelError("", "No students found.");
-                return View();
+                return View(new PagedStudentDto());
             }
-            return View(students.Data);
+            return View(result.Data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkUpdateMajors([FromBody] List<BulkMajorUpdateItemDto> updates)
+        {
+            var result = await _studentRegistrationService.BulkUpdateMajorsAsync(updates);
+            if (result.IsSuccess)
+            {
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, message = result.ErrorMessage ?? "Failed to update majors." });
         }
 
         [HttpGet]
         public async Task<IActionResult> RegisterNewStudent()
         {
-           await PopulateMajorsDropdownAsync();
+            await PopulateFoundationMajors();
             return View();
         }
 
@@ -62,7 +79,7 @@ namespace AJOCNS.App.Controllers
             TempData["SweetAlert_Type"] = "error";
             TempData["SweetAlert_Title"] = "Registration Failed";
             TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Email might already exist.";
-            await PopulateMajorsDropdownAsync();
+            await PopulateFoundationMajors();
             return View("RegisterNewStudent",dto);
         }
 
@@ -77,6 +94,20 @@ namespace AJOCNS.App.Controllers
             {
                 ModelState.AddModelError("", "No majors found.");
                 ViewBag.Majors = new List<string>();
+            }
+        }
+
+        private async Task PopulateFoundationMajors()
+        {
+            var foundationMajors = await _studentRegistrationService.GetFoundationMajorsAsync();
+            if (foundationMajors.IsSuccess)
+            {
+                ViewBag.FoundationMajors = foundationMajors!;
+            }
+            else
+            {
+                ModelState.AddModelError("", "No foundation majors found.");
+                ViewBag.FoundationMajors = new List<string>();
             }
         }
 

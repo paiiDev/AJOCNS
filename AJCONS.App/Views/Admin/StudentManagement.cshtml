@@ -1,6 +1,7 @@
-@model IEnumerable<AJOCNS.Shared.DTOs.StudentRegistration.StudentDto>
+@model AJOCNS.Shared.DTOs.StudentRegistration.PagedStudentDto
 @{
     ViewData["Title"] = "Student Management | AJCONS";
+    var selectedMajorId = ViewBag.SelectedMajorId as int?;
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -11,22 +12,48 @@
                         Academic administration
                     </div>
                     <h1 class="h2 fw-bold mb-1">Student management</h1>
-                    <p class="text-muted mb-0">@(Model?.Count() ?? 0) registered student records.</p>
+                    <p class="text-muted mb-0">@Model.TotalCount registered student record(s).</p>
                 </div>
-                <a asp-action="RegisterNewStudent" class="btn btn-academic">
-                    <i class="fa-solid fa-user-plus me-2"></i>
-                    Add new student
-                </a>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" id="bulkToggleBtn" class="btn btn-outline-primary">
+                        <i class="fa-solid fa-layer-group me-2"></i>Bulk Major Update
+                    </button>
+                    <button type="button" id="saveAllBtn" class="btn btn-success d-none">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Save All
+                    </button>
+                    <a asp-action="RegisterNewStudent" class="btn btn-academic">
+                        <i class="fa-solid fa-user-plus me-2"></i>
+                        Add new student
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
+            <form method="get" id="filterForm" class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                <label class="fw-semibold small text-muted mb-0"><i class="fa-solid fa-filter me-1"></i>Filter by major:</label>
+                <select name="majorId" class="form-select form-select-sm" style="max-width:320px" onchange="this.form.submit()">
+                    <option value="">All majors</option>
+                    @if (ViewBag.Majors != null && ViewBag.Majors.IsSuccess)
+                    {
+                        foreach (var major in ViewBag.Majors.Data)
+                        {
+                            <option value="@major.Id" selected="@(selectedMajorId == major.Id)">@major.MajorName</option>
+                        }
+                    }
+                </select>
+                @if (selectedMajorId != null)
+                {
+                    <a asp-action="StudentManagement" class="btn btn-sm btn-outline-secondary">Clear</a>
+                }
+            </form>
+
             <div class="card adminlte-card">
-                <div class="card-header py-3 d-flex flex-wrap gap-4 justify-content-between align-items-center">
+                <div class="card-header py-3 d-flex flex-wrap gap-3 justify-content-between align-items-center">
                     <h3 class="card-title fw-bold mb-0">Student directory</h3>
-                    <div class="input-group input-group-sm ms-auto" style="max-width:300px">
+                    <div class="input-group input-group-sm ms-auto" style="max-width:260px">
                         <span class="input-group-text bg-white">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span><input id="studentSearch" class="form-control" type="search"
@@ -48,11 +75,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (Model != null && Model.Any())
+                            @if (Model.Students.Any())
                             {
-                                foreach (var student in Model)
+                                foreach (var student in Model.Students)
                                 {
-                                   
                                     <tr>
                                         <td class="ps-4 text-muted fw-semibold">@student.Srn</td>
                                         <td>
@@ -84,7 +110,6 @@
                                                 @student.FatherName
                                             }
                                         </td>
-
                                         <td>
                                             @if (string.IsNullOrEmpty(student.Address))
                                             {
@@ -95,30 +120,40 @@
                                                 @student.Address
                                             }
                                         </td>
-
                                         <td>
-                                            @if (student.GraduationStatus == "2")
+                                            @if (student.GraduationStatus == "Graduated")
                                             {
                                                 <span class="badge text-bg-success">Graduated</span>
                                             }
                                             else
                                             {
-
-                                                <span class="badge"
-                                                                                                                                                              style="background:#eaf4ff;color:#073d78">
-                                                    @(student.GraduationStatus ??
-                                                                                            "Undergraduate")
-                                    </span>
-                                                                        }
+                                                <span class="badge" style="background:#eaf4ff;color:#073d78">
+                                                    @(student.GraduationStatus ?? "Undergraduate")
+                                                </span>
+                                            }
                                         </td>
-                                        <td class="text-end pe-4">
-                                            <a asp-action="EditStudent" asp-route-id="@student.StudentId" class="btn btn-sm btn-outline-primary"
-                                               aria-label="Edit @student.Name"><i class="fa-solid fa-pen"></i></a>
-                                            <form asp-action="DeleteStudent" asp-route-id="@student.StudentId" method="post" class="d-inline delete-form">
-                                                @Html.AntiForgeryToken()
-                                                <button type="button" class="btn btn-sm btn-outline-danger ms-1 delete-btn"
-                                                        aria-label="Delete @student.Name" data-name="@student.Name"><i class="fa-solid fa-trash"></i></button>
-                                            </form>
+                                        <td class="text-end pe-4 action-cell">
+                                            <div class="normal-actions">
+                                                <a asp-action="EditStudent" asp-route-id="@student.StudentId" class="btn btn-sm btn-outline-primary"
+                                                   aria-label="Edit @student.Name"><i class="fa-solid fa-pen"></i></a>
+                                                <form asp-action="DeleteStudent" asp-route-id="@student.StudentId" method="post" class="d-inline delete-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="button" class="btn btn-sm btn-outline-danger ms-1 delete-btn"
+                                                            aria-label="Delete @student.Name" data-name="@student.Name"><i class="fa-solid fa-trash"></i></button>
+                                                </form>
+                                            </div>
+                                            <div class="bulk-actions d-none">
+                                                <select class="form-select form-select-sm bulk-major-select" data-student-id="@student.StudentId" style="min-width:180px">
+                                                    <option value="">-- Assign major --</option>
+                                                    @if (ViewBag.Majors != null && ViewBag.Majors.IsSuccess)
+                                                    {
+                                                        foreach (var major in ViewBag.Majors.Data)
+                                                        {
+                                                            <option value="@major.Id" selected="@(major.Id == student.MajorId)">@major.MajorName</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
                                         </td>
                                     </tr>
                                 }
@@ -126,7 +161,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="6" class="text-center py-5 text-muted">
+                                    <td colspan="8" class="text-center py-5 text-muted">
                                         <i class="fa-regular fa-folder-open fs-2 d-block mb-2"></i>No student records
                                         found. Add a student to begin.
                                     </td>
@@ -135,16 +170,46 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="card-footer bg-white py-3">
+                        <nav aria-label="Student pagination">
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage - 1)" asp-route-majorId="@selectedMajorId">Prev</a>
+                                </li>
+                                @for (int i = 1; i <= Model.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                        <a class="page-link" asp-action="StudentManagement" asp-route-page="@i" asp-route-majorId="@selectedMajorId">@i</a>
+                                    </li>
+                                }
+                                <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage + 1)" asp-route-majorId="@selectedMajorId">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <div class="text-center text-muted small mt-2">
+                            Page @Model.CurrentPage of @Model.TotalPages — showing @Model.Students.Count of @Model.TotalCount students
+                        </div>
+                    </div>
+                }
+
                 <div class="card-footer bg-white text-muted small py-3">
-                    Student records are managed through the
-                    academic administration system.
+                    Student records are managed through the academic administration system.
                 </div>
             </div>
         </div>
     </section>
 </div>
+
+<form id="antiforgeryForm" class="d-none">@Html.AntiForgeryToken()</form>
+
 @section Scripts {
     <script>
+        var bulkMode = false;
+
         document.getElementById('studentSearch')?.addEventListener('input', function () {
             var term = this.value.toLowerCase();
             document.querySelectorAll('#studentsTable tbody tr').forEach(function (row) {
@@ -169,6 +234,74 @@
                     if (result.isConfirmed) {
                         form.submit();
                     }
+                });
+            });
+        });
+
+        document.getElementById('bulkToggleBtn')?.addEventListener('click', function () {
+            bulkMode = !bulkMode;
+            document.querySelectorAll('.normal-actions').forEach(function (el) {
+                el.classList.toggle('d-none', bulkMode);
+            });
+            document.querySelectorAll('.bulk-actions').forEach(function (el) {
+                el.classList.toggle('d-none', !bulkMode);
+            });
+            document.getElementById('saveAllBtn').classList.toggle('d-none', !bulkMode);
+            this.innerHTML = bulkMode
+                ? '<i class="fa-solid fa-xmark me-1"></i>Cancel Bulk Mode'
+                : '<i class="fa-solid fa-layer-group me-1"></i>Bulk Major Update';
+            this.classList.toggle('btn-outline-primary', !bulkMode);
+            this.classList.toggle('btn-outline-secondary', bulkMode);
+        });
+
+        document.getElementById('saveAllBtn')?.addEventListener('click', function () {
+            var selects = document.querySelectorAll('.bulk-major-select');
+            var updates = [];
+            var invalid = false;
+            selects.forEach(function (sel) {
+                if (!sel.value) { invalid = true; return; }
+                updates.push({ StudentId: parseInt(sel.getAttribute('data-student-id')), MajorId: parseInt(sel.value) });
+            });
+
+            if (invalid) {
+                Swal.fire({ icon: 'warning', title: 'Incomplete selection', text: 'Please assign a major to every student before saving.' });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Save all changes?',
+                text: 'This will migrate ' + updates.length + ' student(s) to their assigned majors.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#0b5cab',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, save all',
+                cancelButtonText: 'Cancel'
+            }).then(function (result) {
+                if (!result.isConfirmed) return;
+                var token = document.querySelector('#antiforgeryForm input[name="__RequestVerificationToken"]').value;
+                fetch('@Url.Action("BulkUpdateMajors", "Admin")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(updates)
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Saved!',
+                            text: 'All students have been migrated successfully.'
+                        }).then(function () { window.location.reload(); });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Save Failed', text: data.message || 'Something went wrong.' });
+                    }
+                })
+                .catch(function () {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Network error. Please try again.' });
                 });
             });
         });

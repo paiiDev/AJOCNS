@@ -9,5 +9,7 @@ public partial class Major
 
     public string MajorName { get; set; } = null!;
 
+    public bool? IsFoundation { get; set; }
+
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 }
