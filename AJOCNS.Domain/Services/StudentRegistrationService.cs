@@ -39,18 +39,25 @@ namespace AJOCNS.Domain.Services
                 CreatedAt = DateTime.UtcNow,
                 IsFirstLogin = true,
                 IsDeleted = false,
-            };
-
-            var newStudent = new Student
-            {
-                Name = studentRegistrationDto.Name,
+                Student = new Student 
+                {
+                     Name = studentRegistrationDto.Name,
                 MajorId = studentRegistrationDto.Major_ID,
-                GrecordId = null,
                 GraduationStatus = studentRegistrationDto.GraduationStatus,
                 Srn = newSRN,
+                Enrollments = new List<Enrollment> { new Enrollment
+                {
+                    AcyId = studentRegistrationDto.ACY_ID,
+                    Status = "Enrolled"
+                } }
+                } 
             };
 
-            bool isSaved = await _studentRepo.SaveStudentAsync(newUser, newStudent);
+          
+
+           
+
+            bool isSaved = await _studentRepo.SaveStudentAsync(newUser);
             if(!isSaved)
             {
                 return Result<bool>.Failure("Failed to save student");
@@ -139,26 +146,32 @@ namespace AJOCNS.Domain.Services
             return Result<List<StudentDto>>.Success(studentDtos);
         }
 
-        public async Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId)
+        public async Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId)
         {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
 
-            var (items, totalCount) = await _studentRepo.GetStudentsPagedAsync(page, pageSize, majorId);
+            var (items, totalCount) = await _studentRepo.GetStudentsPagedAsync(page, pageSize, majorId, acyId);
 
             var paged = new PagedStudentDto
             {
-                Students = items.Select(s => new StudentDto
+                Students = items.Select(s =>
                 {
-                    StudentId = s.StudentId,
-                    Name = s.Name,
-                    Phone = s.Phone,
-                    FatherName = s.FatherName,
-                    Address = s.Address,
-                    Major = s.Major.MajorName,
-                    MajorId = s.MajorId,
-                    GraduationStatus = s.GraduationStatus,
-                    Srn = s.Srn
+                    var enrollment = s.Enrollments.OrderByDescending(e => e.ErId).FirstOrDefault();
+                    return new StudentDto
+                    {
+                        StudentId = s.StudentId,
+                        Name = s.Name,
+                        Phone = s.Phone,
+                        FatherName = s.FatherName,
+                        Address = s.Address,
+                        Major = s.Major.MajorName,
+                        MajorId = s.MajorId,
+                        AcademicYear = enrollment?.Acy?.AcademicYear1,
+                        AcyId = enrollment?.AcyId,
+                        GraduationStatus = s.GraduationStatus,
+                        Srn = s.Srn
+                    };
                 }).ToList(),
                 CurrentPage = page,
                 PageSize = pageSize,
@@ -177,6 +190,19 @@ namespace AJOCNS.Domain.Services
             bool saved = await _studentRepo.BulkUpdateMajorsAsync(pairs);
             if (!saved)
                 return Result<bool>.Failure("Failed to update student majors.");
+
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> BulkUpdateGraduationsAsync(List<BulkGraduationUpdateItemDto> updates)
+        {
+            if (updates is null || !updates.Any())
+                return Result<bool>.Failure("No updates provided.");
+
+            var pairs = updates.ToDictionary(u => u.StudentId, u => u.GraduationStatus);
+            bool saved = await _studentRepo.BulkUpdateGraduationsAsync(pairs);
+            if (!saved)
+                return Result<bool>.Failure("Failed to update graduation statuses.");
 
             return Result<bool>.Success(true);
         }
@@ -211,6 +237,23 @@ namespace AJOCNS.Domain.Services
             return Result<List<MajorDto>>.Success(majorDtos);
         }
 
+        public async Task<Result<List<AcademicYearDto>>> GetAcademicYearsAsync()
+        {
+            var acs = await _studentRepo.GetAcademicYearsAsync();
+            if(acs == null || !acs.Any())
+            {
+                return Result<List<AcademicYearDto>>.Failure("No foundation academic year found");
+                
+            }
+            var enrollmentDtos = acs.Select(ac => new AcademicYearDto
+            {
+                AcyId = ac.AcyId,
+                AcademicYear = ac.AcademicYear1,
+                Status = "Enrolled"
+            }).ToList();
+            return Result<List<AcademicYearDto>>.Success(enrollmentDtos);
+        }
+
         public async Task<Result<EditStudentDto>> GetStudentByIdAsync(int studentId)
         {
             var student = await _studentRepo.GetStudentByIdAsync(studentId);
@@ -238,8 +281,6 @@ namespace AJOCNS.Domain.Services
             if (student is null)
                 return Result<bool>.Failure("Student not found.");
 
-            bool wasNotGraduated = student.GraduationStatus != "Graduated";
-            bool isNowGraduated = dto.GraduationStatus == "Graduated";
 
             student.Name = dto.Name;
             student.Phone = dto.Phone;
@@ -252,22 +293,7 @@ namespace AJOCNS.Domain.Services
             if (!updated)
                 return Result<bool>.Failure("Failed to update student.");
 
-            if (wasNotGraduated && isNowGraduated && student.GrecordId is null)
-            {
-                string grn = GenerateNewGRN();
-                var record = new GraduationRecord
-                {
-                    OfficialName = student.Name,
-                    Grn = grn,
-                    GraduationYear = (short)DateTime.Now.Year,
-                    DegreeId = dto.MajorId,
-                    AccStatus = "Pending"
-                };
-
-                bool recordCreated = await _studentRepo.AddGraduationRecordAsync(record, dto.StudentId);
-                if (!recordCreated)
-                    return Result<bool>.Failure("Student updated but failed to create graduation record.");
-            }
+           
 
             return Result<bool>.Success(true);
         }

@@ -113,19 +113,17 @@
                                         <label asp-for="GraduationStatus" class="form-label fw-semibold">Programme Status <span class="text-danger">*</span></label>
                                         <select asp-for="GraduationStatus" class="form-select" id="graduationStatusSelect">
                                             <option value="Undergraduate">Undergraduate</option>
-                                            <option value="Graduated">Graduated</option>
                                             <option value="Dropout">Dropout</option>
 
                                         </select>
                                         <span asp-validation-for="GraduationStatus" class="text-danger small mt-1 d-block"></span>
                                     </div>
                                 </div>
+
+                               
                             </div>
 
-                            <div id="graduationNotice" class="alert alert-info border-0 bg-info bg-opacity-10 text-info rounded-3 d-none mt-2">
-                                <i class="fa-solid fa-circle-info me-2"></i>
-                                Setting status to <strong>Graduated</strong> will automatically create a graduation record for this student.
-                            </div>
+                           
                         </div>
 
                         <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
@@ -141,21 +139,3 @@
     </div>
 </section>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        (function () {
-            var select = document.getElementById('graduationStatusSelect');
-            var notice = document.getElementById('graduationNotice');
-            function checkStatus() {
-                if (select.value === 'Graduated') {
-                    notice.classList.remove('d-none');
-                } else {
-                    notice.classList.add('d-none');
-                }
-            }
-            select.addEventListener('change', checkStatus);
-            checkStatus();
-        })();
-    </script>
-}

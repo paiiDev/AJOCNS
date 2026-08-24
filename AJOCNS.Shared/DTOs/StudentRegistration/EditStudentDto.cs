@@ -26,5 +26,7 @@ namespace AJOCNS.Shared.DTOs.StudentRegistration
 
         [Required(ErrorMessage = "Please select a programme status.")]
         public string GraduationStatus { get; set; } = "Undergraduate";
+
+        public short? GraduationYear { get; set; }
     }
 }

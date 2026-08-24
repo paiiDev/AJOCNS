@@ -136,7 +136,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => e.StudentId, "IX_Enrollments_Student_ID");
 
-            entity.HasIndex(e => new { e.StudentId, e.AcyId }, "UQ_Enrollments_Student_AcademicYear").IsUnique();
+            entity.HasIndex(e => new { e.StudentId, e.AcyId }, "UQ_Enrollment_Student_ACY").IsUnique();
 
             entity.Property(e => e.ErId).HasColumnName("ER_ID");
             entity.Property(e => e.AcyId).HasColumnName("ACY_ID");
@@ -194,7 +194,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => e.StudentId, "IX_EventRegistrations_Student_ID");
 
-            entity.HasIndex(e => new { e.EventId, e.StudentId }, "UQ_EventRegistrations_Event_Student").IsUnique();
+            entity.HasIndex(e => new { e.StudentId, e.EventId }, "UQ_EventRegistration_Student_Event").IsUnique();
 
             entity.Property(e => e.EventRegiId).HasColumnName("Event_Regi_ID");
             entity.Property(e => e.EventId).HasColumnName("Event_ID");
@@ -279,11 +279,16 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("GRN");
             entity.Property(e => e.OfficialName).HasMaxLength(255);
+            entity.Property(e => e.StudentId).HasColumnName("Student_ID");
 
             entity.HasOne(d => d.Degree).WithMany(p => p.GraduationRecords)
                 .HasForeignKey(d => d.DegreeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Degree_GraduationRecoreds");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.GraduationRecords)
+                .HasForeignKey(d => d.StudentId)
+                .HasConstraintName("FK_Graduation_Records_Students");
         });
 
         modelBuilder.Entity<Major>(entity =>
@@ -299,19 +304,17 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Mentor>(entity =>
         {
-            entity.HasIndex(e => e.GrecordId, "UQ_Mentors_GRecord").IsUnique();
-
             entity.HasIndex(e => e.UserId, "UQ_Mentors_User").IsUnique();
 
             entity.Property(e => e.MentorId).HasColumnName("Mentor_ID");
-            entity.Property(e => e.GrecordId).HasColumnName("GRecord_Id");
+            entity.Property(e => e.AlumniGrn)
+                .HasMaxLength(10)
+                .IsFixedLength()
+                .HasColumnName("Alumni_GRN");
+            entity.Property(e => e.AlumniGy).HasColumnName("Alumni_GY");
+            entity.Property(e => e.Expertise).HasMaxLength(255);
             entity.Property(e => e.Name).HasMaxLength(255);
             entity.Property(e => e.UserId).HasColumnName("User_ID");
-
-            entity.HasOne(d => d.Grecord).WithOne(p => p.Mentor)
-                .HasForeignKey<Mentor>(d => d.GrecordId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Mentors_GraduationRecords");
 
             entity.HasOne(d => d.User).WithOne(p => p.Mentor)
                 .HasForeignKey<Mentor>(d => d.UserId)
@@ -331,13 +334,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Student>(entity =>
         {
-            entity.HasIndex(e => e.GrecordId, "IX_Students_GRecord_Id");
-
             entity.HasIndex(e => e.MajorId, "IX_Students_Major_ID");
-
-            entity.HasIndex(e => e.GrecordId, "UQ_Students_GRecord")
-                .IsUnique()
-                .HasFilter("([GRecord_Id] IS NOT NULL)");
 
             entity.HasIndex(e => e.Srn, "UQ_Students_SRN").IsUnique();
 
@@ -347,7 +344,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Address).HasMaxLength(500);
             entity.Property(e => e.FatherName).HasMaxLength(255);
             entity.Property(e => e.GraduationStatus).HasMaxLength(50);
-            entity.Property(e => e.GrecordId).HasColumnName("GRecord_Id");
             entity.Property(e => e.MajorId).HasColumnName("Major_ID");
             entity.Property(e => e.Name).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(30);
@@ -355,10 +351,6 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("SRN");
             entity.Property(e => e.UserId).HasColumnName("User_ID");
-
-            entity.HasOne(d => d.Grecord).WithOne(p => p.Student)
-                .HasForeignKey<Student>(d => d.GrecordId)
-                .HasConstraintName("FK_Students_GraduationRecords");
 
             entity.HasOne(d => d.Major).WithMany(p => p.Students)
                 .HasForeignKey(d => d.MajorId)

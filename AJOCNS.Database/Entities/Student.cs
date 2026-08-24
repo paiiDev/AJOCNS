@@ -19,8 +19,6 @@ public partial class Student
 
     public string? Address { get; set; }
 
-    public int? GrecordId { get; set; }
-
     public int MajorId { get; set; }
 
     public string? GraduationStatus { get; set; }
@@ -29,7 +27,7 @@ public partial class Student
 
     public virtual ICollection<EventRegistration> EventRegistrations { get; set; } = new List<EventRegistration>();
 
-    public virtual GraduationRecord? Grecord { get; set; }
+    public virtual ICollection<GraduationRecord> GraduationRecords { get; set; } = new List<GraduationRecord>();
 
     public virtual Major Major { get; set; } = null!;
 

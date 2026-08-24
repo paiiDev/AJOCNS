@@ -24,6 +24,10 @@ namespace AJOCNS.Shared.DTOs.StudentRegistration
 
         public int MajorId { get; set; }
 
+        public string? AcademicYear { get; set; }
+
+        public int? AcyId { get; set; }
+
         public string? GraduationStatus { get; set; }
     }
 }

@@ -22,5 +22,8 @@ namespace AJOCNS.Shared.DTOs.StudentRegistration
 
         [Required(ErrorMessage = "Please select a programme")]
         public string GraduationStatus { get; set; } = "Undergraduate";
+
+        [Required(ErrorMessage ="Please select Acadmeic Year")]
+        public int ACY_ID { get; set; }
     }
 }

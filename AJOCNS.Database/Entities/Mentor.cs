@@ -11,11 +11,13 @@ public partial class Mentor
 
     public string Name { get; set; } = null!;
 
-    public int GrecordId { get; set; }
+    public string? Expertise { get; set; }
+
+    public short AlumniGy { get; set; }
+
+    public string AlumniGrn { get; set; } = null!;
 
     public virtual ICollection<EmploymentRecord> EmploymentRecords { get; set; } = new List<EmploymentRecord>();
-
-    public virtual GraduationRecord Grecord { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
 }

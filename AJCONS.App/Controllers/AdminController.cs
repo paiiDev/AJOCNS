@@ -22,7 +22,7 @@ namespace AJOCNS.App.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> StudentManagement(int page = 1, int? majorId = null)
+        public async Task<IActionResult> StudentManagement(int page = 1, int? majorId = null, int? acyId = null)
         {
             const int pageSize = 10;
 
@@ -30,7 +30,11 @@ namespace AJOCNS.App.Controllers
             ViewBag.Majors = majors;
             ViewBag.SelectedMajorId = majorId;
 
-            var result = await _studentRegistrationService.GetStudentsPagedAsync(page, pageSize, majorId);
+            var academicYears = await _studentRegistrationService.GetAcademicYearsAsync();
+            ViewBag.AcademicYears = academicYears;
+            ViewBag.SelectedAcyId = acyId;
+
+            var result = await _studentRegistrationService.GetStudentsPagedAsync(page, pageSize, majorId, acyId);
             if (!result.IsSuccess)
             {
                 return View(new PagedStudentDto());
@@ -50,10 +54,23 @@ namespace AJOCNS.App.Controllers
             return Json(new { success = false, message = result.ErrorMessage ?? "Failed to update majors." });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BulkUpdateGraduations([FromBody] List<BulkGraduationUpdateItemDto> updates)
+        {
+            var result = await _studentRegistrationService.BulkUpdateGraduationsAsync(updates);
+            if (result.IsSuccess)
+            {
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, message = result.ErrorMessage ?? "Failed to update graduation statuses." });
+        }
+
         [HttpGet]
         public async Task<IActionResult> RegisterNewStudent()
         {
             await PopulateFoundationMajors();
+            await PopulateAcademicYears();
             return View();
         }
 
@@ -80,6 +97,7 @@ namespace AJOCNS.App.Controllers
             TempData["SweetAlert_Title"] = "Registration Failed";
             TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Email might already exist.";
             await PopulateFoundationMajors();
+            await PopulateAcademicYears();
             return View("RegisterNewStudent",dto);
         }
 
@@ -102,12 +120,25 @@ namespace AJOCNS.App.Controllers
             var foundationMajors = await _studentRegistrationService.GetFoundationMajorsAsync();
             if (foundationMajors.IsSuccess)
             {
-                ViewBag.FoundationMajors = foundationMajors!;
+                ViewBag.FoundationMajors = foundationMajors;
             }
             else
             {
                 ModelState.AddModelError("", "No foundation majors found.");
                 ViewBag.FoundationMajors = new List<string>();
+            }
+        }
+        private async Task PopulateAcademicYears()
+        {
+            var acs = await _studentRegistrationService.GetAcademicYearsAsync();
+            if (acs.IsSuccess)
+            {
+                ViewBag.AcademicYears = acs;
+            }
+            else
+            {
+                ModelState.AddModelError("", "No enrollment year found.");
+                ViewBag.AcademicYears = new List<string>();
             }
         }
 

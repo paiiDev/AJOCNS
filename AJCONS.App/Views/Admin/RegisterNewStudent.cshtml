@@ -99,6 +99,40 @@
                                     </div>
                                 </div>
 
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="ACY_ID">Academic Year <span class="text-danger">*</span></label>
+                                        <select asp-for="ACY_ID" class="form-control custom-select">
+                                            <option value="">-- Select Academic Year --</option>
+                                            @if (ViewBag.AcademicYears != null && ViewBag.AcademicYears.IsSuccess)
+                                            {
+                                                foreach (var acs in ViewBag.AcademicYears.Data)
+                                                {
+                                                    int currentYear = DateTime.Now.Year; 
+                                                    int academicStartYear = 0;
+
+                                                    if (!string.IsNullOrEmpty(acs.AcademicYear) && acs.AcademicYear.Length >= 4)
+                                                    {
+                                                        int.TryParse(acs.AcademicYear.Substring(0, 4), out academicStartYear);
+                                                    }
+
+                                                    bool isPastYear = academicStartYear < currentYear;
+
+                                                    if (isPastYear)
+                                                    {
+                                                        <option value="@acs.AcyId" disabled>@acs.AcademicYear (Closed)</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@acs.AcyId">@acs.AcademicYear</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="ACY_ID" class="text-danger font-weight-bold text-sm"></span>
+                                    </div>
+                                </div>
+
                                 <!-- Graduation Status Dropdown -->
                                 <div class="col-md-6">
                                     <div class="form-group">

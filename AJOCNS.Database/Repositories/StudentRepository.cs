@@ -29,17 +29,12 @@ namespace AJOCNS.Database.Repositories
             return lastStudent?.Srn;
         }
 
-        public async Task<bool> SaveStudentAsync(User newUser, Student newStudent)
+        public async Task<bool> SaveStudentAsync(User newUser)
         {
            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 _context.Users.Add(newUser);
-                await _context.SaveChangesAsync();
-
-                newStudent.UserId = newUser.UserId;
-
-                _context.Students.Add(newStudent);
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -57,13 +52,21 @@ namespace AJOCNS.Database.Repositories
            return await _context.Students.AsNoTracking().Include(m =>  m.Major).ToListAsync();
         }
 
-        public async Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId)
+        public async Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId)
         {
-            var query = _context.Students.AsNoTracking().Include(s => s.Major).AsQueryable();
+            var query = _context.Students.AsNoTracking()
+                .Include(s => s.Major)
+                .Include(s => s.Enrollments).ThenInclude(e => e.Acy)
+                .AsQueryable();
 
             if (majorId.HasValue)
             {
                 query = query.Where(s => s.MajorId == majorId.Value);
+            }
+
+            if (acyId.HasValue)
+            {
+                query = query.Where(s => s.Enrollments.Any(e => e.AcyId == acyId.Value));
             }
 
             int totalCount = await query.CountAsync();
@@ -108,6 +111,66 @@ namespace AJOCNS.Database.Repositories
             }
         }
 
+        public async Task<bool> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var studentIds = studentStatusPairs.Keys.ToList();
+                var students = await _context.Students
+                    .Include(s => s.GraduationRecords)
+                    .Where(s => studentIds.Contains(s.StudentId))
+                    .ToListAsync();
+
+                if (students.Count == 0) return false;
+
+                short graduationYear = (short)DateTime.Now.Year;
+                int? defaultDegreeId = await _context.Degrees
+                    .OrderBy(d => d.DegreeId)
+                    .Select(d => (int?)d.DegreeId)
+                    .FirstOrDefaultAsync();
+
+                foreach (var student in students)
+                {
+                    if (!studentStatusPairs.TryGetValue(student.StudentId, out string? status))
+                        continue;
+
+                    student.GraduationStatus = status;
+
+                    if (status == "Graduated"
+                        && !student.GraduationRecords.Any()
+                        && defaultDegreeId.HasValue)
+                    {
+                        _context.GraduationRecords.Add(new GraduationRecord
+                        {
+                            OfficialName = student.Name,
+                            Grn = GenerateNewGRN(),
+                            GraduationYear = graduationYear,
+                            DegreeId = defaultDegreeId.Value,
+                            AccStatus = "Active",
+                            StudentId = student.StudentId
+                        });
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
+        }
+
+        private static string GenerateNewGRN()
+        {
+            string year = DateTime.Now.ToString("yyyy");
+            string random = Random.Shared.Next(10000, 99999).ToString();
+            return $"PUPL-{year}-{random}";
+        }
+
         public async Task<List<Major>> GetAllMajorsAsync()
         {
             return await _context.Majors.AsNoTracking().ToListAsync();
@@ -119,6 +182,11 @@ namespace AJOCNS.Database.Repositories
                 .Where(m => m.IsFoundation == true)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<List<AcademicYear>> GetAcademicYearsAsync()
+        {
+            return await _context.AcademicYears.AsNoTracking().ToListAsync();
         }
 
         public async Task<Student?> GetStudentByIdAsync(int studentId)
@@ -181,29 +249,5 @@ namespace AJOCNS.Database.Repositories
             return await _context.Degrees.AsNoTracking().ToListAsync();
         }
 
-        public async Task<bool> AddGraduationRecordAsync(GraduationRecord record, int studentId)
-        {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                _context.GraduationRecords.Add(record);
-                await _context.SaveChangesAsync();
-
-                var student = await _context.Students.FindAsync(studentId);
-                if (student is not null)
-                {
-                    student.GrecordId = record.GrecordId;
-                    await _context.SaveChangesAsync();
-                }
-
-                await transaction.CommitAsync();
-                return true;
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                return false;
-            }
-        }
     }
 }

@@ -17,9 +17,9 @@ public partial class GraduationRecord
 
     public string AccStatus { get; set; } = null!;
 
-    public virtual Degree Degree { get; set; } = null!;
+    public int? StudentId { get; set; }
 
-    public virtual Mentor? Mentor { get; set; }
+    public virtual Degree Degree { get; set; } = null!;
 
     public virtual Student? Student { get; set; }
 }
