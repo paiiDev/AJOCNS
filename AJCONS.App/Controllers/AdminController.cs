@@ -25,7 +25,7 @@ namespace AJOCNS.App.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> StudentManagement(int page = 1, int? majorId = null, int? acyId = null)
+        public async Task<IActionResult> StudentManagement(int page = 1, int? majorId = null, int? acyId = null, bool excludeDropout = false)
         {
             const int pageSize = 10;
 
@@ -37,7 +37,9 @@ namespace AJOCNS.App.Controllers
             ViewBag.AcademicYears = academicYears;
             ViewBag.SelectedAcyId = acyId;
 
-            var result = await _studentRegistrationService.GetStudentsPagedAsync(page, pageSize, majorId, acyId);
+            var result = await _studentRegistrationService.GetStudentsPagedAsync(
+                page, pageSize, majorId, acyId,
+                excludeDropout ? "Dropout" : null);
             if (!result.IsSuccess)
             {
                 return View(new PagedStudentDto());

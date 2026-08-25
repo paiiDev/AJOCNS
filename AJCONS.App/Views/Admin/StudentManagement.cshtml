@@ -4,6 +4,7 @@
     var selectedMajorId = ViewBag.SelectedMajorId as int?;
     var selectedAcyId = ViewBag.SelectedAcyId as int?;
     var isGradMode = Context.Request.Query["gradMode"] == "true";
+    var gradYearParam = Context.Request.Query["gradYear"].ToString();
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -217,16 +218,16 @@
                         <nav aria-label="Student pagination">
                             <ul class="pagination pagination-sm justify-content-center mb-0">
                                 <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage - 1)" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId">Prev</a>
+                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage - 1)" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId" asp-route-gradMode="@(isGradMode ? "true" : null)" asp-route-gradYear="@(isGradMode ? gradYearParam : null)" asp-route-excludeDropout="@(isGradMode ? true : null)">Prev</a>
                                 </li>
                                 @for (int i = 1; i <= Model.TotalPages; i++)
                                 {
                                     <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                        <a class="page-link" asp-action="StudentManagement" asp-route-page="@i" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId">@i</a>
+                                        <a class="page-link" asp-action="StudentManagement" asp-route-page="@i" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId" asp-route-gradMode="@(isGradMode ? "true" : null)" asp-route-gradYear="@(isGradMode ? gradYearParam : null)" asp-route-excludeDropout="@(isGradMode ? true : null)">@i</a>
                                     </li>
                                 }
                                 <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage + 1)" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId">Next</a>
+                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage + 1)" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId" asp-route-gradMode="@(isGradMode ? "true" : null)" asp-route-gradYear="@(isGradMode ? gradYearParam : null)" asp-route-excludeDropout="@(isGradMode ? true : null)">Next</a>
                                 </li>
                             </ul>
                         </nav>
@@ -384,7 +385,7 @@
                 }
             }).then(function (result) {
                 if (result.isConfirmed && result.value) {
-                    window.location.href = '@Url.Action("StudentManagement", "Admin")' + '?acyId=' + result.value.acyId + '&gradMode=true&gradYear=' + result.value.graduationYear;
+                    window.location.href = '@Url.Action("StudentManagement", "Admin")' + '?acyId=' + result.value.acyId + '&gradMode=true&gradYear=' + result.value.graduationYear + '&excludeDropout=true';
                 }
             });
         });

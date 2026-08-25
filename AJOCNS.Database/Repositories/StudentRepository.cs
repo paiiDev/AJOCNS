@@ -52,7 +52,7 @@ namespace AJOCNS.Database.Repositories
            return await _context.Students.AsNoTracking().Include(m => m.Major).Include(s => s.GraduationRecords).ToListAsync();
         }
 
-        public async Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId)
+        public async Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId, string? excludeGraduationStatus)
         {
             var query = _context.Students.AsNoTracking()
                 .Include(s => s.Major)
@@ -68,6 +68,11 @@ namespace AJOCNS.Database.Repositories
             if (acyId.HasValue)
             {
                 query = query.Where(s => s.Enrollments.Any(e => e.AcyId == acyId.Value));
+            }
+
+            if (!string.IsNullOrEmpty(excludeGraduationStatus))
+            {
+                query = query.Where(s => (s.GraduationStatus ?? "Undergraduate") != excludeGraduationStatus);
             }
 
             int totalCount = await query.CountAsync();

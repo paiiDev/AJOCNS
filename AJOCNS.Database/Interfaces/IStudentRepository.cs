@@ -13,7 +13,7 @@ namespace AJOCNS.Database.Interfaces
         Task<string?> GetLastSRNAsync(); 
         Task<bool> SaveStudentAsync(User newUser);
         Task<List<Student>> GetAllStudentsAsync();
-        Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId);
+        Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId, string? excludeGraduationStatus = null);
         Task<bool> BulkUpdateMajorsAsync(Dictionary<int, int> studentMajorPairs);
         Task<bool> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs, short graduationYear);
         Task<List<Major>> GetAllMajorsAsync();

@@ -156,12 +156,12 @@ namespace AJOCNS.Domain.Services
                 : student.GraduationStatus;
         }
 
-        public async Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId)
+        public async Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId, string? excludeGraduationStatus)
         {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
 
-            var (items, totalCount) = await _studentRepo.GetStudentsPagedAsync(page, pageSize, majorId, acyId);
+            var (items, totalCount) = await _studentRepo.GetStudentsPagedAsync(page, pageSize, majorId, acyId, excludeGraduationStatus);
 
             var paged = new PagedStudentDto
             {

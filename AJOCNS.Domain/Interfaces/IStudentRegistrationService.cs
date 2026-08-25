@@ -13,7 +13,7 @@ namespace AJOCNS.Domain.Interfaces
     {
         Task<Result<bool>> RegisterStudentAsync(StudentRegistrationDto studentRegistrationDto);
         Task<Result<List<StudentDto>>> GetAllStudentsAsync();
-        Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId);
+        Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId, string? excludeGraduationStatus = null);
         Task<Result<bool>> BulkUpdateMajorsAsync(List<BulkMajorUpdateItemDto> updates);
         Task<Result<bool>> BulkUpdateGraduationsAsync(BulkGraduationUpdateRequestDto request);
         Task<Result<List<MajorDto>>> GetMajorsAsync();
