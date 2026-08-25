@@ -70,7 +70,7 @@ namespace AJOCNS.App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GraduationRecords(int page = 1, short? graduationYear = null)
+        public async Task<IActionResult> GraduationRecords(int page = 1, short? graduationYear = null, string? degreeCode = null)
         {
             const int pageSize = 10;
 
@@ -78,7 +78,10 @@ namespace AJOCNS.App.Controllers
             ViewBag.GraduationYears = years;
             ViewBag.SelectedGraduationYear = graduationYear;
 
-            var result = await _graduationRecordService.GetGraduationRecordsPagedAsync(page, pageSize, graduationYear: graduationYear);
+            await PopulateDegrees();
+            ViewBag.SelectedDegreeCode = degreeCode;
+
+            var result = await _graduationRecordService.GetGraduationRecordsPagedAsync(page, pageSize, degreeCode, graduationYear);
             if (!result.IsSuccess)
             {
                 return View(new PagedGraduationRecordDto());

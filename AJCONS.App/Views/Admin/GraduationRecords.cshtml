@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Graduation Records | AJCONS";
     var selectedGraduationYear = ViewBag.SelectedGraduationYear as short?;
+    var selectedDegreeCode = ViewBag.SelectedDegreeCode as string;
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -24,7 +25,18 @@
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
             <form method="get" id="filterForm" class="mb-3 d-flex flex-wrap gap-2 align-items-center">
-                <label class="fw-semibold small text-muted mb-0"><i class="fa-solid fa-filter me-1"></i>Filter by graduation year:</label>
+                <label class="fw-semibold small text-muted mb-0"><i class="fa-solid fa-filter me-1"></i>Filter by degree:</label>
+                <select name="degreeCode" class="form-select form-select-sm" style="max-width:280px" onchange="this.form.submit()">
+                    <option value="">All degrees</option>
+                    @if (ViewBag.Degrees != null && ViewBag.Degrees.IsSuccess)
+                    {
+                        foreach (var degree in ViewBag.Degrees.Data)
+                        {
+                            <option value="@degree.DegreeCode" selected="@(selectedDegreeCode == degree.DegreeCode)">@degree.DegreeName (@degree.DegreeCode)</option>
+                        }
+                    }
+                </select>
+                <label class="fw-semibold small text-muted mb-0 ms-2"><i class="fa-solid fa-calendar-days me-1"></i>Graduation year:</label>
                 <select name="graduationYear" class="form-select form-select-sm" style="max-width:220px" onchange="this.form.submit()">
                     <option value="">All graduation years</option>
                     @if (ViewBag.GraduationYears != null && ViewBag.GraduationYears.IsSuccess)
@@ -35,7 +47,7 @@
                         }
                     }
                 </select>
-                @if (selectedGraduationYear != null)
+                @if (!string.IsNullOrEmpty(selectedDegreeCode) || selectedGraduationYear != null)
                 {
                     <a asp-action="GraduationRecords" class="btn btn-sm btn-outline-secondary">Clear</a>
                 }
@@ -122,16 +134,16 @@
                         <nav aria-label="Graduation record pagination">
                             <ul class="pagination pagination-sm justify-content-center mb-0">
                                 <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                                    <a class="page-link" asp-action="GraduationRecords" asp-route-page="@(Model.CurrentPage - 1)" asp-route-graduationYear="@selectedGraduationYear">Prev</a>
+                                    <a class="page-link" asp-action="GraduationRecords" asp-route-page="@(Model.CurrentPage - 1)" asp-route-degreeCode="@selectedDegreeCode" asp-route-graduationYear="@selectedGraduationYear">Prev</a>
                                 </li>
                                 @for (int i = 1; i <= Model.TotalPages; i++)
                                 {
                                     <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                        <a class="page-link" asp-action="GraduationRecords" asp-route-page="@i" asp-route-graduationYear="@selectedGraduationYear">@i</a>
+                                        <a class="page-link" asp-action="GraduationRecords" asp-route-page="@i" asp-route-degreeCode="@selectedDegreeCode" asp-route-graduationYear="@selectedGraduationYear">@i</a>
                                     </li>
                                 }
                                 <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                                    <a class="page-link" asp-action="GraduationRecords" asp-route-page="@(Model.CurrentPage + 1)" asp-route-graduationYear="@selectedGraduationYear">Next</a>
+                                    <a class="page-link" asp-action="GraduationRecords" asp-route-page="@(Model.CurrentPage + 1)" asp-route-degreeCode="@selectedDegreeCode" asp-route-graduationYear="@selectedGraduationYear">Next</a>
                                 </li>
                             </ul>
                         </nav>
