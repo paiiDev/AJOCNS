@@ -24,8 +24,13 @@ namespace AJOCNS.Shared.DTOs.StudentRegistration
         [Required(ErrorMessage = "Please select a major.")]
         public int MajorId { get; set; }
 
+        [Required(ErrorMessage = "Please select an academic year.")]
+        public int AcyId { get; set; }
+
         [Required(ErrorMessage = "Please select a programme status.")]
         public string GraduationStatus { get; set; } = "Undergraduate";
+
+        public bool IsGraduated { get; set; }
 
         public short? GraduationYear { get; set; }
     }

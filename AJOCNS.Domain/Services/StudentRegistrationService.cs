@@ -139,11 +139,21 @@ namespace AJOCNS.Domain.Services
                 Address = s.Address,
                 Major = s.Major.MajorName,
                 MajorId = s.MajorId,
-                GraduationStatus = s.GraduationStatus,
+                GraduationStatus = ResolveGraduationStatus(s),
                 Srn = s.Srn
             }).ToList();
 
             return Result<List<StudentDto>>.Success(studentDtos);
+        }
+
+        private static string ResolveGraduationStatus(Student student)
+        {
+            if (student.GraduationRecords != null && student.GraduationRecords.Any())
+                return "Graduated";
+
+            return string.IsNullOrEmpty(student.GraduationStatus) || student.GraduationStatus == "Graduated"
+                ? "Undergraduate"
+                : student.GraduationStatus;
         }
 
         public async Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId)
@@ -169,7 +179,7 @@ namespace AJOCNS.Domain.Services
                         MajorId = s.MajorId,
                         AcademicYear = enrollment?.Acy?.AcademicYear1,
                         AcyId = enrollment?.AcyId,
-                        GraduationStatus = s.GraduationStatus,
+                        GraduationStatus = ResolveGraduationStatus(s),
                         Srn = s.Srn
                     };
                 }).ToList(),
@@ -194,13 +204,13 @@ namespace AJOCNS.Domain.Services
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> BulkUpdateGraduationsAsync(List<BulkGraduationUpdateItemDto> updates)
+        public async Task<Result<bool>> BulkUpdateGraduationsAsync(BulkGraduationUpdateRequestDto request)
         {
-            if (updates is null || !updates.Any())
+            if (request is null || request.Updates is null || !request.Updates.Any())
                 return Result<bool>.Failure("No updates provided.");
 
-            var pairs = updates.ToDictionary(u => u.StudentId, u => u.GraduationStatus);
-            bool saved = await _studentRepo.BulkUpdateGraduationsAsync(pairs);
+            var pairs = request.Updates.ToDictionary(u => u.StudentId, u => u.GraduationStatus);
+            bool saved = await _studentRepo.BulkUpdateGraduationsAsync(pairs, request.GraduationYear);
             if (!saved)
                 return Result<bool>.Failure("Failed to update graduation statuses.");
 
@@ -269,7 +279,9 @@ namespace AJOCNS.Domain.Services
                 FatherName = student.FatherName,
                 Address = student.Address,
                 MajorId = student.MajorId,
-                GraduationStatus = student.GraduationStatus ?? "Undergraduate"
+                AcyId = student.Enrollments.OrderByDescending(e => e.ErId).Select(e => (int?)e.AcyId).FirstOrDefault() ?? 0,
+                GraduationStatus = student.GraduationStatus ?? "Undergraduate",
+                IsGraduated = student.GraduationRecords != null && student.GraduationRecords.Any()
             };
 
             return Result<EditStudentDto>.Success(dto);
@@ -281,19 +293,27 @@ namespace AJOCNS.Domain.Services
             if (student is null)
                 return Result<bool>.Failure("Student not found.");
 
+            bool isGraduated = student.GraduationRecords != null && student.GraduationRecords.Any();
+
 
             student.Name = dto.Name;
             student.Phone = dto.Phone;
             student.FatherName = dto.FatherName;
             student.Address = dto.Address;
             student.MajorId = dto.MajorId;
-            student.GraduationStatus = dto.GraduationStatus;
+
+            if (!isGraduated)
+            {
+                student.GraduationStatus = dto.GraduationStatus;
+            }
 
             bool updated = await _studentRepo.UpdateStudentAsync(student);
             if (!updated)
                 return Result<bool>.Failure("Failed to update student.");
 
-           
+            bool enrollmentUpdated = await _studentRepo.UpdateStudentEnrollmentAcyAsync(dto.StudentId, dto.AcyId);
+            if (!enrollmentUpdated)
+                return Result<bool>.Failure("Failed to update student academic year.");
 
             return Result<bool>.Success(true);
         }

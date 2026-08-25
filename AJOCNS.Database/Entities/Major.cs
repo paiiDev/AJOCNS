@@ -11,5 +11,9 @@ public partial class Major
 
     public bool? IsFoundation { get; set; }
 
+    public int? DegreeId { get; set; }
+
+    public virtual Degree? Degree { get; set; }
+
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 }

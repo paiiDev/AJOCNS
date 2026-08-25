@@ -17,6 +17,9 @@
                     <p class="text-muted mb-0">@Model.TotalCount registered student record(s).</p>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="GraduationRecords" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-scroll me-2"></i>Graduation Records
+                    </a>
                     <button type="button" id="bulkToggleBtn" class="btn btn-outline-primary">
                         <i class="fa-solid fa-layer-group me-2"></i>Bulk Major Update
                     </button>
@@ -173,12 +176,22 @@
                                                 </select>
                                             </div>
                                             <div class="grad-actions d-none">
+                                                @{
+                                                    var currentStatus = student.GraduationStatus ?? "Undergraduate";
+                                                    var knownStatuses = new List<string> { "Undergraduate", "Graduated" };
+                                                }
                                                 <select class="form-select form-select-sm bulk-grad-select" data-student-id="@student.StudentId" style="min-width:180px">
-                                                    @{
-                                                        var currentStatus = student.GraduationStatus ?? "Undergraduate";
+                                                    @if (knownStatuses.Contains(currentStatus))
+                                                    {
+                                                        <option value="Undergraduate" selected="@(currentStatus == "Undergraduate")">Undergraduate</option>
+                                                        <option value="Graduated" selected="@(currentStatus == "Graduated")">Graduated</option>
                                                     }
-                                                    <option value="Undergraduate" selected="@(currentStatus != "Graduated")">Undergraduate</option>
-                                                    <option value="Graduated" selected="@(currentStatus == "Graduated")">Graduated</option>
+                                                    else
+                                                    {
+                                                        <option value="Undergraduate">Undergraduate</option>
+                                                        <option value="@currentStatus" selected>@currentStatus</option>
+                                                        <option value="Graduated">Graduated</option>
+                                                    }
                                                 </select>
                                             </div>
                                         </td>
@@ -237,6 +250,7 @@
     <script>
         var bulkMode = false;
         var gradMode = false;
+        var gradYearInput = '@Context.Request.Query["gradYear"]';
         var academicYears = [
             @if (ViewBag.AcademicYears != null && ViewBag.AcademicYears.IsSuccess)
             {
@@ -338,23 +352,39 @@
                 return '<option value="' + y.id + '">' + y.name + '</option>';
             }).join('');
 
+            var currentYear = new Date().getFullYear();
+
             Swal.fire({
                 title: 'Manage graduation',
-                text: 'Enter Academic Year (Enrollment Year) to load its students:',
-                input: 'select',
-                inputOptions: academicYears.reduce(function (acc, y) { acc[y.id] = y.name; return acc; }, {}),
-                inputPlaceholder: '-- Select enrollment year --',
+                html:
+                    '<label style="display:block;text-align:left;font-weight:600;font-size:.875rem;margin-bottom:.25rem">Academic Year (Enrollment Year)</label>' +
+                    '<select id="swal-acy" class="swal2-input" style="display:flex;width:80%">' +
+                    '<option value="">-- Select enrollment year --</option>' + optionsHtml + '</select>' +
+                    '<label style="display:block;text-align:left;font-weight:600;font-size:.875rem;margin-bottom:.25rem">Graduation Year</label>' +
+                    '<input id="swal-grad-year" type="number" class="swal2-input" placeholder="e.g. ' + currentYear + '" min="1900" max="2100" style="display:flex;width:80%">',
                 showCancelButton: true,
+                focusConfirm: false,
                 confirmButtonColor: '#0b5cab',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Continue',
                 cancelButtonText: 'Cancel',
-                inputValidator: function (value) {
-                    if (!value) return 'Please select an enrollment year.';
+                preConfirm: function () {
+                    var acy = document.getElementById('swal-acy').value;
+                    var gradYear = document.getElementById('swal-grad-year').value;
+                    if (!acy) {
+                        Swal.showValidationMessage('Please select an enrollment year.');
+                        return false;
+                    }
+                    var year = parseInt(gradYear, 10);
+                    if (!gradYear || isNaN(year) || year < 1900 || year > 2100) {
+                        Swal.showValidationMessage('Please enter a valid graduation year.');
+                        return false;
+                    }
+                    return { acyId: acy, graduationYear: year };
                 }
             }).then(function (result) {
                 if (result.isConfirmed && result.value) {
-                    window.location.href = '@Url.Action("StudentManagement", "Admin")' + '?acyId=' + result.value + '&gradMode=true';
+                    window.location.href = '@Url.Action("StudentManagement", "Admin")' + '?acyId=' + result.value.acyId + '&gradMode=true&gradYear=' + result.value.graduationYear;
                 }
             });
         });
@@ -429,6 +459,12 @@
         }
 
         function saveGraduations() {
+            var graduationYear = parseInt(gradYearInput, 10);
+            if (!gradYearInput || isNaN(graduationYear) || graduationYear < 1900 || graduationYear > 2100) {
+                Swal.fire({ icon: 'warning', title: 'Missing graduation year', text: 'Graduation year is missing. Please click Manage Graduation again and enter the enrollment and graduation years.' });
+                return;
+            }
+
             var selects = document.querySelectorAll('.bulk-grad-select');
             var updates = [];
             selects.forEach(function (sel) {
@@ -450,13 +486,13 @@
                 cancelButtonText: 'Cancel'
             }).then(function (result) {
                 if (!result.isConfirmed) return;
-                postUpdates('@Url.Action("BulkUpdateGraduations", "Admin")', updates,
+                postUpdates('@Url.Action("BulkUpdateGraduations", "Admin")', { updates: updates, graduationYear: graduationYear },
                     'Graduation statuses updated. Graduation records were created for newly graduated students.');
             });
         }
 
         function updatingText(graduatingCount, total) {
-            return 'This will mark ' + graduatingCount + ' student(s) as graduated (a graduation record will be created automatically) and update ' + total + ' record(s) in total.';
+            return 'This will mark ' + graduatingCount + ' student(s) as graduated with graduation year ' + gradYearInput + ' (a graduation record will be created automatically) and update ' + total + ' record(s) in total.';
         }
     </script>
 }

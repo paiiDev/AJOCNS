@@ -15,7 +15,7 @@ namespace AJOCNS.Domain.Interfaces
         Task<Result<List<StudentDto>>> GetAllStudentsAsync();
         Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId);
         Task<Result<bool>> BulkUpdateMajorsAsync(List<BulkMajorUpdateItemDto> updates);
-        Task<Result<bool>> BulkUpdateGraduationsAsync(List<BulkGraduationUpdateItemDto> updates);
+        Task<Result<bool>> BulkUpdateGraduationsAsync(BulkGraduationUpdateRequestDto request);
         Task<Result<List<MajorDto>>> GetMajorsAsync();
         Task<Result<List<MajorDto>>> GetFoundationMajorsAsync();
         Task<Result<List<AcademicYearDto>>> GetAcademicYearsAsync();

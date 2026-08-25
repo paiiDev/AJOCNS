@@ -1,4 +1,5 @@
 ﻿using AJOCNS.Domain.Interfaces;
+using AJOCNS.Shared.DTOs.GraduationRecords;
 using AJOCNS.Shared.DTOs.StudentRegistration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +11,11 @@ namespace AJOCNS.App.Controllers
     public class AdminController : Controller
     {
         private readonly IStudentRegistrationService _studentRegistrationService;
-        public AdminController(IStudentRegistrationService studentRegistrationService)
+        private readonly IGraduationRecordService _graduationRecordService;
+        public AdminController(IStudentRegistrationService studentRegistrationService, IGraduationRecordService graduationRecordService)
         {
             _studentRegistrationService = studentRegistrationService;
+            _graduationRecordService = graduationRecordService;
         }
 
         public IActionResult Index()
@@ -56,14 +59,103 @@ namespace AJOCNS.App.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkUpdateGraduations([FromBody] List<BulkGraduationUpdateItemDto> updates)
+        public async Task<IActionResult> BulkUpdateGraduations([FromBody] BulkGraduationUpdateRequestDto request)
         {
-            var result = await _studentRegistrationService.BulkUpdateGraduationsAsync(updates);
+            var result = await _studentRegistrationService.BulkUpdateGraduationsAsync(request);
             if (result.IsSuccess)
             {
                 return Json(new { success = true });
             }
             return Json(new { success = false, message = result.ErrorMessage ?? "Failed to update graduation statuses." });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GraduationRecords(int page = 1, short? graduationYear = null)
+        {
+            const int pageSize = 10;
+
+            var years = await _graduationRecordService.GetGraduationYearsAsync();
+            ViewBag.GraduationYears = years;
+            ViewBag.SelectedGraduationYear = graduationYear;
+
+            var result = await _graduationRecordService.GetGraduationRecordsPagedAsync(page, pageSize, graduationYear: graduationYear);
+            if (!result.IsSuccess)
+            {
+                return View(new PagedGraduationRecordDto());
+            }
+            return View(result.Data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteGraduationRecord(int id)
+        {
+            var result = await _graduationRecordService.DeleteGraduationRecordAsync(id);
+
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Deleted!" : "Delete Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "Graduation record has been removed."
+                : result.ErrorMessage ?? "Could not delete graduation record.";
+
+            return RedirectToAction("GraduationRecords", "Admin");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditGraduationRecord(int id)
+        {
+            var result = await _graduationRecordService.GetGraduationRecordByIdAsync(id);
+            if (!result.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Not Found";
+                TempData["SweetAlert_Message"] = result.ErrorMessage;
+                return RedirectToAction("GraduationRecords", "Admin");
+            }
+
+            await PopulateDegrees();
+            return View(result.Data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditGraduationRecord(EditGraduationRecordDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateDegrees();
+                return View(dto);
+            }
+
+            var result = await _graduationRecordService.UpdateGraduationRecordAsync(dto);
+
+            if (result.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "success";
+                TempData["SweetAlert_Title"] = "Updated!";
+                TempData["SweetAlert_Message"] = "Graduation record updated successfully.";
+                return RedirectToAction("GraduationRecords", "Admin");
+            }
+
+            TempData["SweetAlert_Type"] = "error";
+            TempData["SweetAlert_Title"] = "Update Failed";
+            TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Could not update graduation record.";
+            await PopulateDegrees();
+            return View(dto);
+        }
+
+        private async Task PopulateDegrees()
+        {
+            var degrees = await _graduationRecordService.GetDegreesAsync();
+            if (degrees.IsSuccess)
+            {
+                ViewBag.Degrees = degrees;
+            }
+            else
+            {
+                ModelState.AddModelError("", "No degrees found.");
+                ViewBag.Degrees = new List<DegreeOptionDto>();
+            }
         }
 
         [HttpGet]
@@ -155,6 +247,7 @@ namespace AJOCNS.App.Controllers
             }
 
             await PopulateMajorsDropdownAsync();
+            await PopulateAcademicYears();
             return View(result.Data);
         }
 
@@ -165,6 +258,7 @@ namespace AJOCNS.App.Controllers
             if (!ModelState.IsValid)
             {
                 await PopulateMajorsDropdownAsync();
+                await PopulateAcademicYears();
                 return View(dto);
             }
 
@@ -182,6 +276,7 @@ namespace AJOCNS.App.Controllers
             TempData["SweetAlert_Title"] = "Update Failed";
             TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Could not update student.";
             await PopulateMajorsDropdownAsync();
+            await PopulateAcademicYears();
             return View(dto);
         }
 

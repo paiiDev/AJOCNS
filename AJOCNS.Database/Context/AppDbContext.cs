@@ -296,10 +296,15 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => e.MajorName, "UQ_Majors_MajorName").IsUnique();
 
             entity.Property(e => e.MajorId).HasColumnName("Major_ID");
+            entity.Property(e => e.DegreeId).HasColumnName("Degree_ID");
             entity.Property(e => e.IsFoundation)
                 .HasDefaultValue(false)
                 .HasColumnName("isFoundation");
             entity.Property(e => e.MajorName).HasMaxLength(150);
+
+            entity.HasOne(d => d.Degree).WithMany(p => p.Majors)
+                .HasForeignKey(d => d.DegreeId)
+                .HasConstraintName("FK_Majors_Degrees");
         });
 
         modelBuilder.Entity<Mentor>(entity =>

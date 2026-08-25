@@ -12,4 +12,6 @@ public partial class Degree
     public string DegreeCode { get; set; } = null!;
 
     public virtual ICollection<GraduationRecord> GraduationRecords { get; set; } = new List<GraduationRecord>();
+
+    public virtual ICollection<Major> Majors { get; set; } = new List<Major>();
 }

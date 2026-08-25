@@ -49,7 +49,7 @@ namespace AJOCNS.Database.Repositories
 
         public async Task<List<Student>> GetAllStudentsAsync()
         {
-           return await _context.Students.AsNoTracking().Include(m =>  m.Major).ToListAsync();
+           return await _context.Students.AsNoTracking().Include(m => m.Major).Include(s => s.GraduationRecords).ToListAsync();
         }
 
         public async Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId)
@@ -57,6 +57,7 @@ namespace AJOCNS.Database.Repositories
             var query = _context.Students.AsNoTracking()
                 .Include(s => s.Major)
                 .Include(s => s.Enrollments).ThenInclude(e => e.Acy)
+                .Include(s => s.GraduationRecords)
                 .AsQueryable();
 
             if (majorId.HasValue)
@@ -111,7 +112,7 @@ namespace AJOCNS.Database.Repositories
             }
         }
 
-        public async Task<bool> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs)
+        public async Task<bool> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs, short graduationYear)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -119,12 +120,16 @@ namespace AJOCNS.Database.Repositories
                 var studentIds = studentStatusPairs.Keys.ToList();
                 var students = await _context.Students
                     .Include(s => s.GraduationRecords)
+                    .Include(s => s.Major)
+                    .ThenInclude(d => d.Degree)
                     .Where(s => studentIds.Contains(s.StudentId))
                     .ToListAsync();
 
                 if (students.Count == 0) return false;
 
-                short graduationYear = (short)DateTime.Now.Year;
+                string nextGrn = await GenerateNextGRN(graduationYear);
+                int grnSequence = int.Parse(nextGrn.Substring(nextGrn.LastIndexOf('-') + 1));
+
                 int? defaultDegreeId = await _context.Degrees
                     .OrderBy(d => d.DegreeId)
                     .Select(d => (int?)d.DegreeId)
@@ -137,19 +142,30 @@ namespace AJOCNS.Database.Repositories
 
                     student.GraduationStatus = status;
 
-                    if (status == "Graduated"
-                        && !student.GraduationRecords.Any()
-                        && defaultDegreeId.HasValue)
+                    if (status == "Graduated")
                     {
-                        _context.GraduationRecords.Add(new GraduationRecord
+                        if (!student.GraduationRecords.Any())
                         {
-                            OfficialName = student.Name,
-                            Grn = GenerateNewGRN(),
-                            GraduationYear = graduationYear,
-                            DegreeId = defaultDegreeId.Value,
-                            AccStatus = "Active",
-                            StudentId = student.StudentId
-                        });
+                            int degreeId = student.Major?.DegreeId ?? defaultDegreeId ?? 0;
+                            if (degreeId == 0) continue;
+
+                            _context.GraduationRecords.Add(new GraduationRecord
+                            {
+                                OfficialName = student.Name,
+                                Grn = $"PUPL-{graduationYear}-{grnSequence:D5}",
+                                GraduationYear = graduationYear,
+                                DegreeId = degreeId,
+                                AccStatus = "Active",
+                                StudentId = student.StudentId
+                            });
+                            grnSequence++;
+                        }
+                    }
+                    else
+                    {
+                        var recordsToRemove = _context.GraduationRecords
+                            .Where(gr => gr.StudentId == student.StudentId);
+                        _context.GraduationRecords.RemoveRange(recordsToRemove);
                     }
                 }
 
@@ -164,11 +180,25 @@ namespace AJOCNS.Database.Repositories
             }
         }
 
-        private static string GenerateNewGRN()
+        private async Task<string> GenerateNextGRN(short graduationYear)
         {
-            string year = DateTime.Now.ToString("yyyy");
-            string random = Random.Shared.Next(10000, 99999).ToString();
-            return $"PUPL-{year}-{random}";
+            string prefix = $"PUPL-{graduationYear}-";
+
+            var existingGrns = await _context.GraduationRecords
+                .Where(gr => gr.Grn.StartsWith(prefix))
+                .Select(gr => gr.Grn)
+                .ToListAsync();
+
+            int maxNumber = 0;
+            foreach (var grn in existingGrns)
+            {
+                if (int.TryParse(grn.Substring(prefix.Length), out int number) && number > maxNumber)
+                {
+                    maxNumber = number;
+                }
+            }
+
+            return $"{prefix}{(maxNumber + 1):D5}";
         }
 
         public async Task<List<Major>> GetAllMajorsAsync()
@@ -193,7 +223,44 @@ namespace AJOCNS.Database.Repositories
         {
             return await _context.Students
                 .Include(s => s.Major)
+                .Include(s => s.Enrollments)
+                .Include(s => s.GraduationRecords)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
+        }
+
+        public async Task<bool> UpdateStudentEnrollmentAcyAsync(int studentId, int acyId)
+        {
+            try
+            {
+                var enrollment = await _context.Enrollments
+                    .Where(e => e.StudentId == studentId)
+                    .OrderByDescending(e => e.ErId)
+                    .FirstOrDefaultAsync();
+
+                if (enrollment is null)
+                {
+                    bool studentExists = await _context.Students.AnyAsync(s => s.StudentId == studentId);
+                    if (!studentExists) return false;
+
+                    _context.Enrollments.Add(new Enrollment
+                    {
+                        StudentId = studentId,
+                        AcyId = acyId,
+                        Status = "Enrolled"
+                    });
+                }
+                else
+                {
+                    enrollment.AcyId = acyId;
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<bool> UpdateStudentAsync(Student student)

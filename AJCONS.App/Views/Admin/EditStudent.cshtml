@@ -111,19 +111,52 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label asp-for="GraduationStatus" class="form-label fw-semibold">Programme Status <span class="text-danger">*</span></label>
-                                        <select asp-for="GraduationStatus" class="form-select" id="graduationStatusSelect">
-                                            <option value="Undergraduate">Undergraduate</option>
-                                            <option value="Dropout">Dropout</option>
+                                        @if (Model.IsGraduated)
+                                        {
+                                            <input type="hidden" asp-for="GraduationStatus" />
+                                            <select class="form-select" id="graduationStatusSelect" disabled>
+                                                <option selected>Graduated</option>
+                                            </select>
+                                            <small class="text-muted small mt-1 d-block">
+                                                <i class="fa-solid fa-lock me-1"></i>Status is locked because this student has a graduation record. Remove the record in Graduation Records to change it.
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <select asp-for="GraduationStatus" class="form-select" id="graduationStatusSelect">
+                                                <option value="Undergraduate">Undergraduate</option>
+                                                <option value="Dropout">Dropout</option>
 
-                                        </select>
+                                            </select>
+                                        }
                                         <span asp-validation-for="GraduationStatus" class="text-danger small mt-1 d-block"></span>
                                     </div>
                                 </div>
-
-                               
                             </div>
 
-                           
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="AcyId" class="form-label fw-semibold">Academic Year (Enrollment Year) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-calendar-days text-muted"></i></span>
+                                            <select asp-for="AcyId" class="form-select">
+                                                <option value="">-- Select Academic Year --</option>
+                                                @if (ViewBag.AcademicYears != null && ViewBag.AcademicYears.IsSuccess)
+                                                {
+                                                    foreach (var acy in ViewBag.AcademicYears.Data)
+                                                    {
+                                                        <option value="@acy.AcyId">@acy.AcademicYear</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <span asp-validation-for="AcyId" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+
+
+                            </div>
                         </div>
 
                         <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">

@@ -15,12 +15,13 @@ namespace AJOCNS.Database.Interfaces
         Task<List<Student>> GetAllStudentsAsync();
         Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId);
         Task<bool> BulkUpdateMajorsAsync(Dictionary<int, int> studentMajorPairs);
-        Task<bool> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs);
+        Task<bool> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs, short graduationYear);
         Task<List<Major>> GetAllMajorsAsync();
         Task<List<Major>> GetFoundationMajorsAsync();
         Task<List<AcademicYear>> GetAcademicYearsAsync();
         Task<Student?> GetStudentByIdAsync(int studentId);
         Task<bool> UpdateStudentAsync(Student student);
+        Task<bool> UpdateStudentEnrollmentAcyAsync(int studentId, int acyId);
         Task<bool> DeleteStudentAsync(int studentId);
         Task<List<Degree>> GetDegreesAsync();
     }
