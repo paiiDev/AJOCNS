@@ -42,6 +42,18 @@
             border-bottom: 1px solid rgba(229, 231, 235, 0.8);
         }
 
+        html {
+            --navbar-scroll-offset: 82px;
+            scroll-padding-top: var(--navbar-scroll-offset);
+            overflow-x: hidden;
+        }
+
+     
+
+        section[id] {
+            scroll-margin-top: var(--navbar-scroll-offset);
+        }
+
         .navbar-brand {
             font-size: 1.05rem;
             font-weight: 800;
@@ -727,6 +739,42 @@
                     ========================== */
 
         @@media (max-width: 991px) {
+            html {
+                --navbar-scroll-offset: 74px;
+            }
+
+            .navbar .container {
+                align-items: center;
+            }
+
+            .navbar-collapse {
+                width: 100%;
+                padding-top: 1rem;
+            }
+
+            .navbar-nav {
+                width: 100%;
+                padding-bottom: .75rem;
+            }
+
+            .nav-link {
+                margin: 0;
+                padding: .7rem 0;
+            }
+
+            .navbar-collapse > .d-flex {
+                align-items: stretch !important;
+                flex-direction: column;
+                gap: .5rem;
+                width: 100%;
+                padding-top: .75rem;
+                border-top: 1px solid rgba(229, 231, 235, .9);
+            }
+
+            .navbar-collapse > .d-flex .btn {
+                width: 100%;
+            }
+
             .hero {
                 padding: 75px 0;
             }
@@ -799,7 +847,7 @@
             width: 130px;
             height: 130px;
             border-radius: 50%;
-            background: linear-gradient( 135deg, var( -- primary), #2c5282 );
+            background: linear-gradient(135deg, var(--primary), #2c5282);
             color: white;
             display: flex;
             flex-direction: column;
@@ -876,7 +924,7 @@
             .node .node-label {
                 font-size: .78rem;
                 font-weight: 700;
-                color: var( -- dark);
+                color: var(--dark);
             }
 
             .node .node-sub {
@@ -988,18 +1036,165 @@
                 right: -20px;
             }
 
-            .floating-card.two {
+        .floating-card.two {
                 bottom: -25px;
                 left: -20px;
             }
+
+        /* Keep decorative elements from creating a horizontal scrollbar. */
+        body {
+            margin: 0;
+            overflow-x: clip;
+        }
+
+        @@media (max-width: 991px) {
+            .hero-visual {
+                min-height: 380px;
+                margin: 1.5rem auto 0;
+                max-width: 620px;
+            }
+
+            .network-section {
+                overflow: hidden;
+            }
+        }
+
+        @@media (max-width: 575.98px) {
+            .container {
+                --bs-gutter-x: 1.25rem;
+            }
+
+            .hero {
+                padding: 58px 0 52px;
+            }
+
+            .hero-actions > .btn {
+                width: 100%;
+            }
+
+            .section {
+                padding: 52px 0;
+            }
+
+            /* Avoid an empty band after the hero before Opportunities appears. */
+            #opportunities {
+                padding-top: 24px;
+            }
+
+            .feature-card,
+            .role-card {
+                padding: 24px;
+            }
+
+            .event-top,
+            .event-body {
+                padding: 20px;
+            }
+
+            .trust-box {
+                border-radius: 18px;
+                padding: 32px 20px;
+            }
+
+            .trust-box h2,
+            .cta-box h2 {
+                font-size: 1.55rem;
+            }
+
+            .flow-card {
+                padding: 24px 16px;
+            }
+
+            .flow-item {
+                align-items: flex-start;
+                gap: 12px;
+                padding: 15px;
+            }
+
+            .cta-section {
+                padding: 52px 0;
+            }
+
+            .cta-box {
+                border-radius: 18px;
+                padding: 40px 20px;
+            }
+
+            .hero-visual {
+                min-height: 330px;
+                max-width: 100%;
+            }
+
+            .hub {
+                width: 104px;
+                height: 104px;
+                font-size: .72rem;
+            }
+
+            .hub i {
+                font-size: 1.45rem;
+            }
+
+            .hub-ring {
+                width: 145px;
+                height: 145px;
+            }
+
+            .hub-ring-outer {
+                width: 190px;
+                height: 190px;
+            }
+
+            .node {
+                gap: 8px;
+                max-width: calc(50% - 10px);
+                padding: 10px;
+                white-space: normal;
+            }
+
+            .node-icon {
+                width: 34px;
+                height: 34px;
+                min-width: 34px;
+            }
+
+            .node .node-label {
+                font-size: .68rem;
+            }
+
+            .node .node-sub {
+                font-size: .56rem;
+            }
+
+            .node-student {
+                left: 0;
+            }
+
+            .node-mentor {
+                right: 0;
+            }
+
+            .node-partner {
+                right: 0;
+            }
+
+            .node-job {
+                right: 0;
+            }
+
+            .connector {
+                display: none;
+            }
+        }
 </style>
 </head>
+<body>
 
 <!-- ==========================
          NAVBAR
     =========================== -->
 
-<nav class="navbar navbar-expand-lg sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
 
     <div class="container">
 
@@ -1020,7 +1215,10 @@
         <button class="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#mainNavbar">
+                data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
 
             <span class="navbar-toggler-icon"></span>
 
@@ -1101,7 +1299,7 @@
 
             <div class="row align-items-center">
 
-                <div class="col-lg-7">
+                <div class="col-lg-7 mb-5">
 
                     <div class="hero-badge">
 
@@ -1115,8 +1313,8 @@
                     <h1>
 
                         ချိတ်ဆက် <br />
-                    &nbsp;&nbsp;  &nbsp;&nbsp; &nbsp;  <span class="py-5"> ရှာဖွေ</span> <br />
-                    &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;&nbsp;  &nbsp; တိုးတက် <br />
+                        &nbsp;&nbsp;  &nbsp;&nbsp; &nbsp; &nbsp;  <span class="py-5"> ရှာဖွေ</span> <br />
+                        &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;&nbsp;  &nbsp;  &nbsp;  &nbsp; &nbsp;&nbsp;  &nbsp; တိုးတက် <br />
 
                     </h1>
 
@@ -2571,7 +2769,9 @@
 
     </footer>
 
-   </html>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
 
 
 
