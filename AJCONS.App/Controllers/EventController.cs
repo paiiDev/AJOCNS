@@ -17,12 +17,22 @@ namespace AJOCNS.App.Controllers
             _eventService = eventService;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, string? eventType = null, string? eventStatus = null)
         {
             const int pageSize = 10;
 
-            var result = await _eventService.GetEventsPagedAsync(page, pageSize);
+
+            var eventTypesResult = await _eventService.GetEventTypesAsync();
+            ViewBag.EventTypes = eventTypesResult;
+            ViewBag.SelectedEventType = eventType;
+
+            var eventStatusesResult = await _eventService.GetEventStatusesAsync(); 
+            ViewBag.EventStatuses = eventStatusesResult;
+            ViewBag.SelectedEventStatus = eventStatus;
+
+            var result = await _eventService.GetEventsPagedAsync(page, pageSize, eventType, eventStatus);
             ViewBag.IsAdmin = User.IsInRole("Admin");
+           
 
             if (!result.IsSuccess)
             {

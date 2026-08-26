@@ -90,12 +90,26 @@ namespace AJOCNS.Domain.Services
             return Result<List<EventDto>>.Success(eventDtos);
         }
 
-        public async Task<Result<PagedEventDto>> GetEventsPagedAsync(int page, int pageSize)
+        public async Task<Result<List<EventStatusDto>>> GetEventStatusesAsync()
+        {
+            var statuses = await _eventRepo.GetEventStatusesAsync();
+            if (statuses == null || !statuses.Any())
+            {
+                return Result<List<EventStatusDto>>.Failure("No event statuses found");
+            }
+            var statusDtos = statuses.Select(s => new EventStatusDto
+            {
+                Status = s.Status
+            }).ToList();
+            return Result<List<EventStatusDto>>.Success(statusDtos);
+        }
+
+        public async Task<Result<PagedEventDto>> GetEventsPagedAsync(int page, int pageSize, string? eventType = null, string? eventStatus = null)
         {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
 
-            var (items, totalCount) = await _eventRepo.GetEventsPagedAsync(page, pageSize);
+            var (items, totalCount) = await _eventRepo.GetEventsPagedAsync(page, pageSize, eventType, eventStatus);
 
             var paged = new PagedEventDto
             {

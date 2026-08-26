@@ -53,13 +53,34 @@ namespace AJOCNS.Database.Repositories
                 .ToListAsync();
         }
 
-        public async Task<(List<Event> Items, int TotalCount)> GetEventsPagedAsync(int page, int pageSize)
+        public async Task<List<Event>> GetEventStatusesAsync()
+        {
+               return await _context.Events
+                .AsNoTracking()
+                .Select(e => new Event
+                {
+                    Status = e.Status
+                })
+                .ToListAsync();
+        }
+
+        public async Task<(List<Event> Items, int TotalCount)> GetEventsPagedAsync(int page, int pageSize, string? eventType = null, string? eventStatus = null)
         {
             var query = _context.Events
                 .AsNoTracking()
                 .Include(e => e.EventType)
                 .Include(e => e.CreatedByUser)
                 .AsQueryable();
+
+            if(!string.IsNullOrEmpty(eventType))
+            {
+                query = query.Where(e => e.EventType.EventTypeName == eventType);
+            }
+
+            if(!string.IsNullOrEmpty(eventStatus))
+            {
+                query = query.Where(e => e.Status == eventStatus);
+            }
 
             int totalCount = await query.CountAsync();
 

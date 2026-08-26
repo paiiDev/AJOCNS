@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Events | AJCONS";
     var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+    var selectedEventType = ViewBag.SelectedEventType as string;
+    var SelectedEventStatus = ViewBag.SelectedEventStatus as string;
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -23,6 +25,35 @@
 
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
+
+            <form method="get" id="filterForm" class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                <label class="fw-semibold small text-muted mb-0"><i class="fa-solid fa-filter me-1"></i>Filter by Event Type:</label>
+                <select name="eventType" class="form-select form-select-sm" style="max-width:280px" onchange="this.form.submit()">
+                    <option value="">All event types</option>
+                    @if (ViewBag.EventTypes != null && ViewBag.EventTypes.IsSuccess)
+                    {
+                        foreach (var eventType in ViewBag.EventTypes.Data)
+                        {
+                            <option value="@eventType.Name" selected="@(selectedEventType == eventType.Name.ToString())">@eventType.Name</option>
+                        }
+                    }
+                </select>
+                <label class="fw-semibold small text-muted mb-0 ms-2"><i class="fa-solid fa-calendar-days me-1"></i>Filter by Event Status:</label>
+                <select name="eventStatus" class="form-select form-select-sm" style="max-width:220px" onchange="this.form.submit()">
+                    <option value=""> Event Statuses </option>
+                    @if (ViewBag.EventStatuses != null && ViewBag.EventStatuses.IsSuccess)
+                    {
+                        foreach (var eventStatus in ViewBag.EventStatuses.Data)
+                        {
+                            <option value="@eventStatus.Status" selected="@(SelectedEventStatus == eventStatus.Status.ToString())">@eventStatus.Status</option>
+                        }
+                    }
+                </select>
+                @if (!string.IsNullOrEmpty(selectedEventType) || SelectedEventStatus != null)
+                {
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Clear</a>
+                }
+            </form>
             <div class="card adminlte-card">
                 <div class="card-header py-3">
                     <h3 class="card-title fw-bold mb-0">Event directory</h3>
