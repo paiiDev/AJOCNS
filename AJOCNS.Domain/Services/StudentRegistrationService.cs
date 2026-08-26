@@ -11,10 +11,12 @@ namespace AJOCNS.Domain.Services
     {
         private readonly IStudentRepository _studentRepo;
         private readonly IEmailService _emailService;
-        public StudentRegistrationService(IStudentRepository studentRepo, IEmailService emailService)
+        private readonly IEventRepository _eventRepo;
+        public StudentRegistrationService(IStudentRepository studentRepo, IEmailService emailService, IEventRepository eventRepo)
         {
             _studentRepo = studentRepo;
             _emailService = emailService;
+            _eventRepo = eventRepo;
         }
 
         public async Task<Result<bool>> RegisterStudentAsync(StudentRegistrationDto studentRegistrationDto)
@@ -169,7 +171,8 @@ namespace AJOCNS.Domain.Services
             {
                 ActiveStudents = await _studentRepo.CountActiveStudentsAsync(),
                 ActiveMentors = await _studentRepo.CountActiveMentorsAsync(),
-                PendingApprovals = await _studentRepo.CountPendingEventRegistrationsAsync(),
+                PendingApprovals = await _studentRepo.CountPendingEventRegistrationsAsync()
+                    + await _eventRepo.CountPendingEventsAsync(),
                 CareerEventsHosted = await _studentRepo.CountCareerEventsAsync()
             };
 

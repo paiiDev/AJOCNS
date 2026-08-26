@@ -1,0 +1,136 @@
+@model AJOCNS.Shared.DTOs.Events.CreateEventDto
+@{
+    ViewData["Title"] = "Create Event";
+    Layout = "_Layout";
+}
+
+<section class="content-header py-4 py-lg-5">
+    <div class="container-fluid px-lg-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+            <div>
+                <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                    Event management
+                </div>
+                <h1 class="h2 fw-bold mb-1">Create event</h1>
+                <p class="text-muted mb-0">Host a new career event for the academic community.</p>
+            </div>
+            <a asp-action="Index" asp-controller="Event" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-2"></i>Back to events
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="content pb-5">
+    <div class="container-fluid px-lg-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card adminlte-card">
+                    <div class="card-header py-3">
+                        <h3 class="card-title fw-bold mb-0">
+                            <i class="fa-solid fa-calendar-plus me-2 text-academic"></i>Event information
+                        </h3>
+                    </div>
+
+                    <form asp-action="CreateEvent" asp-controller="Event" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="card-body">
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger rounded-3" role="alert">
+                                    <div asp-validation-summary="All" class="mb-0 list-unstyled small"></div>
+                                </div>
+                            }
+
+                            <div class="mb-3">
+                                <label asp-for="EventTitle" class="form-label fw-semibold">Event Title <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa-solid fa-heading text-muted"></i></span>
+                                    <input asp-for="EventTitle" class="form-control" placeholder="e.g. Career Fair 2026" />
+                                </div>
+                                <span asp-validation-for="EventTitle" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="EventTypeId" class="form-label fw-semibold">Event Type <span class="text-danger">*</span></label>
+                                        <select asp-for="EventTypeId" class="form-select">
+                                            <option value="">-- Select event type --</option>
+                                            @if (ViewBag.EventTypes != null)
+                                            {
+                                                foreach (var type in ViewBag.EventTypes)
+                                                {
+                                                    <option value="@type.Id">@type.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="EventTypeId" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="EventDate" class="form-label fw-semibold">Event Date &amp; Time <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-calendar-days text-muted"></i></span>
+                                            <input asp-for="EventDate" type="datetime-local" class="form-control" />
+                                        </div>
+                                        <span asp-validation-for="EventDate" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="MaxCapacity" class="form-label fw-semibold">Max Capacity</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-users text-muted"></i></span>
+                                            <input asp-for="MaxCapacity" type="number" min="1" class="form-control" placeholder="Leave empty for unlimited" />
+                                        </div>
+                                        <span asp-validation-for="MaxCapacity" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="EventMode" class="form-label fw-semibold">Event Mode</label>
+                                        <select asp-for="EventMode" class="form-select">
+                                            <option value="">-- Select mode --</option>
+                                            <option value="Onsite">Onsite</option>
+                                            <option value="Online">Online</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                        </select>
+                                        <span asp-validation-for="EventMode" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Location" class="form-label fw-semibold">Location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa-solid fa-location-dot text-muted"></i></span>
+                                    <input asp-for="Location" class="form-control" placeholder="Venue" />
+                                </div>
+                                <span asp-validation-for="Location" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                                <textarea asp-for="Description" rows="4" class="form-control" placeholder="Describe the event..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
+                            <a asp-action="Index" asp-controller="Event" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-academic">
+                                <i class="fa-solid fa-check me-2"></i>Create event
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -219,12 +219,10 @@ public partial class AppDbContext : DbContext
         {
             entity.ToTable("Event_Types");
 
-            entity.HasIndex(e => e.EventType1, "UQ_Event_Types_EventType").IsUnique();
+            entity.HasIndex(e => e.EventTypeName, "UQ_Event_Types_EventType").IsUnique();
 
             entity.Property(e => e.EventTypeId).HasColumnName("EventType_ID");
-            entity.Property(e => e.EventType1)
-                .HasMaxLength(100)
-                .HasColumnName("EventType");
+            entity.Property(e => e.EventTypeName).HasMaxLength(100);
         });
 
         modelBuilder.Entity<ExternalPartner>(entity =>
