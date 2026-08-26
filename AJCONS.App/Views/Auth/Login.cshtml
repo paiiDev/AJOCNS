@@ -39,12 +39,15 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-light);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         body > .container {
-            min-height: calc(100vh - 69px);
+            flex: 1;
             display: flex;
             align-items: center;
+            justify-content: center;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -137,6 +140,22 @@
 
             .login-form-wrapper {
                 padding: 3rem 2rem;
+            }
+        }
+
+        @@media (max-width: 575.98px) {
+            .login-form-wrapper {
+                padding: 2rem 1.5rem;
+            }
+
+            .login-card {
+                margin: 0.5rem;
+                border-radius: 1rem;
+            }
+
+            body > .container {
+                align-items: flex-start;
+                padding-top: 1.5rem;
             }
         }
     </style>
