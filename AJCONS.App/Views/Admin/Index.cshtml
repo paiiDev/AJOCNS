@@ -23,7 +23,7 @@
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="small-box text-bg-primary mb-0 shadow-sm">
                         <div class="inner">
-                            <h3>1,240</h3>
+                            <h3>@ViewBag.ActiveStudentCount</h3>
                             <p>Verified students</p>
                         </div>
                         <div class="icon"><i class="fa-solid fa-user-graduate"></i></div><a asp-action="StudentManagement" class="small-box-footer">
@@ -34,7 +34,7 @@
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="small-box bg-info mb-0 shadow-sm">
                         <div class="inner">
-                            <h3>320</h3>
+                            <h3>@ViewBag.ActiveMentorCount</h3>
                             <p>Active alumni mentors</p>
                         </div>
                         <div class="icon"><i class="fa-solid fa-people-group"></i></div><a href="#"
@@ -44,7 +44,7 @@
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="small-box bg-warning mb-0 shadow-sm">
                         <div class="inner">
-                            <h3>12</h3>
+                            <h3>@ViewBag.PendingApprovalCount</h3>
                             <p>Pending approvals</p>
                         </div>
                         <div class="icon"><i class="fa-solid fa-clipboard-check"></i></div><a href="#"
@@ -54,7 +54,7 @@
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="small-box bg-success mb-0 shadow-sm">
                         <div class="inner">
-                            <h3>45</h3>
+                            <h3>@ViewBag.CareerEventCount</h3>
                             <p>Career events hosted</p>
                         </div>
                         <div class="icon"><i class="fa-solid fa-calendar-days"></i></div><a href="#"

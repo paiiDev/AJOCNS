@@ -2,6 +2,7 @@
 using AJOCNS.Database.Interfaces;
 using AJOCNS.Domain.Interfaces;
 using AJOCNS.Shared.Common;
+using AJOCNS.Shared.DTOs.Dashboard;
 using AJOCNS.Shared.DTOs.StudentRegistration;
 
 namespace AJOCNS.Domain.Services
@@ -154,6 +155,25 @@ namespace AJOCNS.Domain.Services
             return string.IsNullOrEmpty(student.GraduationStatus) || student.GraduationStatus == "Graduated"
                 ? "Undergraduate"
                 : student.GraduationStatus;
+        }
+
+        public async Task<Result<int>> GetActiveStudentCountAsync()
+        {
+            int count = await _studentRepo.CountActiveStudentsAsync();
+            return Result<int>.Success(count);
+        }
+
+        public async Task<Result<DashboardStatsDto>> GetDashboardStatsAsync()
+        {
+            var stats = new DashboardStatsDto
+            {
+                ActiveStudents = await _studentRepo.CountActiveStudentsAsync(),
+                ActiveMentors = await _studentRepo.CountActiveMentorsAsync(),
+                PendingApprovals = await _studentRepo.CountPendingEventRegistrationsAsync(),
+                CareerEventsHosted = await _studentRepo.CountCareerEventsAsync()
+            };
+
+            return Result<DashboardStatsDto>.Success(stats);
         }
 
         public async Task<Result<PagedStudentDto>> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId, string? excludeGraduationStatus)

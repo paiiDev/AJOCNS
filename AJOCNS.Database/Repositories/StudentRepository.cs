@@ -52,6 +52,34 @@ namespace AJOCNS.Database.Repositories
            return await _context.Students.AsNoTracking().Include(m => m.Major).Include(s => s.GraduationRecords).ToListAsync();
         }
 
+        public async Task<int> CountActiveStudentsAsync()
+        {
+            return await _context.Students
+                .AsNoTracking()
+                .CountAsync(s => s.User.Status == "Active");
+        }
+
+        public async Task<int> CountActiveMentorsAsync()
+        {
+            return await _context.Mentors
+                .AsNoTracking()
+                .CountAsync(m => m.User.Status == "Active");
+        }
+
+        public async Task<int> CountPendingEventRegistrationsAsync()
+        {
+            return await _context.EventRegistrations
+                .AsNoTracking()
+                .CountAsync(er => er.Status.ToLower().Contains("pend"));
+        }
+
+        public async Task<int> CountCareerEventsAsync()
+        {
+            return await _context.Events
+                .AsNoTracking()
+                .CountAsync();
+        }
+
         public async Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId, string? excludeGraduationStatus)
         {
             var query = _context.Students.AsNoTracking()

@@ -18,8 +18,13 @@ namespace AJOCNS.App.Controllers
             _graduationRecordService = graduationRecordService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var stats = await _studentRegistrationService.GetDashboardStatsAsync();
+            ViewBag.ActiveStudentCount = stats.IsSuccess ? stats.Data.ActiveStudents : 0;
+            ViewBag.ActiveMentorCount = stats.IsSuccess ? stats.Data.ActiveMentors : 0;
+            ViewBag.PendingApprovalCount = stats.IsSuccess ? stats.Data.PendingApprovals : 0;
+            ViewBag.CareerEventCount = stats.IsSuccess ? stats.Data.CareerEventsHosted : 0;
             return View();
         }
 
