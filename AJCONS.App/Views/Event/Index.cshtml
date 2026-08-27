@@ -108,6 +108,13 @@
                                         @if (isAdmin)
                                         {
                                             <td class="text-end pe-4">
+                                                <form asp-action="EventDetails" asp-route-id="@ev.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-success"
+                                                            aria-label="Event Details @ev.EventTitle">
+                                                        <i class="fa-solid fa-check"></i> Details
+                                                    </button>
+                                                </form>
                                                 @if (isPending)
                                                 {
                                                     <form asp-action="ApproveEvent" asp-route-id="@ev.Id" method="post" class="d-inline">
