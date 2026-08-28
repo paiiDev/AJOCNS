@@ -10,6 +10,7 @@ namespace AJOCNS.App.Controllers
     [Authorize(Roles = "Admin,Mentor")]
     public class EventController : Controller
     {
+        private static readonly TimeZoneInfo MyanmarTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Myanmar Standard Time");
         private readonly IEventService _eventService;
 
         public EventController(IEventService eventService)
@@ -45,7 +46,9 @@ namespace AJOCNS.App.Controllers
         public async Task<IActionResult> CreateEvent()
         {
             await PopulateEventTypes();
-            return View(new CreateEventDto());
+            var nowMyanmar = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, MyanmarTimeZone);
+            var defaultEventDate = new DateTime(nowMyanmar.Year, nowMyanmar.Month, nowMyanmar.Day, nowMyanmar.Hour, nowMyanmar.Minute, 0);
+            return View(new CreateEventDto { EventDate = defaultEventDate });
         }
 
         [HttpPost]
@@ -60,7 +63,11 @@ namespace AJOCNS.App.Controllers
 
             bool isAdmin = User.IsInRole("Admin");
             int createdByUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-            var result = await _eventService.CreateEventAsync(dto, createdByUserId, autoApprove: isAdmin);
+
+            var eventDateMyanmar = dto.EventDate;
+            var eventDateUtc = TimeZoneInfo.ConvertTimeToUtc(eventDateMyanmar, MyanmarTimeZone);
+
+            var result = await _eventService.CreateEventAsync(dto, createdByUserId, autoApprove: isAdmin, eventDateUtc: eventDateUtc);
 
             if (result.IsSuccess)
             {

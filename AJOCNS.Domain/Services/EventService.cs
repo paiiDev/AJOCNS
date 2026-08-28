@@ -13,12 +13,27 @@ namespace AJOCNS.Domain.Services
 {
     public class EventService : IEventService
     {
+        private static readonly TimeZoneInfo MyanmarTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Myanmar Standard Time");
         private readonly IEventRepository _eventRepo;
 
         public EventService(IEventRepository eventRepo)
         {
             _eventRepo = eventRepo;
         }
+
+        private static EventDto ToEventDto(Event e) => new EventDto
+        {
+            Id = e.EventId,
+            EventTitle = e.EventTitle,
+            Description = e.Description,
+            EventTypeName = e.EventType?.EventTypeName ?? "-",
+            EventDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(e.EventDate, DateTimeKind.Utc), MyanmarTimeZone),
+            MaxCapacity = e.MaxCapacity,
+            EventMode = e.EventMode,
+            Location = e.Location,
+            Status = e.Status,
+            CreatedByName = e.CreatedByUser?.Email ?? "Unknown"
+        };
 
         public async Task<Result<List<EventTypeDto>>> GetEventTypesAsync()
         {
@@ -37,12 +52,12 @@ namespace AJOCNS.Domain.Services
             return Result<List<EventTypeDto>>.Success(typeDtos);
         }
 
-        public async Task<Result<bool>> CreateEventAsync(CreateEventDto dto, int createdByUserId, bool autoApprove)
+        public async Task<Result<bool>> CreateEventAsync(CreateEventDto dto, int createdByUserId, bool autoApprove, DateTime eventDateUtc)
         {
             if (dto is null)
                 return Result<bool>.Failure("Invalid event data.");
 
-            if (dto.EventDate < DateTime.Now.AddHours(-1))
+            if (eventDateUtc < DateTime.UtcNow.AddHours(-1))
                 return Result<bool>.Failure("Event date cannot be in the past.");
 
             bool typeExists = await _eventRepo.EventTypeExistsAsync(dto.EventTypeId);
@@ -55,7 +70,7 @@ namespace AJOCNS.Domain.Services
                 EventTitle = dto.EventTitle.Trim(),
                 Description = dto.Description,
                 EventTypeId = dto.EventTypeId,
-                EventDate = dto.EventDate,
+                EventDate = eventDateUtc,
                 MaxCapacity = dto.MaxCapacity,
                 EventMode = dto.EventMode,
                 Location = dto.Location,
@@ -73,19 +88,7 @@ namespace AJOCNS.Domain.Services
         public async Task<Result<List<EventDto>>> GetAllEventsAsync()
         {
             var events = await _eventRepo.GetAllEventsAsync();
-            var eventDtos = (events ?? new List<Event>()).Select(e => new EventDto
-            {
-                Id = e.EventId,
-                EventTitle = e.EventTitle,
-                Description = e.Description,
-                EventTypeName = e.EventType?.EventTypeName ?? "-",
-                EventDate = e.EventDate,
-                MaxCapacity = e.MaxCapacity,
-                EventMode = e.EventMode,
-                Location = e.Location,
-                Status = e.Status,
-                CreatedByName = e.CreatedByUser?.Email ?? "Unknown"
-            }).ToList();
+            var eventDtos = (events ?? new List<Event>()).Select(ToEventDto).ToList();
 
             return Result<List<EventDto>>.Success(eventDtos);
         }
@@ -113,19 +116,7 @@ namespace AJOCNS.Domain.Services
 
             var paged = new PagedEventDto
             {
-                Events = (items ?? new List<Event>()).Select(e => new EventDto
-                {
-                    Id = e.EventId,
-                    EventTitle = e.EventTitle,
-                    Description = e.Description,
-                    EventTypeName = e.EventType?.EventTypeName ?? "-",
-                    EventDate = e.EventDate,
-                    MaxCapacity = e.MaxCapacity,
-                    EventMode = e.EventMode,
-                    Location = e.Location,
-                    Status = e.Status,
-                    CreatedByName = e.CreatedByUser?.Email ?? "Unknown"
-                }).ToList(),
+                Events = (items ?? new List<Event>()).Select(ToEventDto).ToList(),
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalCount = totalCount

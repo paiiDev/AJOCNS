@@ -11,7 +11,7 @@ namespace AJOCNS.Domain.Interfaces
     public interface IEventService
     {
         Task<Result<List<EventTypeDto>>> GetEventTypesAsync();
-        Task<Result<bool>> CreateEventAsync(CreateEventDto dto, int createdByUserId, bool autoApprove);
+        Task<Result<bool>> CreateEventAsync(CreateEventDto dto, int createdByUserId, bool autoApprove, DateTime eventDateUtc);
         Task<Result<List<EventDto>>> GetAllEventsAsync();
         Task<Result<PagedEventDto>> GetEventsPagedAsync(int page, int pageSize, string? eventType = null, string? eventStatus = null);
         Task<Result<bool>> ApproveEventAsync(int eventId);
