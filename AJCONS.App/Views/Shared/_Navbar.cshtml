@@ -6,68 +6,38 @@
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     var isAdmin = User.IsInRole("Admin");
 }
-<nav class="main-header navbar navbar-expand-lg navbar-dark shadow-sm" style="background: linear-gradient(90deg, #073d78, #0b5cab); border-bottom: 3px solid #78b9f2;">
-    <div class="container-fluid px-lg-4">
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
-            <span class="d-inline-flex align-items-center justify-content-center navbar-brand" style="width: 34px; height: 34px;"> <img src="~/images/pupl.png" class="img-fluid" /></span>
-            <span>PUPL <small class="fw-normal opacity-75 d-none d-sm-inline">AJOCNS</small></span>
+<div class="shadow text-white" id="sidebar">
+    <div class="sidebar-heading text-center py-3 fs-5 fw-bold border-bottom border-light border-opacity-25 sticky-top bg-transparent">
+        <a asp-controller="Home" asp-action="Index" class="text-white text-decoration-none d-flex align-items-center justify-content-center gap-2">
+            <img src="~/images/pupl.png" width="30" alt="Logo" />
+            <span>PUPL <small class="fw-normal opacity-75">AJOCNS</small></span>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#academicNavigation" aria-controls="academicNavigation" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-        <div class="collapse navbar-collapse" id="academicNavigation">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                @if (isAdmin)
-                {
-                    <li class="nav-item"><a class="nav-link @(controller == "Admin" && action == "Index" ? "active" : "")" asp-controller="Admin" asp-action="Index"><i class="fa-solid fa-gauge-high me-1"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link @(controller == "Event" && action == "Index" ? "active" : "")" asp-controller="Event" asp-action="Index"><i class="fa-solid fa-calendar-days me-1"></i> Events</a></li>
-                    <li class="nav-item"><a class="nav-link @(controller == "Admin" && action == "StudentManagement" ? "active" : "")" asp-controller="Admin" asp-action="StudentManagement"><i class="fa-solid fa-user-graduate me-1"></i> Students</a></li>
-                    <li class="nav-item"><a class="nav-link @(controller == "Admin" && action == "GraduationRecords" ? "active" : "")" asp-controller="Admin" asp-action="GraduationRecords"><i class="fa-solid fa-file-lines  me-1"></i> Graduation Records</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#"><i class="fa-solid fa-circle-check me-1"></i> Approvals</a></li>
-                }
-                else if (User.Identity?.IsAuthenticated == true)
-                {
-                    <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house me-1"></i> Home</a></li>
-                }
-            </ul>
-            <ul class="navbar-nav ms-auto align-items-lg-center">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-circle-user me-1"></i> @userName</a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                            <li><span class="dropdown-item-text text-muted small">@userRole</span></li>
-                            <li><hr class="dropdown-divider" /></li>
-                            <li>
-                                <form id="logoutForm" asp-controller="Auth" asp-action="Logout" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <button class="dropdown-item text-danger" type="button" id="btnLogout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                }
-                else
-                {
-                    <li class="nav-item"><a class="nav-link" asp-controller="Auth" asp-action="Login">Login</a></li>
-                }
-            </ul>
-        </div>
     </div>
-</nav>
-<script>
-    document.getElementById('btnLogout')?.addEventListener('click', function () {
-        Swal.fire({
-            title: 'Logout?',
-            text: 'Are you sure you want to logout?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, logout',
-            cancelButtonText: 'Cancel'
-        }).then(function (result) {
-            if (result.isConfirmed) {
-                document.getElementById('logoutForm').submit();
-            }
-        });
-    });
-</script>
+
+    <div class="list-group list-group-flush my-3 px-2">
+        @if (isAdmin)
+        {
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "Index" ? "active-menu" : "")" asp-controller="Admin" asp-action="Index">
+                <i class="fa-solid fa-gauge-high me-2 text-center" style="width:20px"></i> Dashboard
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Event" && action == "Index" ? "active-menu" : "")" asp-controller="Event" asp-action="Index">
+                <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "StudentManagement" ? "active-menu" : "")" asp-controller="Admin" asp-action="StudentManagement">
+                <i class="fa-solid fa-user-graduate me-2 text-center" style="width:20px"></i> Students
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "GraduationRecords" ? "active-menu" : "")" asp-controller="Admin" asp-action="GraduationRecords">
+                <i class="fa-solid fa-file-lines me-2 text-center" style="width:20px"></i> Graduation Records
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2" href="#">
+                <i class="fa-solid fa-circle-check me-2 text-center" style="width:20px"></i> Approvals
+            </a>
+        }
+        else if (User.Identity?.IsAuthenticated == true)
+        {
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2" asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-house me-2 text-center" style="width:20px"></i> Home
+            </a>
+        }
+    </div>
+</div>

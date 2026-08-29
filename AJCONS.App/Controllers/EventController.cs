@@ -92,7 +92,7 @@ namespace AJOCNS.App.Controllers
                         await dto.PosterImage.CopyToAsync(fileStream);
                     }
 
-                    posterPath = "/images/events" + uniqueFileName;
+                    posterPath = "/images/events/" + uniqueFileName;
                 }
 
                 bool isAdmin = User.IsInRole("Admin");

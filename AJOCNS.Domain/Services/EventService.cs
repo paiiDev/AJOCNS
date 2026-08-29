@@ -3,6 +3,7 @@ using AJOCNS.Database.Interfaces;
 using AJOCNS.Domain.Interfaces;
 using AJOCNS.Shared.Common;
 using AJOCNS.Shared.DTOs.Events;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
@@ -116,6 +117,7 @@ namespace AJOCNS.Domain.Services
                 CreatedByName = GetCreatorName(result.CreatedByUser),
                 MaxCapacity = result.MaxCapacity?? null,
                 Status = result.Status,
+                PosterImagePath = result.PosterImagePath
 
             };
 

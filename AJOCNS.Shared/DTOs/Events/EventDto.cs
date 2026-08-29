@@ -21,5 +21,7 @@ namespace AJOCNS.Shared.DTOs.Events
         public string Status { get; set; } = null!;
 
         public string CreatedByName { get; set; } = null!;
+
+        public string? PosterImagePath { get; set; }
     }
 }
