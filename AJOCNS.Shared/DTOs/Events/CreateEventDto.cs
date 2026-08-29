@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace AJOCNS.Shared.DTOs.Events
 {
@@ -25,5 +26,7 @@ namespace AJOCNS.Shared.DTOs.Events
 
         [StringLength(255)]
         public string? Location { get; set; }
+
+        public IFormFile? PosterImage { get; set; }
     }
 }

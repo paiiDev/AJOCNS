@@ -27,6 +27,8 @@ public partial class Event
 
     public bool IsDeleted { get; set; }
 
+    public string? PosterImagePath { get; set; }
+
     public virtual User CreatedByUser { get; set; } = null!;
 
     public virtual ICollection<EventRegistration> EventRegistrations { get; set; } = new List<EventRegistration>();

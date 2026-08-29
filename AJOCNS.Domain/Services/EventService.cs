@@ -53,7 +53,7 @@ namespace AJOCNS.Domain.Services
             return Result<List<EventTypeDto>>.Success(typeDtos);
         }
 
-        public async Task<Result<bool>> CreateEventAsync(CreateEventDto dto, int createdByUserId, bool autoApprove, DateTime eventDateUtc)
+        public async Task<Result<bool>> CreateEventAsync(CreateEventDto dto, int createdByUserId, bool autoApprove, DateTime eventDateUtc, string posterPath)
         {
             if (dto is null)
                 return Result<bool>.Failure("Invalid event data.");
@@ -76,7 +76,8 @@ namespace AJOCNS.Domain.Services
                 EventMode = dto.EventMode,
                 Location = dto.Location,
                 Status = autoApprove ? "Upcoming" : "Pending",
-                IsDeleted = false
+                IsDeleted = false,
+                PosterImagePath = posterPath,
             };
 
             bool saved = await _eventRepo.CreateEventAsync(newEvent);
