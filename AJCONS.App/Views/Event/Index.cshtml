@@ -108,26 +108,13 @@
                                         @if (isAdmin)
                                         {
                                             <td class="text-end pe-4">
-                                                <form asp-action="EventDetails" asp-route-id="@ev.Id" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-success"
+
+                                                <button data-id="@ev.Id" type="button" class="btn btn-sm btn-outline-success btn-view-details w-50"
                                                             aria-label="Event Details @ev.EventTitle">
-                                                        <i class="fa-solid fa-check"></i> Details
+                                                        <i class="fa-solid fa-eye"></i> Details
                                                     </button>
-                                                </form>
-                                                @if (isPending)
-                                                {
-                                                    <form asp-action="ApproveEvent" asp-route-id="@ev.Id" method="post" class="d-inline">
-                                                        @Html.AntiForgeryToken()
-                                                        <button type="submit" class="btn btn-sm btn-outline-success"
-                                                                aria-label="Approve @ev.EventTitle"><i class="fa-solid fa-check"></i></button>
-                                                    </form>
-                                                    <form asp-action="RejectEvent" asp-route-id="@ev.Id" method="post" class="d-inline ms-1">
-                                                        @Html.AntiForgeryToken()
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                                aria-label="Reject @ev.EventTitle"><i class="fa-solid fa-xmark"></i></button>
-                                                    </form>
-                                                }
+                                              
+                                              
                                             </td>
                                         }
                                     </tr>
@@ -177,3 +164,43 @@
         </div>
     </section>
 </div>
+
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" id="modalContentArea">
+            <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.btn-view-details').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const eventId = this.getAttribute('data-id');
+                    const modalElement = document.getElementById('eventDetailsModal');
+                    const modal = new bootstrap.Modal(modalElement);
+                    const contentArea = document.getElementById('modalContentArea');
+
+                    contentArea.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+                    modal.show();
+
+                    try {
+                const response = await fetch(`@Url.Action("GetEventDetailsModal", "Event")?id=${eventId}`);
+
+                if (!response.ok) throw new Error('Network Error');
+
+                const html = await response.text();
+                contentArea.innerHTML = html;
+
+            } catch (error) {
+                contentArea.innerHTML = '<div class="p-4 text-danger">There is error when fetching data</div>';
+            }
+
+                } )
+            })
+        })
+    </script>
+}

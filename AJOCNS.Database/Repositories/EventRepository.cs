@@ -43,6 +43,14 @@ namespace AJOCNS.Database.Repositories
             }
         }
 
+        public async Task<Event?> GetEventById(int? id)
+        {
+            return await _context.Events.Include(e => e.EventType)
+                                        .Include(e => e.CreatedByUser).ThenInclude(u => u.Admin)
+                                        .Include(e => e.CreatedByUser).ThenInclude(u => u.Mentor)
+                                        .Include(e => e.CreatedByUser).ThenInclude(u => u.ExternalPartner).FirstOrDefaultAsync(x => x.EventId == id);
+        }
+
         public async Task<List<Event>> GetAllEventsAsync()
         {
             return await _context.Events

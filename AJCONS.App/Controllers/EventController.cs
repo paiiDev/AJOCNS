@@ -42,6 +42,16 @@ namespace AJOCNS.App.Controllers
             return View(result.Data);
         }
 
+        public async Task<IActionResult> GetEventDetailsModal(int id)
+        {
+            var eventDetails = await _eventService.GetEventDetailsModal(id);
+            if (!eventDetails.IsSuccess)
+            {
+                return NotFound();
+            }
+            return PartialView("_EventDetailsModal", eventDetails.Data);
+        }
+
         [HttpGet]
         public async Task<IActionResult> CreateEvent()
         {

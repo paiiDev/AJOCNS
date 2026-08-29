@@ -1,0 +1,30 @@
+﻿@model AJOCNS.Shared.DTOs.Events.EventDto
+
+<div class="modal-header">
+    <h5 class="modal-title fw-bold">@Model.EventTitle</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="mb-3">
+        <span class="badge bg-secondary">@Model.EventTypeName</span>
+        <span class="badge @(Model.Status == "Pending" ? "bg-warning" : "bg-success") ms-1">@Model.Status</span>
+    </div>
+    <p><strong>Date & Time:</strong> @Model.EventDate.ToString("dd MMM yyyy, hh:mm tt")</p>
+    <p><strong>Location:</strong> @(Model.Location ?? "Online")</p>
+    <hr />
+    <h6><strong>Description:</strong></h6>
+    <p class="text-muted">@Model.Description</p>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+    @if (Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+    {
+        <form asp-action="RejectEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-danger"><i class="fa-solid fa-xmark me-1"></i>Reject</button>
+        </form>
+        <form asp-action="ApproveEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post" class="d-inline">
+            <button type="submit" class="btn btn-success"><i class="fa-solid fa-check me-1"></i>Approve</button>
+        </form>
+    }
+</div>

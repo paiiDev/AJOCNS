@@ -13,6 +13,7 @@ namespace AJOCNS.Domain.Interfaces
         Task<Result<List<EventTypeDto>>> GetEventTypesAsync();
         Task<Result<bool>> CreateEventAsync(CreateEventDto dto, int createdByUserId, bool autoApprove, DateTime eventDateUtc);
         Task<Result<List<EventDto>>> GetAllEventsAsync();
+        Task<Result<EventDto>> GetEventDetailsModal(int id);
         Task<Result<PagedEventDto>> GetEventsPagedAsync(int page, int pageSize, string? eventType = null, string? eventStatus = null);
         Task<Result<bool>> ApproveEventAsync(int eventId);
         Task<Result<bool>> RejectEventAsync(int eventId);

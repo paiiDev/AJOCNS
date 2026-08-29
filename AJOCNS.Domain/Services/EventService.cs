@@ -5,6 +5,7 @@ using AJOCNS.Shared.Common;
 using AJOCNS.Shared.DTOs.Events;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -85,6 +86,7 @@ namespace AJOCNS.Domain.Services
             return Result<bool>.Success(true);
         }
 
+     
         public async Task<Result<List<EventDto>>> GetAllEventsAsync()
         {
             var events = await _eventRepo.GetAllEventsAsync();
@@ -92,6 +94,50 @@ namespace AJOCNS.Domain.Services
 
             return Result<List<EventDto>>.Success(eventDtos);
         }
+
+        public async Task<Result<EventDto>> GetEventDetailsModal(int id)
+        {
+            var result = await _eventRepo.GetEventById(id);
+            if(result == null)
+            {
+                return Result<EventDto>.Failure("Failed to retrieve event details");
+            }
+
+            var eventDetails = new EventDto
+            {
+                Id = result.EventId,
+                EventTitle = result.EventTitle,
+                EventDate = result.EventDate,
+                Description = result.Description?? "-",
+                EventMode = result.EventMode?? "-",
+                EventTypeName = result.EventType.EventTypeName ?? "-",
+                Location = result.Location?? "-",
+                CreatedByName = GetCreatorName(result.CreatedByUser),
+                MaxCapacity = result.MaxCapacity?? null,
+                Status = result.Status,
+
+            };
+
+           return Result<EventDto>.Success(eventDetails);
+
+        }
+
+
+        private string GetCreatorName(User user)
+        {
+            if (user == null) return "Unknown";
+
+            return user.Role.ToLower() switch
+            {
+                "admin" => user.Admin?.Name ?? user.Email,
+                "mentor" => user.Mentor?.Name ?? user.Email,
+                "externalpartner" => user.ExternalPartner?.Name ?? user.Email,
+                _ => user.Email 
+            };
+        }
+
+
+
 
         public async Task<Result<List<EventStatusDto>>> GetEventStatusesAsync()
         {
