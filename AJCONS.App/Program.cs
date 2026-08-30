@@ -2,6 +2,7 @@ using ajocns.database.interfaces;
 using AJOCNS.Database.Context;
 using AJOCNS.Database.Interfaces;
 using AJOCNS.Database.Repositories;
+using AJOCNS.Domain.BackgroundJobs;
 using AJOCNS.Domain.Interfaces;
 using AJOCNS.Domain.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -26,6 +27,7 @@ builder.Services.AddScoped<IStudentRegistrationService, StudentRegistrationServi
 builder.Services.AddScoped<IGraduationRecordService, GraduationRecordService>();
 builder.Services.AddScoped<IEventService, EventService>();
 
+builder.Services.AddHostedService<EventStatusUpdateService>();
 
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

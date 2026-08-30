@@ -68,7 +68,7 @@ namespace AJOCNS.Database.Repositories
                 .Select(e => new Event
                 {
                     Status = e.Status
-                })
+                }).Distinct()
                 .ToListAsync();
         }
 

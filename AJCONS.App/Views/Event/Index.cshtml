@@ -89,21 +89,28 @@
                                         <td>@(ev.Location ?? "-")</td>
                                         <td>@(ev.MaxCapacity?.ToString() ?? "Unlimited")</td>
                                         <td>
-                                            @switch (ev.Status.ToLower())
-                                            {
-                                                case "upcoming":
-                                                    <span class="badge text-bg-success">Upcoming</span>
+                                            
+                                           
+                                                @switch (ev.Status.ToLower())
+                                                {
+                                                case "completed":
+                                                    <span class="badge text-bg-primary">Completed</span>
                                                     break;
-                                                case "pending":
-                                                    <span class="badge text-bg-warning">Pending approval</span>
-                                                    break;
-                                                case "rejected":
-                                                    <span class="badge text-bg-danger">Rejected</span>
-                                                    break;
-                                                default:
-                                                    <span class="badge" style="background:#eaf4ff;color:#073d78">@ev.Status</span>
-                                                    break;
-                                            }
+                                                    case "upcoming":
+                                                        <span class="badge text-bg-success">Upcoming</span>
+                                                        break;
+                                                    case "pending":
+                                                        <span class="badge text-bg-warning">Pending approval</span>
+                                                        break;
+                                                    case "rejected":
+                                                        <span class="badge text-bg-danger">Rejected</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge" style="background:#eaf4ff;color:#073d78">@ev.Status</span>
+                                                        break;
+                                                }
+                                            
+                                           
                                         </td>
                                         @if (isAdmin)
                                         {

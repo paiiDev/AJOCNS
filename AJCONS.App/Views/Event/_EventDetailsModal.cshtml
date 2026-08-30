@@ -11,8 +11,8 @@
         <span class="badge text-bg-light border border-secondary-subtle px-3 py-2 rounded-pill shadow-sm text-secondary me-2">
             <i class="fa-solid fa-tag me-1"></i> @Model.EventTypeName
         </span>
-        <span class="badge @(Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "text-bg-warning" : (Model.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase) ? "text-bg-danger" : "text-bg-success")) px-3 py-2 rounded-pill shadow-sm">
-            <i class="fa-solid @(Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "fa-clock" : (Model.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase) ? "fa-xmark" : "fa-check-circle")) me-1"></i> @Model.Status
+        <span class="badge @(Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "text-bg-warning" : (Model.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase) ? "text-bg-danger" : (Model.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase) ? "text-bg-primary" : "text-bg-success"))) px-3 py-2 rounded-pill shadow-sm">
+            <i class="fa-solid @(Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "fa-clock" : (Model.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase) ? "fa-xmark" : (Model.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase) ? "fa-check-circle" : "fa-check-circle"))) me-1"></i> @Model.Status
         </span>
     </div>
 
