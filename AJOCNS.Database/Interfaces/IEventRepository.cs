@@ -12,6 +12,8 @@ namespace AJOCNS.Database.Interfaces
         Task<List<EventType>> GetEventTypesAsync();
         Task<bool> EventTypeExistsAsync(int eventTypeId);
         Task<bool> CreateEventAsync(Event newEvent);
+        Task<bool> UpdateEventAsync(Event ev);
+        Task<bool> DeleteEventAsync(int id);
         Task<List<Event>> GetAllEventsAsync();
         Task<Event?> GetEventById(int? id);
         Task<(List<Event> Items, int TotalCount)> GetEventsPagedAsync(int page, int pageSize, string? eventType = null, string? eventStatus = null);

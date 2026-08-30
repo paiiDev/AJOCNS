@@ -1,7 +1,10 @@
+@using System.Security.Claims
 @model AJOCNS.Shared.DTOs.Events.PagedEventDto
 @{
     ViewData["Title"] = "Events | AJCONS";
     var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+    var isMentor = User.IsInRole("Mentor");
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     var selectedEventType = ViewBag.SelectedEventType as string;
     var SelectedEventStatus = ViewBag.SelectedEventStatus as string;
 }
@@ -69,7 +72,7 @@
                                 <th>Location</th>
                                 <th>Capacity</th>
                                 <th>Status</th>
-                                @if (isAdmin)
+                                @if (isAdmin || isMentor)
                                 {
                                     <th class="text-end pe-4">Actions</th>
                                 }
@@ -112,16 +115,34 @@
                                             
                                            
                                         </td>
-                                        @if (isAdmin)
+                                        @if (isAdmin || isMentor)
                                         {
                                             <td class="text-end pe-4">
-
-                                                <button data-id="@ev.Id" type="button" class="btn btn-sm btn-outline-success btn-view-details"
+                                                <div class="d-flex justify-content-end gap-1">
+                                                    <button data-id="@ev.Id" type="button" class="btn btn-sm btn-outline-success btn-view-details"
                                                             aria-label="Event Details @ev.EventTitle">
                                                         <i class="fa-solid fa-eye"></i>
                                                     </button>
-                                              
-                                              
+
+                                                    @if (isAdmin || currentUserId == ev.CreatedByUserId.ToString())
+                                                        {
+                                                            if (!string.Equals(ev.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+                                                            {
+                                                                <a asp-action="EditEvent" asp-route-id="@ev.Id" class="btn btn-sm btn-outline-primary"
+                                                                   title="Edit @ev.EventTitle" aria-label="Edit @ev.EventTitle">
+                                                                    <i class="fa-solid fa-pen"></i>
+                                                                </a>
+                                                                <form asp-action="DeleteEvent" asp-controller="Event" asp-route-id="@ev.Id" method="post"
+                                                                      class="d-inline confirm-delete" data-event-title="@ev.EventTitle">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete @ev.EventTitle"
+                                                                            aria-label="Delete @ev.EventTitle">
+                                                                        <i class="fa-solid fa-trash-can"></i>
+                                                                    </button>
+                                                                </form>
+                                                            }
+                                                        }
+                                                </div>
                                             </td>
                                         }
                                     </tr>
@@ -184,6 +205,29 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.confirm-delete').forEach(form => {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const title = this.getAttribute('data-event-title') || 'this event';
+                    const formEl = this;
+
+                    Swal.fire({
+                        title: 'Delete event?',
+                        text: `"${title}" will be permanently deleted. This cannot be undone.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, delete',
+                        cancelButtonText: 'Cancel'
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            formEl.submit();
+                        }
+                    });
+                });
+            });
+
             document.querySelectorAll('.btn-view-details').forEach(button => {
                 button.addEventListener('click', async function() {
                     const eventId = this.getAttribute('data-id');

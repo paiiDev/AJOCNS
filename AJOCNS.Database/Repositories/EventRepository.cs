@@ -43,6 +43,37 @@ namespace AJOCNS.Database.Repositories
             }
         }
 
+        public async Task<bool> UpdateEventAsync(Event ev)
+        {
+            try
+            {
+                _context.Events.Update(ev);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteEventAsync(int id)
+        {
+            try
+            {
+                var ev = await _context.Events.FindAsync(id);
+                if (ev is null) return false;
+
+                ev.IsDeleted = true;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<Event?> GetEventById(int? id)
         {
             return await _context.Events.Include(e => e.EventType)

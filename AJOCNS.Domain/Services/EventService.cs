@@ -26,6 +26,7 @@ namespace AJOCNS.Domain.Services
         private static EventDto ToEventDto(Event e) => new EventDto
         {
             Id = e.EventId,
+            CreatedByUserId = e.CreatedByUserId,
             EventTitle = e.EventTitle,
             Description = e.Description,
             EventTypeName = e.EventType?.EventTypeName ?? "-",
@@ -54,7 +55,7 @@ namespace AJOCNS.Domain.Services
             return Result<List<EventTypeDto>>.Success(typeDtos);
         }
 
-        public async Task<Result<bool>> CreateEventAsync(CreateEventDto dto, int createdByUserId, bool autoApprove, DateTime eventDateUtc, string posterPath)
+        public async Task<Result<bool>> CreateEventAsync(CreateEventDto dto, int createdByUserId, bool autoApprove, DateTime eventDateUtc, string? posterPath)
         {
             if (dto is null)
                 return Result<bool>.Failure("Invalid event data.");
@@ -89,6 +90,82 @@ namespace AJOCNS.Domain.Services
         }
 
      
+        public async Task<Result<UpdateEventDto>> GetEventForEditAsync(int id)
+        {
+            var ev = await _eventRepo.GetEventById(id);
+            if (ev == null)
+                return Result<UpdateEventDto>.Failure("Event not found.");
+
+            var dto = new UpdateEventDto
+            {
+                Id = ev.EventId,
+                EventTitle = ev.EventTitle,
+                Description = ev.Description,
+                EventTypeId = ev.EventTypeId,
+                EventDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(ev.EventDate, DateTimeKind.Utc), MyanmarTimeZone),
+                MaxCapacity = ev.MaxCapacity,
+                EventMode = ev.EventMode,
+                Location = ev.Location,
+                CurrentPosterPath = ev.PosterImagePath
+            };
+
+            return Result<UpdateEventDto>.Success(dto);
+        }
+
+        public async Task<Result<bool>> UpdateEventAsync(UpdateEventDto dto, int currentUserId, bool isAdmin, DateTime eventDateUtc, string? posterPath)
+        {
+            if (dto is null)
+                return Result<bool>.Failure("Invalid event data.");
+
+            var existing = await _eventRepo.GetEventById(dto.Id);
+            if (existing == null)
+                return Result<bool>.Failure("Event not found.");
+
+            if (!isAdmin && existing.CreatedByUserId != currentUserId)
+                return Result<bool>.Failure("You do not have permission to edit this event.");
+
+            if (!isAdmin && DateTime.UtcNow > eventDateUtc)
+                return Result<bool>.Failure("Event date cannot be in the past.");
+
+            bool typeExists = await _eventRepo.EventTypeExistsAsync(dto.EventTypeId);
+            if (!typeExists)
+                return Result<bool>.Failure("Selected event type does not exist.");
+
+            existing.EventTitle = dto.EventTitle.Trim();
+            existing.Description = dto.Description;
+            existing.EventTypeId = dto.EventTypeId;
+            existing.EventDate = eventDateUtc;
+            existing.MaxCapacity = dto.MaxCapacity;
+            existing.EventMode = dto.EventMode;
+            existing.Location = dto.Location;
+            if (!string.IsNullOrEmpty(posterPath))
+                existing.PosterImagePath = posterPath;
+
+            bool updated = await _eventRepo.UpdateEventAsync(existing);
+            if (!updated)
+                return Result<bool>.Failure("Failed to update event.");
+
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> DeleteEventAsync(int id, int currentUserId, bool isAdmin)
+        {
+            var existing = await _eventRepo.GetEventById(id);
+            if (existing == null)
+                return Result<bool>.Failure("Event not found.");
+
+            if (!isAdmin && existing.CreatedByUserId != currentUserId)
+                return Result<bool>.Failure("You do not have permission to delete this event.");
+
+            bool deleted = await _eventRepo.DeleteEventAsync(id);
+            if (!deleted)
+                return Result<bool>.Failure("Failed to delete event.");
+
+            return Result<bool>.Success(true);
+        }
+
+      
+
         public async Task<Result<List<EventDto>>> GetAllEventsAsync()
         {
             var events = await _eventRepo.GetAllEventsAsync();
@@ -108,6 +185,7 @@ namespace AJOCNS.Domain.Services
             var eventDetails = new EventDto
             {
                 Id = result.EventId,
+                CreatedByUserId = result.CreatedByUserId,
                 EventTitle = result.EventTitle,
                 EventDate = result.EventDate,
                 Description = result.Description?? "-",

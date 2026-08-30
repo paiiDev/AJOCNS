@@ -1,0 +1,193 @@
+@model AJOCNS.Shared.DTOs.Events.UpdateEventDto
+@{
+    ViewData["Title"] = "Edit Event";
+    Layout = "_Layout";
+}
+
+<section class="content-header py-4 py-lg-5">
+    <div class="container-fluid px-lg-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+            <div>
+                <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                    Event management
+                </div>
+                <h1 class="h2 fw-bold mb-1">Edit event</h1>
+                <p class="text-muted mb-0">Update the details of this career event.</p>
+            </div>
+            <a asp-action="Index" asp-controller="Event" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-2"></i>Back to events
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="content pb-5">
+    <div class="container-fluid px-lg-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card adminlte-card">
+                    <div class="card-header py-3">
+                        <h3 class="card-title fw-bold mb-0">
+                            <i class="fa-solid fa-pen-to-square me-2 text-academic"></i>Event information
+                        </h3>
+                    </div>
+
+                    <form asp-action="EditEvent" asp-controller="Event" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CurrentPosterPath" />
+
+                        <div class="card-body">
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger rounded-3" role="alert">
+                                    <div asp-validation-summary="All" class="mb-0 list-unstyled small"></div>
+                                </div>
+                            }
+
+                            <div class="mb-3">
+                                @if (!string.IsNullOrEmpty(Model.CurrentPosterPath))
+                                {
+                                    <div id="imagePreviewContainer" class="mt-3 position-relative text-center bg-light rounded-3 border p-2">
+                                        <img id="posterPreview" src="@Model.CurrentPosterPath" alt="Poster Preview" class="img-fluid rounded shadow-sm" style="max-height: 300px; object-fit: contain;" />
+
+                                        <button type="button" id="removeImageBtn" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 rounded-circle" title="Remove image">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div id="imagePreviewContainer" class="d-none mt-3 position-relative text-center bg-light rounded-3 border p-2">
+                                        <img id="posterPreview" src="#" alt="Poster Preview" class="img-fluid rounded shadow-sm" style="max-height: 300px; object-fit: contain;" />
+
+                                        <button type="button" id="removeImageBtn" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 rounded-circle" title="Remove image">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                }
+
+                                <label asp-for="PosterImage" class="form-label fw-semibold">Event Poster (Optional)</label>
+                                <div class="small text-muted mb-2">Upload a new image to replace the current poster.</div>
+                                <input asp-for="PosterImage" type="file" class="form-control" accept="image/*" />
+                                <span asp-validation-for="PosterImage" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="EventTitle" class="form-label fw-semibold">Event Title <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa-solid fa-heading text-muted"></i></span>
+                                    <input asp-for="EventTitle" class="form-control" placeholder="e.g. Career Fair 2026" />
+                                </div>
+                                <span asp-validation-for="EventTitle" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="EventTypeId" class="form-label fw-semibold">Event Type <span class="text-danger">*</span></label>
+                                        <select asp-for="EventTypeId" class="form-select">
+                                            <option value="">-- Select event type --</option>
+                                            @if (ViewBag.EventTypes != null)
+                                            {
+                                                foreach (var type in ViewBag.EventTypes)
+                                                {
+                                                    <option value="@type.Id">@type.Name</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="EventTypeId" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="EventDate" class="form-label fw-semibold">Event Date &amp; Time <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-calendar-days text-muted"></i></span>
+                                            <input asp-for="EventDate" type="datetime-local" class="form-control" />
+                                        </div>
+                                        <span asp-validation-for="EventDate" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="MaxCapacity" class="form-label fw-semibold">Max Capacity</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-users text-muted"></i></span>
+                                            <input asp-for="MaxCapacity" type="number" min="1" class="form-control" placeholder="Leave empty for unlimited" />
+                                        </div>
+                                        <span asp-validation-for="MaxCapacity" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="EventMode" class="form-label fw-semibold">Event Mode</label>
+                                        <select asp-for="EventMode" class="form-select">
+                                            <option value="">-- Select mode --</option>
+                                            <option value="Onsite">Onsite</option>
+                                            <option value="Online">Online</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                        </select>
+                                        <span asp-validation-for="EventMode" class="text-danger small mt-1 d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Location" class="form-label fw-semibold">Location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fa-solid fa-location-dot text-muted"></i></span>
+                                    <input asp-for="Location" class="form-control" placeholder="Venue" />
+                                </div>
+                                <span asp-validation-for="Location" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                                <textarea asp-for="Description" rows="4" class="form-control" placeholder="Describe the event..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger small mt-1 d-block"></span>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
+                            <a asp-action="Index" asp-controller="Event" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-academic">
+                                <i class="fa-solid fa-check me-2"></i>Save changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const imageInput = document.getElementById('PosterImage');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const previewImage = document.getElementById('posterPreview');
+            const removeBtn = document.getElementById('removeImageBtn');
+
+            imageInput.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+
+                if (file && file.type.startsWith('image/')) {
+                    const objectUrl = URL.createObjectURL(file);
+                    previewImage.src = objectUrl;
+                    previewContainer.classList.remove('d-none');
+                }
+            });
+
+            removeBtn.addEventListener('click', function () {
+                imageInput.value = '';
+                previewContainer.classList.add('d-none');
+                previewImage.src = '#';
+            });
+        });
+    </script>
+}
