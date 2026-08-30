@@ -20,7 +20,7 @@ namespace AJOCNS.Domain.BackgroundJobs
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Delay(TimeSpan.FromSeconds(120), stoppingToken);
+            //await Task.Delay(TimeSpan.FromSeconds(120), stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -37,7 +37,11 @@ namespace AJOCNS.Domain.BackgroundJobs
                         await context.SaveChangesAsync(stoppingToken);
                     }
                 }
-                //await Task.Delay(TimeSpan.FromHours(10), stoppingToken);
+                var now = DateTime.Now;
+                var nextMidnight = now.Date.AddDays(1); 
+                var timeUntilMidnight = nextMidnight - now;
+
+                await Task.Delay(timeUntilMidnight, stoppingToken);
             }
         }
         }
