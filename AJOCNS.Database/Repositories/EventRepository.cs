@@ -124,7 +124,8 @@ namespace AJOCNS.Database.Repositories
             int totalCount = await query.CountAsync();
 
             var items = await query
-                .OrderByDescending(e => e.EventDate)
+               .OrderByDescending(e => e.Status == "Upcoming")
+                .ThenBy(e => e.EventDate)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

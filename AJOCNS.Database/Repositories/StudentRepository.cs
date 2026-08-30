@@ -75,7 +75,7 @@ namespace AJOCNS.Database.Repositories
 
         public async Task<int> CountCareerEventsAsync()
         {
-            return await _context.Events
+            return await _context.Events.Where(e  => e.Status == "Completed")
                 .AsNoTracking()
                 .CountAsync();
         }

@@ -23,10 +23,10 @@
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Event" ? "active-menu" : "")" asp-controller="Event" asp-action="Index">
                 <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
             </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "StudentManagement" ? "active-menu" : "")" asp-controller="Admin" asp-action="StudentManagement">
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "StudentManagement" or "EditStudent" or "RegisterNewStudent" ? "active-menu" : "")" asp-controller="Admin" asp-action="StudentManagement">
                 <i class="fa-solid fa-user-graduate me-2 text-center" style="width:20px"></i> Students
             </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "GraduationRecords" ? "active-menu" : "")" asp-controller="Admin" asp-action="GraduationRecords">
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "GraduationRecords" or "EditGraduationRecord" ? "active-menu" : "")" asp-controller="Admin" asp-action="GraduationRecords">
                 <i class="fa-solid fa-file-lines me-2 text-center" style="width:20px"></i> Graduation Records
             </a>
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2" href="#">
