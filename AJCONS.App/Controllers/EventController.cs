@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
+
 namespace AJOCNS.App.Controllers
 {
+
     [Authorize(Roles = "Admin,Mentor")]
     public class EventController : Controller
     {

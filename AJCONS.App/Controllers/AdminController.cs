@@ -42,6 +42,9 @@ namespace AJOCNS.App.Controllers
             ViewBag.AcademicYears = academicYears;
             ViewBag.SelectedAcyId = acyId;
 
+            var studentStats = await _studentRegistrationService.GetStudentStatusStatsAsync();
+            ViewBag.StudentStatusStats = studentStats.IsSuccess ? studentStats.Data : null;
+
             var result = await _studentRegistrationService.GetStudentsPagedAsync(
                 page, pageSize, majorId, acyId,
                 excludeDropout ? "Dropout" : null);

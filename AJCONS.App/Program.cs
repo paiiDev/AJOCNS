@@ -26,6 +26,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IStudentRegistrationService, StudentRegistrationService>();
 builder.Services.AddScoped<IGraduationRecordService, GraduationRecordService>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
 
 builder.Services.AddHostedService<EventStatusUpdateService>();
 

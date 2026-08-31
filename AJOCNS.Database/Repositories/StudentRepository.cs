@@ -59,6 +59,22 @@ namespace AJOCNS.Database.Repositories
                 .CountAsync(s => s.User.Status == "Active");
         }
 
+        public async Task<(int Total, int Graduated, int Undergraduate, int Dropout)> GetStudentStatusCountsAsync()
+        {
+            var groups = await _context.Students
+                .AsNoTracking()
+                .GroupBy(s => s.GraduationStatus)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            int graduated = groups.Where(g => g.Status == "Graduated").Sum(g => g.Count);
+            int dropout = groups.Where(g => g.Status == "Dropout").Sum(g => g.Count);
+            int undergraduate = groups.Where(g => g.Status != "Graduated" && g.Status != "Dropout").Sum(g => g.Count);
+            int total = groups.Sum(g => g.Count);
+
+            return (total, graduated, undergraduate, dropout);
+        }
+
         public async Task<int> CountActiveMentorsAsync()
         {
             return await _context.Mentors
@@ -259,6 +275,16 @@ namespace AJOCNS.Database.Repositories
                 .Include(s => s.Enrollments)
                 .Include(s => s.GraduationRecords)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
+        }
+
+        public async Task<Student?> GetStudentByUserIdAsync(int userId)
+        {
+            return await _context.Students
+                .Include(s => s.Major)
+                .Include(s => s.User)
+                .Include(s => s.Enrollments).ThenInclude(e => e.Acy)
+                .Include(s => s.GraduationRecords)
+                .FirstOrDefaultAsync(s => s.UserId == userId);
         }
 
         public async Task<bool> UpdateStudentEnrollmentAcyAsync(int studentId, int acyId)

@@ -3,6 +3,7 @@ using AJOCNS.Database.Interfaces;
 using AJOCNS.Domain.Interfaces;
 using AJOCNS.Shared.Common;
 using AJOCNS.Shared.DTOs.Dashboard;
+using AJOCNS.Shared.DTOs.StudentDashboard;
 using AJOCNS.Shared.DTOs.StudentRegistration;
 
 namespace AJOCNS.Domain.Services
@@ -165,6 +166,20 @@ namespace AJOCNS.Domain.Services
             return Result<int>.Success(count);
         }
 
+        public async Task<Result<StudentStatusStatsDto>> GetStudentStatusStatsAsync()
+        {
+            var (total, graduated, undergraduate, dropout) = await _studentRepo.GetStudentStatusCountsAsync();
+            var stats = new StudentStatusStatsDto
+            {
+                Total = total,
+                Graduated = graduated,
+                Undergraduate = undergraduate,
+                Dropout = dropout
+            };
+
+            return Result<StudentStatusStatsDto>.Success(stats);
+        }
+
         public async Task<Result<DashboardStatsDto>> GetDashboardStatsAsync()
         {
             var stats = new DashboardStatsDto
@@ -288,8 +303,7 @@ namespace AJOCNS.Domain.Services
         }
 
         public async Task<Result<EditStudentDto>> GetStudentByIdAsync(int studentId)
-        {
-            var student = await _studentRepo.GetStudentByIdAsync(studentId);
+        {            var student = await _studentRepo.GetStudentByIdAsync(studentId);
             if (student is null)
                 return Result<EditStudentDto>.Failure("Student not found.");
 
@@ -310,9 +324,9 @@ namespace AJOCNS.Domain.Services
             return Result<EditStudentDto>.Success(dto);
         }
 
+
         public async Task<Result<bool>> UpdateStudentAsync(EditStudentDto dto)
-        {
-            var student = await _studentRepo.GetStudentByIdAsync(dto.StudentId);
+        {            var student = await _studentRepo.GetStudentByIdAsync(dto.StudentId);
             if (student is null)
                 return Result<bool>.Failure("Student not found.");
 

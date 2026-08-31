@@ -1,3 +1,4 @@
+@using AJOCNS.Shared.DTOs.StudentRegistration
 @model AJOCNS.Shared.DTOs.StudentRegistration.PagedStudentDto
 @{
     ViewData["Title"] = "Student Management | AJCONS";
@@ -5,6 +6,9 @@
     var selectedAcyId = ViewBag.SelectedAcyId as int?;
     var isGradMode = Context.Request.Query["gradMode"] == "true";
     var gradYearParam = Context.Request.Query["gradYear"].ToString();
+    var statusStats = ViewBag.StudentStatusStats as StudentStatusStatsDto;
+    var majorCount = ViewBag.Majors != null && ViewBag.Majors.IsSuccess ? ViewBag.Majors.Data.Count : 0;
+    var acyCount = ViewBag.AcademicYears != null && ViewBag.AcademicYears.IsSuccess ? ViewBag.AcademicYears.Data.Count : 0;
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -41,6 +45,79 @@
 
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-4 col-xxl">
+                    <div class="small-box text-bg-primary mb-0 shadow-sm">
+                        <div class="inner">
+                            <h3>@(statusStats?.Total ?? Model.TotalCount)</h3>
+                            <p>Registered students</p>
+                        </div>
+                        <div class="icon"><i class="fa-solid fa-user-graduate"></i></div>
+                        <a asp-action="StudentManagement" class="small-box-footer">
+                            View directory <i class="fa-solid fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xxl">
+                    <div class="small-box text-bg-success mb-0 shadow-sm">
+                        <div class="inner">
+                            <h3>@(statusStats?.Graduated ?? 0)</h3>
+                            <p>Graduated</p>
+                        </div>
+                        <div class="icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <a asp-action="GraduationRecords" class="small-box-footer">
+                            View records <i class="fa-solid fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xxl">
+                    <div class="small-box bg-info mb-0 shadow-sm">
+                        <div class="inner">
+                            <h3>@(statusStats?.Undergraduate ?? 0)</h3>
+                            <p>In study</p>
+                        </div>
+                        <div class="icon"><i class="fa-solid fa-book-open-reader"></i></div>
+                        <a href="#" class="small-box-footer">Undergraduate cohort <i class="fa-solid fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xxl">
+                    <div class="small-box bg-secondary mb-0 shadow-sm">
+                        <div class="inner">
+                            <h3>@(statusStats?.Dropout ?? 0)</h3>
+                            <p>Dropout</p>
+                        </div>
+                        <div class="icon"><i class="fa-solid fa-user-xmark"></i></div>
+                        <a asp-action="StudentManagement" asp-route-excludeDropout="false" class="small-box-footer">
+                            Manage records <i class="fa-solid fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xxl">
+                    <div class="small-box bg-warning mb-0 shadow-sm">
+                        <div class="inner">
+                            <h3>@majorCount</h3>
+                            <p>Majors &amp; programme</p>
+                        </div>
+                        <div class="icon"><i class="fa-solid fa-layer-group"></i></div>
+                        <a asp-action="StudentManagement" class="small-box-footer">
+                            Filter by major <i class="fa-solid fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xxl">
+                    <div class="small-box bg-primary bg-opacity-75 mb-0 shadow-sm">
+                        <div class="inner">
+                            <h3>@acyCount</h3>
+                            <p>Academic years</p>
+                        </div>
+                        <div class="icon"><i class="fa-solid fa-calendar-days"></i></div>
+                        <a asp-action="StudentManagement" class="small-box-footer">
+                            Filter by year <i class="fa-solid fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <form method="get" id="filterForm" class="mb-3 d-flex flex-wrap gap-2 align-items-center">
                 <label class="fw-semibold small text-muted mb-0"><i class="fa-solid fa-filter me-1"></i>Filter by major:</label>
                 <select name="majorId" class="form-select form-select-sm" style="max-width:320px" onchange="this.form.submit()">
