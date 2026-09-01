@@ -1,6 +1,7 @@
 ﻿using AJOCNS.Database.Context;
 using AJOCNS.Database.Entities;
 using AJOCNS.Database.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,22 +21,22 @@ namespace AJOCNS.Database.Repositories
         {
             if (role == "Admin")
             {
-                var admin = await _context.Admins.FindAsync(userId);
+                var admin = await _context.Admins.FirstOrDefaultAsync(a => a.UserId == userId);
                 return admin?.Name ?? string.Empty;
             }
             else if (role == "Student")
             {
-                var student = await _context.Students.FindAsync(userId);
+                var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
                 return student?.Name ?? "Student";
             }
             else if (role == "Mentor")
             {
-                var mentor = await _context.Mentors.FindAsync(userId);
+                var mentor = await _context.Mentors.FirstOrDefaultAsync(m => m.UserId == userId);
                 return mentor?.Name ?? string.Empty;
             }
             else if (role == "ExternalPartner")
             {
-                var externalPartner = await _context.ExternalPartners.FindAsync(userId);
+                var externalPartner = await _context.ExternalPartners.FirstOrDefaultAsync(ep => ep.UserId == userId);
                 return externalPartner?.Name ?? string.Empty;
             }
             else
