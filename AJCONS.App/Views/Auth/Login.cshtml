@@ -43,6 +43,42 @@
             flex-direction: column;
         }
 
+        /* Slim branding navbar */
+        .auth-navbar {
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-light) 100%);
+            padding: 0.9rem 1.5rem;
+        }
+
+            .auth-navbar .auth-brand {
+                color: #fff;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.6rem;
+                font-weight: 600;
+            }
+
+                .auth-navbar .auth-brand img {
+                    height: 30px;
+                    width: auto;
+                }
+
+                .auth-navbar .auth-brand small {
+                    font-weight: 400;
+                    opacity: 0.75;
+                }
+
+            .auth-navbar .auth-nav {
+                color: rgba(255, 255, 255, 0.85);
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.2s ease;
+            }
+
+                .auth-navbar .auth-nav:hover {
+                    color: #fff;
+                }
+
         body > .container {
             flex: 1;
             display: flex;
@@ -161,7 +197,15 @@
     </style>
 </head>
 <body>
-    @await Html.PartialAsync("_Navbar")
+    <nav class="auth-navbar d-flex justify-content-between align-items-center">
+        <a class="auth-brand" asp-controller="Home" asp-action="Index">
+            <img src="~/images/pupl.png" alt="PUPL Logo" />
+            <span>PUPL <small>AJOCNS</small></span>
+        </a>
+        <a class="auth-nav" asp-controller="Home" asp-action="Index">
+            <i class="fa-solid fa-house me-1"></i>Home
+        </a>
+    </nav>
 
     <div class="container">
         <div class="row justify-content-center">
