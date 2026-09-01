@@ -43,7 +43,10 @@ namespace AJOCNS.Domain.Services
                 { UserId = user.UserId, 
                     Email = user.Email, 
                     Name = name, 
-                    Role = user.Role });
+                    Role = user.Role,
+                    IsFirstLogin = user.IsFirstLogin
+                
+                });
                  }
         }
 

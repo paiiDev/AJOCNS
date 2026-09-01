@@ -1,4 +1,5 @@
 ﻿using AJOCNS.Domain.Interfaces;
+using AJOCNS.Shared.DTOs.Student;
 using AJOCNS.Shared.DTOs.StudentDashboard;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using System.Security.Claims;
 
 namespace AJOCNS.App.Controllers
 {
-    //[Authorize(Roles = "Student")]
+    [Authorize(Roles = "Student")]
     public class StudentController : Controller
     {
         private readonly IStudentService _studentService;
@@ -32,6 +33,34 @@ namespace AJOCNS.App.Controllers
             }
 
             return View(result.Data);
+        }
+
+        [HttpGet]
+        public IActionResult FirstLoginSetup()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetUp(StudentFirstLoginSetupDto dto)
+        {
+           if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var result = await _studentService.SetupStudentFirstLoginAsync(userId, dto);
+            if (!result.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Failed";
+                TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Failed to insert data";
+                return RedirectToAction("Index", "Student");
+            }
+            return RedirectToAction("Index", "Student");
+
         }
 
         public IActionResult CareerBuilder()

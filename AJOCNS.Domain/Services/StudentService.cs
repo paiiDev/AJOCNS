@@ -1,6 +1,7 @@
 ﻿using AJOCNS.Database.Interfaces;
 using AJOCNS.Domain.Interfaces;
 using AJOCNS.Shared.Common;
+using AJOCNS.Shared.DTOs.Student;
 using AJOCNS.Shared.DTOs.StudentDashboard;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,25 @@ namespace AJOCNS.Domain.Services
             };
 
             return Result<StudentDashboardDto>.Success(dto);
+        }
+
+        public async Task<Result<bool>> SetupStudentFirstLoginAsync(int userId, StudentFirstLoginSetupDto dto)
+        {
+            var student = await _studentRepo.GetStudentByUserIdAsync(userId);
+            if (student is null)
+                return Result<bool>.Failure("Student profile not found.");
+
+            var newPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+
+            student.Phone = dto.PhoneNumber;
+            student.FatherName = dto.FatherName;
+            student.Address = dto.Address;
+            student.User.PasswordHash = newPassword; 
+            student.User.IsFirstLogin = false;
+            var updateResult = await _studentRepo.UpdateStudentAsync(student);
+            if (!updateResult)
+                return Result<bool>.Failure("Failed to update student profile.");
+            return Result<bool>.Success(true);
         }
 
     }

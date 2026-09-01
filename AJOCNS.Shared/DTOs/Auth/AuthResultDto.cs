@@ -12,5 +12,6 @@ namespace AJOCNS.Shared.DTOs.Auth
         public string Email { get; set; }
         public string Role { get; set; }
         public string Name { get; set; }
+        public bool IsFirstLogin { get; set; }
     }
 }

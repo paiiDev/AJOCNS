@@ -1,0 +1,64 @@
+﻿@model AJOCNS.Shared.DTOs.Student.StudentFirstLoginSetupDto
+@{
+    ViewData["Title"] = "Account Setup";
+
+}
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card border-0 shadow-lg rounded-4 w-100" style="max-width: 550px;">
+
+        <div class="card-header bg-white border-0 text-center pt-5 pb-0">
+            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                <i class="fa-solid fa-user-shield fs-1"></i>
+            </div>
+            <h3 class="fw-bold text-dark mb-1">Welcome to AJOCNS!</h3>
+            <p class="text-muted">Please complete your profile and secure your account to continue.</p>
+        </div>
+
+        <div class="card-body p-4 p-md-5 pt-3">
+            <form asp-controller="Student" asp-action="SetUp" method="post">
+
+                <div class="form-floating mb-3">
+                    <input asp-for="FatherName" class="form-control rounded-3" placeholder="Father's Name" />
+                    <label asp-for="FatherName"><i class="fa-solid fa-user-tie me-2 text-muted"></i>Father's Name</label>
+                    <span asp-validation-for="FatherName" class="text-danger small"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="PhoneNumber" class="form-control rounded-3" placeholder="09xxxxxxxxx" />
+                    <label asp-for="PhoneNumber"><i class="fa-solid fa-phone me-2 text-muted"></i>Phone Number</label>
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Address" class="form-control rounded-3" placeholder="Address" />
+                    <label asp-for="Address"><i class="fa-solid fa-home me-2 text-muted"></i>Address</label>
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+
+                <hr class="text-muted my-4" />
+
+                <div class="form-floating mb-3">
+                    <input asp-for="NewPassword" type="password" class="form-control rounded-3" placeholder="New Password" />
+                    <label asp-for="NewPassword"><i class="fa-solid fa-lock me-2 text-muted"></i>New Password</label>
+                    <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="form-floating mb-4">
+                    <input asp-for="ConfirmPassword" type="password" class="form-control rounded-3" placeholder="Confirm Password" />
+                    <label asp-for="ConfirmPassword"><i class="fa-solid fa-lock-circle me-2 text-muted"></i>Confirm Password</label>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold fs-5 shadow-sm">
+                    Complete Setup <i class="fa-solid fa-arrow-right ms-2"></i>
+                </button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -26,7 +26,7 @@ namespace AJOCNS.Database.Repositories
             else if (role == "Student")
             {
                 var student = await _context.Students.FindAsync(userId);
-                return student?.Name ?? string.Empty;
+                return student?.Name ?? "Student";
             }
             else if (role == "Mentor")
             {

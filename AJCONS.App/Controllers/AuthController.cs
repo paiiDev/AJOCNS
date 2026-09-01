@@ -52,6 +52,7 @@ namespace AJOCNS.App.Controllers
                 return View(dto);
             }
             var result = await _authService.LoginAsync(dto);
+
             if (!result.IsSuccess)
             {
                 ViewData["SweetAlert_Error"] = result.ErrorMessage;
@@ -83,6 +84,10 @@ namespace AJOCNS.App.Controllers
             }
             else if (result.Data.Role == "Student")
             {
+                if (result.Data.IsFirstLogin)
+                {
+                    return RedirectToAction("FirstLoginSetup", "Student");
+                }
                 return RedirectToAction("Index", "Student");
             }
             else if (result.Data.Role == "Mentor")
