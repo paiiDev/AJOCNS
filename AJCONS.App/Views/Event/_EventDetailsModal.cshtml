@@ -87,7 +87,7 @@
 <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
     <button type="button" class="btn btn-outline-secondary px-4 fw-semibold" data-bs-dismiss="modal">Close</button>
 
-    @if (Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+    @if (Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) && User.IsInRole("Admin"))
     {
         <div class="d-flex gap-2">
             <form asp-action="RejectEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post">

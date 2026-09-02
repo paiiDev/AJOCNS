@@ -1,4 +1,5 @@
 ﻿using AJOCNS.Domain.Interfaces;
+using AJOCNS.Shared.DTOs.Events;
 using AJOCNS.Shared.DTOs.Student;
 using AJOCNS.Shared.DTOs.StudentDashboard;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +12,12 @@ namespace AJOCNS.App.Controllers
     public class StudentController : Controller
     {
         private readonly IStudentService _studentService;
+        private readonly IEventService _eventService;
 
-        public StudentController(IStudentService studentService)
+        public StudentController(IStudentService studentService, IEventService eventService)
         {
             _studentService = studentService;
+            _eventService = eventService;
         }
 
         public async Task<IActionResult> Index()
@@ -66,6 +69,33 @@ namespace AJOCNS.App.Controllers
         public IActionResult CareerBuilder()
         {
             return View();
+        }
+
+        public async Task<IActionResult> Event()
+        {
+            var result = await _eventService.GetAllEventsAsync();
+            var visibleEvents = new List<EventDto>();
+
+            if (result.IsSuccess)
+            {
+                visibleEvents = result.Data
+                    .Where(e => string.Equals(e.Status, "Upcoming", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(e => e.EventDate)
+                    .ToList();
+            }
+
+            return View(visibleEvents);
+        }
+
+        public async Task<IActionResult> GetEventDetailsModal(int id)
+        {
+            var eventDetails = await _eventService.GetEventDetailsModal(id);
+            if (!eventDetails.IsSuccess)
+            {
+                return NotFound();
+            }
+
+            return PartialView("~/Views/Event/_EventDetailsModal.cshtml", eventDetails.Data);
         }
     }
 }

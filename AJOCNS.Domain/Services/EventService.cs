@@ -187,7 +187,7 @@ namespace AJOCNS.Domain.Services
                 Id = result.EventId,
                 CreatedByUserId = result.CreatedByUserId,
                 EventTitle = result.EventTitle,
-                EventDate = result.EventDate,
+                EventDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(result.EventDate, DateTimeKind.Utc), MyanmarTimeZone),
                 Description = result.Description?? "-",
                 EventMode = result.EventMode?? "-",
                 EventTypeName = result.EventType.EventTypeName ?? "-",
