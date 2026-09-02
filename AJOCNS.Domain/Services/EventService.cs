@@ -17,10 +17,12 @@ namespace AJOCNS.Domain.Services
     {
         private static readonly TimeZoneInfo MyanmarTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Myanmar Standard Time");
         private readonly IEventRepository _eventRepo;
+        private readonly IEmailService _emailService;
 
-        public EventService(IEventRepository eventRepo)
+        public EventService(IEventRepository eventRepo, IEmailService emailService)
         {
             _eventRepo = eventRepo;
+            _emailService = emailService;
         }
 
         private static EventDto ToEventDto(Event e) => new EventDto
@@ -339,6 +341,119 @@ namespace AJOCNS.Domain.Services
             }
 
             return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<List<EventRegistrantDto>>> GetEventRegistrantsAsync(int eventId, int currentUserId, bool isAdmin)
+        {
+            var ev = await _eventRepo.GetEventById(eventId);
+            if (ev is null)
+            {
+                return Result<List<EventRegistrantDto>>.Failure("Event not found.");
+            }
+
+            if (!isAdmin && ev.CreatedByUserId != currentUserId)
+            {
+                return Result<List<EventRegistrantDto>>.Failure("You are not authorized to view registrants for this event.");
+            }
+
+            var registrations = await _eventRepo.GetEventRegistrationsWithStudentsAsync(eventId);
+
+            var registrants = registrations
+                .Where(r => r.Student?.User != null)
+                .Select(r => new EventRegistrantDto
+                {
+                    StudentId = r.StudentId,
+                    Name = r.Student!.Name,
+                    Srn = r.Student.Srn,
+                    Email = r.Student.User!.Email,
+                    RegistrationDate = r.RegistrationDate
+                })
+                .ToList();
+
+            return Result<List<EventRegistrantDto>>.Success(registrants);
+        }
+
+        public async Task<Result<bool>> SendZoomLinkToRegistrantsAsync(int eventId, int currentUserId, bool isAdmin, string zoomLink)
+        {
+            if (string.IsNullOrWhiteSpace(zoomLink))
+            {
+                return Result<bool>.Failure("Please provide a Zoom link.");
+            }
+
+            var ev = await _eventRepo.GetEventById(eventId);
+            if (ev is null)
+            {
+                return Result<bool>.Failure("Event not found.");
+            }
+
+            if (!isAdmin && ev.CreatedByUserId != currentUserId)
+            {
+                return Result<bool>.Failure("You are not authorized to send links for this event.");
+            }
+
+            var registrations = await _eventRepo.GetEventRegistrationsWithStudentsAsync(eventId);
+            var students = registrations
+                .Where(r => r.Student?.User != null)
+                .Select(r => r.Student!.User!)
+                .ToList();
+
+            if (!students.Any())
+            {
+                return Result<bool>.Failure("No students are registered for this event yet.");
+            }
+
+            string subject = $"{ev.EventTitle} — Event & Zoom Link";
+            string eventDateMyanmar = TimeZoneInfo.ConvertTimeFromUtc(
+                DateTime.SpecifyKind(ev.EventDate, DateTimeKind.Utc), MyanmarTimeZone)
+                .ToString("dd MMM yyyy, hh:mm tt");
+            string organizer = GetCreatorName(ev.CreatedByUser);
+
+            int successCount = 0;
+            foreach (var student in students)
+            {
+                string body =
+                    $"<div style=\"font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:0 auto;color:#15253a\">" +
+                    $"<h2 style=\"color:#0b5cab\">{HtmlEncode(ev.EventTitle)}</h2>" +
+                    $"<p>Dear <strong>{HtmlEncode(student.Student?.Name ?? "Student")}</strong>,</p>" +
+                    $"<p>Thank you for registering for this event. Please use the following link to join the session:</p>" +
+                    $"<p style=\"text-align:center;margin:24px 0\">" +
+                    $"<a href=\"{HtmlAttributeEncode(zoomLink)}\" style=\"background:#0b5cab;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;display:inline-block\">Join the Event</a>" +
+                    $"</p>" +
+                    $"<p><strong>Date &amp; Time:</strong> {eventDateMyanmar}<br/>" +
+                    $"<strong>Organizer:</strong> {HtmlEncode(organizer)}</p>" +
+                    $"<p>If the button does not work, copy and paste this link into your browser: " +
+                    $"<span style=\"word-break:break-all\">{HtmlEncode(zoomLink)}</span></p>" +
+                    $"<hr style=\"border:none;border-top:1px solid #e5e7eb\"/>" +
+                    $"<p style=\"font-size:12px;color:#6b7280\">This invitation was sent by the event organizer via AJCONS. Please do not share the link with others.</p>" +
+                    $"</div>";
+
+                try
+                {
+                    await _emailService.SendEmailAsync(student.Email, subject, body);
+                    successCount++;
+                }
+                catch
+                {
+                    // ignore per-recipient delivery failures
+                }
+            }
+
+            if (successCount == 0)
+            {
+                return Result<bool>.Failure("Could not send the Zoom link to any registered students.");
+            }
+
+            return Result<bool>.Success(true);
+        }
+
+        private static string HtmlEncode(string? value)
+        {
+            return System.Net.WebUtility.HtmlEncode(value ?? string.Empty);
+        }
+
+        private static string HtmlAttributeEncode(string? value)
+        {
+            return System.Net.WebUtility.HtmlEncode(value ?? string.Empty);
         }
     }
 }

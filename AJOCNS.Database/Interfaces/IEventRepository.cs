@@ -25,5 +25,6 @@ namespace AJOCNS.Database.Interfaces
         Task<List<int>> GetStudentRegisteredEventIdsAsync(int studentId);
         Task<Dictionary<int, int>> GetEventRegistrationCountsAsync();
         Task<bool> AddEventRegistrationAsync(EventRegistration registration);
+        Task<List<EventRegistration>> GetEventRegistrationsWithStudentsAsync(int eventId);
     }
 }

@@ -1,105 +1,228 @@
 ﻿@model AJOCNS.Shared.DTOs.Events.EventDto
+@{
+    var canManage = ViewBag.CanManageEvent as bool? ?? false;
+}
 
-<div class="modal-header border-bottom-0 pb-0">
-    <h4 class="modal-title fw-bold text-dark">@Model.EventTitle</h4>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-</div>
+<style>
+    .event-modal-hero {
+        position: relative;
+        height: 230px;
+        border-radius: 0;
+        background: linear-gradient(135deg, var(--academic-blue-deep), var(--academic-blue));
+        overflow: hidden;
+    }
+    .event-modal-poster {
+        width: 100%;
+        height: 230px;
+        object-fit: cover;
+        display: block;
+    }
+    .event-modal-hero.no-poster .event-modal-shade {
+        background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.6));
+    }
+    .event-modal-hero-icon {
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        font-size: 160px;
+        color: rgba(255,255,255,.14);
+    }
+    .event-modal-shade {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,.05) 30%, rgba(0,0,0,.65));
+    }
+    .event-modal-close {
+        position: absolute;
+        top: 14px;
+        right: 16px;
+        z-index: 3;
+        background: rgba(255,255,255,.25);
+        border-radius: 50%;
+        padding: .5rem;
+        color: #fff;
+    }
+    .event-modal-close:hover { background: rgba(255,255,255,.4); }
+    .event-modal-hero-content {
+        position: absolute;
+        left: 24px;
+        right: 24px;
+        bottom: 20px;
+        z-index: 2;
+        color: #fff;
+    }
+    .event-modal-badge {
+        background: rgba(255,255,255,.92);
+        color: var(--academic-blue-deep);
+        font-weight: 600;
+        padding: .45em .9em;
+        border-radius: 50rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .event-modal-title { font-size: 1.5rem; margin-bottom: .25rem; text-shadow: 0 2px 6px rgba(0,0,0,.3); }
+    .event-modal-date { font-size: .9rem; opacity: .95; }
+    .event-modal-body { padding: 1.5rem 1.75rem; }
+    .event-modal-fact {
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+        background: #f6f8fb;
+        border: 1px solid #eef2f6;
+        border-radius: .75rem;
+        padding: .8rem 1rem;
+        height: 100%;
+    }
+    .event-modal-fact-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: .6rem;
+        background: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(24,56,92,.08);
+        flex-shrink: 0;
+    }
+    .event-modal-fact-label {
+        display: block;
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #8a94a6;
+        font-weight: 600;
+    }
+    .event-modal-fact-value {
+        display: block;
+        font-weight: 600;
+        color: #15253a;
+        font-size: .95rem;
+    }
+    .event-modal-section-title {
+        font-weight: 700;
+        color: #15253a;
+        margin-bottom: .75rem;
+    }
+    .event-modal-desc {
+        color: #5a6473;
+        line-height: 1.7;
+        white-space: pre-line;
+        font-size: .95rem;
+    }
+</style>
 
-<div class="modal-body pt-3">
-
-    <div class="mb-4">
-        <span class="badge text-bg-light border border-secondary-subtle px-3 py-2 rounded-pill shadow-sm text-secondary me-2">
-            <i class="fa-solid fa-tag me-1"></i> @Model.EventTypeName
-        </span>
-        <span class="badge @(Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "text-bg-warning" : (Model.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase) ? "text-bg-danger" : (Model.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase) ? "text-bg-primary" : "text-bg-success"))) px-3 py-2 rounded-pill shadow-sm">
-            <i class="fa-solid @(Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "fa-clock" : (Model.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase) ? "fa-xmark" : (Model.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase) ? "fa-check-circle" : "fa-check-circle"))) me-1"></i> @Model.Status
-        </span>
-    </div>
-
+<div class="event-modal-hero @(!string.IsNullOrEmpty(Model.PosterImagePath) ? "" : "no-poster")">
     @if (!string.IsNullOrEmpty(Model.PosterImagePath))
     {
-        <div class="text-center mb-4 position-relative">
-            <img src="@Model.PosterImagePath"
-                 class="img-fluid rounded-4 shadow-sm w-100"
-                 style="max-height: 350px; object-fit: cover;"
-                 alt="Event Poster for @Model.EventTitle"
-                 onerror="this.style.display='none'" /> 
-        </div>
+        <img src="@Model.PosterImagePath" alt="Event poster for @Model.EventTitle"
+             class="event-modal-poster"
+             onerror="this.parentElement.classList.add('no-poster');this.remove()" />
+    }
+    else
+    {
+        <i class="fa-solid fa-calendar-days event-modal-hero-icon"></i>
     }
 
-    <div class="row g-3 mb-4 bg-light p-3 rounded-4 border border-light-subtle">
-        <div class="col-sm-6">
-            <div class="d-flex align-items-start">
-                <div class="bg-white p-2 rounded-3 shadow-sm me-3 text-primary">
-                    <i class="fa-regular fa-calendar-days fs-5"></i>
-                </div>
-                <div>
-                    <strong class="d-block small text-muted text-uppercase" style="letter-spacing: 0.5px;">Date & Time</strong>
-                    <span class="fw-semibold text-dark">@Model.EventDate.ToString("dd MMM yyyy, hh:mm tt")</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="d-flex align-items-start">
-                <div class="bg-white p-2 rounded-3 shadow-sm me-3 text-danger">
-                    <i class="fa-solid fa-location-dot fs-5"></i>
-                </div>
-                <div>
-                    <strong class="d-block small text-muted text-uppercase" style="letter-spacing: 0.5px;">Location / Mode</strong>
-                    <span class="fw-semibold text-dark">@(string.IsNullOrEmpty(Model.Location) ? (Model.EventMode ?? "Online") : Model.Location)</span>
-                </div>
-            </div>
-        </div>
+    <div class="event-modal-shade"></div>
 
-        <div class="col-sm-6">
-            <div class="d-flex align-items-start">
-                <div class="bg-white p-2 rounded-3 shadow-sm me-3 text-success">
-                    <i class="fa-solid fa-user-tie fs-5"></i>
-                </div>
+    <button type="button" class="btn-close event-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+    <div class="event-modal-hero-content">
+        <div class="d-flex flex-wrap gap-2 mb-2">
+            <span class="badge event-modal-badge"><i class="fa-solid fa-tag me-1"></i>@Model.EventTypeName</span>
+            @if (Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+            {
+                <span class="badge text-bg-warning"><i class="fa-solid fa-clock me-1"></i>Pending approval</span>
+            }
+            else if (Model.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
+            {
+                <span class="badge text-bg-danger"><i class="fa-solid fa-xmark me-1"></i>Rejected</span>
+            }
+            else if (Model.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+            {
+                <span class="badge text-bg-primary"><i class="fa-solid fa-check-circle me-1"></i>Completed</span>
+            }
+            else
+            {
+                <span class="badge text-bg-success"><i class="fa-solid fa-check-circle me-1"></i>@Model.Status</span>
+            }
+        </div>
+        <h3 class="event-modal-title fw-bold">@Model.EventTitle</h3>
+        <p class="event-modal-date mb-0"><i class="fa-regular fa-clock me-1"></i>@Model.EventDate.ToString("dddd, dd MMM yyyy") &middot; @Model.EventDate.ToString("hh:mm tt")</p>
+    </div>
+</div>
+
+<div class="event-modal-body">
+
+    <div class="row g-2 mb-4">
+        <div class="col-md-6">
+            <div class="event-modal-fact">
+                <div class="event-modal-fact-icon text-danger"><i class="fa-solid fa-location-dot"></i></div>
                 <div>
-                    <strong class="d-block small text-muted text-uppercase" style="letter-spacing: 0.5px;">Organizer</strong>
-                    <span class="fw-semibold text-dark">@(Model.CreatedByName ?? "Unknown")</span>
+                    <span class="event-modal-fact-label">Location / Mode</span>
+                    <span class="event-modal-fact-value">@(string.IsNullOrEmpty(Model.Location) ? (Model.EventMode ?? "Online") : Model.Location)</span>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
-            <div class="d-flex align-items-start">
-                <div class="bg-white p-2 rounded-3 shadow-sm me-3 text-info">
-                    <i class="fa-solid fa-users fs-5"></i>
-                </div>
+        <div class="col-md-6">
+            <div class="event-modal-fact">
+                <div class="event-modal-fact-icon text-primary"><i class="fa-solid fa-user-tie"></i></div>
                 <div>
-                    <strong class="d-block small text-muted text-uppercase" style="letter-spacing: 0.5px;">Capacity</strong>
-                    <span class="fw-semibold text-dark">@(Model.MaxCapacity?.ToString() ?? "Unlimited")</span>
+                    <span class="event-modal-fact-label">Organizer</span>
+                    <span class="event-modal-fact-value">@(Model.CreatedByName ?? "Unknown")</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="event-modal-fact">
+                <div class="event-modal-fact-icon text-success"><i class="fa-solid fa-users"></i></div>
+                <div>
+                    <span class="event-modal-fact-label">Capacity</span>
+                    <span class="event-modal-fact-value">@(Model.MaxCapacity?.ToString() ?? "Unlimited")</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="event-modal-fact">
+                <div class="event-modal-fact-icon text-warning"><i class="fa-solid fa-calendar-days"></i></div>
+                <div>
+                    <span class="event-modal-fact-label">Event Type</span>
+                    <span class="event-modal-fact-value">@Model.EventTypeName</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 🌟 Description Section -->
-    <div>
-        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-circle-info text-muted me-2"></i>About This Event</h6>
-        <p class="text-secondary lh-lg" style="white-space: pre-line; font-size: 0.95rem;">
-            @(string.IsNullOrWhiteSpace(Model.Description) ? "No description provided." : Model.Description)
-        </p>
-    </div>
+    <h6 class="event-modal-section-title"><i class="fa-solid fa-circle-info me-2"></i>About This Event</h6>
+    <p class="event-modal-desc">
+        @(string.IsNullOrWhiteSpace(Model.Description) ? "No description provided for this event." : Model.Description)
+    </p>
 </div>
 
 <div class="modal-footer bg-light border-top-0 rounded-bottom-4">
     <button type="button" class="btn btn-outline-secondary px-4 fw-semibold" data-bs-dismiss="modal">Close</button>
 
-    @if (Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) && User.IsInRole("Admin"))
+    @if (canManage)
     {
-        <div class="d-flex gap-2">
-            <form asp-action="RejectEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post">
-                <button type="submit" class="btn btn-danger px-4 fw-semibold shadow-sm">
-                    <i class="fa-solid fa-xmark me-2"></i>Reject
-                </button>
-            </form>
-            <form asp-action="ApproveEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post">
-                <button type="submit" class="btn btn-success px-4 fw-semibold shadow-sm">
-                    <i class="fa-solid fa-check me-2"></i>Approve
-                </button>
-            </form>
+        <div class="d-flex gap-2 flex-wrap justify-content-end">
+            @if (Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) && User.IsInRole("Admin"))
+            {
+                <form asp-action="RejectEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold shadow-sm">
+                        <i class="fa-solid fa-xmark me-2"></i>Reject
+                    </button>
+                </form>
+                <form asp-action="ApproveEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post">
+                    <button type="submit" class="btn btn-success px-4 fw-semibold shadow-sm">
+                        <i class="fa-solid fa-check me-2"></i>Approve
+                    </button>
+                </form>
+            }
+            <a asp-action="Registrants" asp-controller="Event" asp-route-id="@Model.Id" class="btn btn-outline-primary px-4 fw-semibold shadow-sm">
+                <i class="fa-solid fa-users me-2"></i>View Registrants
+            </a>
+            <a asp-action="SendZoomLink" asp-controller="Event" asp-route-id="@Model.Id" class="btn btn-success px-4 fw-semibold shadow-sm">
+                <i class="fa-solid fa-video me-2"></i>Send Zoom Link
+            </a>
         </div>
     }
 </div>

@@ -2,6 +2,7 @@
 using AJOCNS.Shared.DTOs.Events;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -53,7 +54,96 @@ namespace AJOCNS.App.Controllers
             {
                 return NotFound();
             }
+
+            int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            bool isAdmin = User.IsInRole("Admin");
+            ViewBag.CanManageEvent = isAdmin || eventDetails.Data.CreatedByUserId == currentUserId;
+
             return PartialView("_EventDetailsModal", eventDetails.Data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Registrants(int id)
+        {
+            int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            bool isAdmin = User.IsInRole("Admin");
+
+            var eventDetails = await _eventService.GetEventDetailsModal(id);
+            if (!eventDetails.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Not Found";
+                TempData["SweetAlert_Message"] = "Event could not be found.";
+                return RedirectToAction("Index", "Event");
+            }
+
+            var registrantsResult = await _eventService.GetEventRegistrantsAsync(id, currentUserId, isAdmin);
+            if (!registrantsResult.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Access Denied";
+                TempData["SweetAlert_Message"] = registrantsResult.ErrorMessage ?? "You are not authorized to view registrants.";
+                return RedirectToAction("Index", "Event");
+            }
+
+            ViewBag.EventTitle = eventDetails.Data.EventTitle;
+            return View(registrantsResult.Data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SendZoomLink(int id)
+        {
+            var eventDetails = await _eventService.GetEventDetailsModal(id);
+            if (!eventDetails.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Not Found";
+                TempData["SweetAlert_Message"] = "Event could not be found.";
+                return RedirectToAction("Index", "Event");
+            }
+
+            int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            bool isAdmin = User.IsInRole("Admin");
+            if (!isAdmin && eventDetails.Data.CreatedByUserId != currentUserId)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Access Denied";
+                TempData["SweetAlert_Message"] = "You are not the organizer of this event.";
+                return RedirectToAction("Index", "Event");
+            }
+
+            ViewBag.EventTitle = eventDetails.Data.EventTitle;
+            return View(new SendZoomLinkDto { EventId = id, EventTitle = eventDetails.Data.EventTitle });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendZoomLink(SendZoomLinkDto dto)
+        {
+            if (!ModelState.IsValid || string.IsNullOrWhiteSpace(dto.ZoomLink))
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Missing Link";
+                TempData["SweetAlert_Message"] = "Please provide a Zoom link.";
+                return RedirectToAction("SendZoomLink", "Event", new { id = dto.EventId });
+            }
+
+            int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            bool isAdmin = User.IsInRole("Admin");
+
+            var result = await _eventService.SendZoomLinkToRegistrantsAsync(dto.EventId, currentUserId, isAdmin, dto.ZoomLink);
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Link Sent" : "Send Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "The Zoom link has been sent to all registered students."
+                : result.ErrorMessage ?? "Could not send the Zoom link.";
+
+            if (result.IsSuccess)
+            {
+                return RedirectToAction("Index", "Event");
+            }
+
+            return RedirectToAction("SendZoomLink", "Event", new { id = dto.EventId });
         }
 
         [HttpGet]

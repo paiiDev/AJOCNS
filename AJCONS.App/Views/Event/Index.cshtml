@@ -126,8 +126,16 @@
 
                                                     @if (isAdmin || currentUserId == ev.CreatedByUserId.ToString())
                                                         {
-                                                            if (!string.Equals(ev.Status, "Completed", StringComparison.OrdinalIgnoreCase))
+                                                            @if (!string.Equals(ev.Status, "Completed", StringComparison.OrdinalIgnoreCase))
                                                             {
+                                                                <a asp-action="Registrants" asp-route-id="@ev.Id" class="btn btn-sm btn-outline-info"
+                                                                   title="Registrants @ev.EventTitle" aria-label="Registrants for @ev.EventTitle">
+                                                                    <i class="fa-solid fa-users"></i>
+                                                                </a>
+                                                                <a asp-action="SendZoomLink" asp-route-id="@ev.Id" class="btn btn-sm btn-outline-success"
+                                                                   title="Send Zoom Link @ev.EventTitle" aria-label="Send Zoom link for @ev.EventTitle">
+                                                                    <i class="fa-solid fa-video"></i>
+                                                                </a>
                                                                 <a asp-action="EditEvent" asp-route-id="@ev.Id" class="btn btn-sm btn-outline-primary"
                                                                    title="Edit @ev.EventTitle" aria-label="Edit @ev.EventTitle">
                                                                     <i class="fa-solid fa-pen"></i>
@@ -140,6 +148,13 @@
                                                                         <i class="fa-solid fa-trash-can"></i>
                                                                     </button>
                                                                 </form>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a asp-action="Registrants" asp-route-id="@ev.Id" class="btn btn-sm btn-outline-info"
+                                                                   title="Registrants @ev.EventTitle" aria-label="Registrants for @ev.EventTitle">
+                                                                    <i class="fa-solid fa-users"></i>
+                                                                </a>
                                                             }
                                                         }
                                                 </div>
@@ -251,7 +266,7 @@
             }
 
                 } )
-            })
+            });
         })
     </script>
 }

@@ -1,0 +1,102 @@
+@model AJOCNS.Shared.DTOs.Events.SendZoomLinkDto
+@{
+    ViewData["Title"] = "Send Zoom Link | AJCONS";
+    var eventTitle = Model.EventTitle ?? (ViewBag.EventTitle as string ?? "Event");
+}
+
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">Event management</div>
+                    <h1 class="h2 fw-bold mb-1">Send Zoom Link</h1>
+                    <p class="text-muted mb-0">@eventTitle</p>
+                </div>
+                <a asp-action="Registrants" asp-controller="Event" asp-route-id="@Model.EventId" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-users me-2"></i>View registrants
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
+                    <div class="card adminlte-card shadow-sm border-0 rounded-4 overflow-hidden">
+                        <div class="card-body p-4 p-lg-5">
+                            <div class="text-center mb-4">
+                                <div class="mx-auto mb-3 d-inline-flex align-items-center justify-content-center rounded-circle text-white" style="width:64px;height:64px;background:linear-gradient(135deg,var(--academic-blue-deep),var(--academic-blue));font-size:1.5rem">
+                                    <i class="fa-solid fa-video"></i>
+                                </div>
+                                <h4 class="fw-bold text-dark mb-1">Send the meeting link to registered students</h4>
+                                <p class="text-muted mb-0">Students who registered for <strong>@eventTitle</strong> will receive the link by email, all at once.</p>
+                            </div>
+
+                            <form asp-action="SendZoomLink" asp-controller="Event" method="post" id="sendZoomForm">
+                                <input type="hidden" asp-for="EventId" />
+                                <input type="hidden" asp-for="EventTitle" />
+
+                                <div class="mb-4">
+                                    <label asp-for="ZoomLink" class="form-label fw-semibold text-dark">Zoom Meeting Link</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-white"><i class="fa-solid fa-link text-muted"></i></span>
+                                        <input asp-for="ZoomLink" type="url" class="form-control" placeholder="https://us02web.zoom.us/j/123456789?pwd=..." required />
+                                    </div>
+                                    <span asp-validation-for="ZoomLink" class="text-danger small"></span>
+                                    <div class="form-text"><i class="fa-solid fa-circle-info me-1"></i>Paste the full meeting join URL, including any passcode.</div>
+                                </div>
+
+                                <div class="alert alert-light border small rounded-3">
+                                    <i class="fa-solid fa-shield-halved text-success me-1"></i>
+                                    The link is emailed individually to every registered student. Please avoid sharing it publicly and remind students not to share the link with others.
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a asp-action="Index" asp-controller="Event" class="btn btn-outline-secondary px-4">Cancel</a>
+                                    <button type="submit" class="btn btn-academic px-4 ms-auto">
+                                        <i class="fa-solid fa-paper-plane me-2"></i>Send Link
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('sendZoomForm');
+            if (!form) return;
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const linkInput = form.querySelector('input[name="ZoomLink"]');
+                const link = linkInput ? linkInput.value.trim() : '';
+                if (!link) {
+                    Swal.fire('Missing link', 'Please enter a Zoom link first.', 'warning');
+                    return;
+                }
+                Swal.fire({
+                    title: 'Send Zoom link?',
+                    text: 'This will email the meeting link to all registered students.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0b5cab',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, send',
+                    cancelButtonText: 'Cancel'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

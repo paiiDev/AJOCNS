@@ -201,5 +201,16 @@ namespace AJOCNS.Database.Repositories
                 return false;
             }
         }
+
+        public async Task<List<EventRegistration>> GetEventRegistrationsWithStudentsAsync(int eventId)
+        {
+            return await _context.EventRegistrations
+                .AsNoTracking()
+                .Include(r => r.Student)
+                    .ThenInclude(s => s.User)
+                .Where(r => r.EventId == eventId)
+                .OrderByDescending(r => r.RegistrationDate)
+                .ToListAsync();
+        }
     }
 }

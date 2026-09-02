@@ -1,0 +1,97 @@
+@model List<AJOCNS.Shared.DTOs.Events.EventRegistrantDto>
+@{
+    ViewData["Title"] = "Event Registrants | AJCONS";
+    var eventTitle = ViewBag.EventTitle as string ?? "Event";
+}
+
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">Event management</div>
+                    <h1 class="h2 fw-bold mb-1">Registered Students</h1>
+                    <p class="text-muted mb-0">@eventTitle</p>
+                </div>
+                <a asp-action="Index" asp-controller="Event" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to events
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="card adminlte-card shadow-sm">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center py-3">
+                    <h3 class="card-title fw-bold mb-0">
+                        <i class="fa-solid fa-users me-2 text-primary"></i>Registrant List
+                        <span class="badge text-bg-primary rounded-pill ms-1">@Model.Count</span>
+                    </h3>
+                    <div class="input-group input-group-sm" style="max-width:280px">
+                        <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <input type="text" id="registrantSearch" class="form-control" placeholder="Search by name, SRN or email..." />
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">#</th>
+                                <th>Name</th>
+                                <th>SRN</th>
+                                <th>Email</th>
+                                <th>Registered At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registrantTable">
+                            @if (Model.Any())
+                            {
+                                for (int i = 0; i < Model.Count; i++)
+                                {
+                                    var r = Model[i];
+                                    <tr data-search="@(r.Name) @r.Srn @r.Email">
+                                        <td class="ps-4 text-muted">@(i + 1)</td>
+                                        <td class="fw-semibold">@r.Name</td>
+                                        <td>@r.Srn</td>
+                                        <td class="small text-break">@r.Email</td>
+                                        <td class="small text-muted">@r.RegistrationDate.ToString("dd MMM yyyy, hh:mm tt")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fa-regular fa-user-slash fs-2 d-block mb-2"></i>No students have registered for this event yet.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-white text-muted small py-3">
+                    <i class="fa-solid fa-circle-info me-1"></i> Only the event organizer and admins can view this list.
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('registrantSearch');
+            const table = document.getElementById('registrantTable');
+            if (!search || !table) return;
+
+            search.addEventListener('input', () => {
+                const term = search.value.trim().toLowerCase();
+                table.querySelectorAll('tr[data-search]').forEach(row => {
+                    const haystack = (row.getAttribute('data-search') || '').toLowerCase();
+                    row.style.display = (!term || haystack.includes(term)) ? '' : 'none';
+                });
+            });
+        });
+    </script>
+}
