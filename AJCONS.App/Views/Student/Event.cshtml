@@ -263,6 +263,10 @@
 
 @section Scripts {
     <script>
+        function swalEscape(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const grid = document.getElementById('eventCardGrid');
             const search = document.getElementById('eventSearch');
@@ -334,14 +338,47 @@
                         const title = this.getAttribute('data-event-title') || 'this event';
                         const formEl = this;
                         Swal.fire({
-                            title: 'Register for event?',
-                            text: `Do you want to register for "${title}"?`,
-                            icon: 'question',
+                            title: 'Before you register',
+                            html: `
+                                <div style="text-align:left">
+                                    <p class="mb-2" style="font-size:.95rem">
+                                        You're registering for <strong>${swalEscape(title)}</strong>. Please review the event etiquette:
+                                    </p>
+                                    <ul style="text-align:left;font-size:.9rem;line-height:1.7;padding-left:1.2rem">
+                                        <li><i class="fa-solid fa-video text-primary me-1"></i> This is a <strong>free</strong> webinar — no payment is required.</li>
+                                        <li><i class="fa-solid fa-comments text-info me-1"></i> Join on time and keep your microphone muted unless asked to speak.</li>
+                                        <li><i class="fa-solid fa-hand text-success me-1"></i> Use the raise-hand feature; do not interrupt the speaker or other mentees.</li>
+                                        <li><i class="fa-solid fa-user-shield text-warning me-1"></i> Be respectful to the mentor and fellow mentees at all times.</li>
+                                        <li><i class="fa-solid fa-check-double text-danger me-1"></i> Only register if you can attend — don't take a seat you won't use.</li>
+                                    </ul>
+                                    <label class="form-check mt-2" style="font-size:.9rem">
+                                        <input type="checkbox" class="form-check-input" id="swalAgree">
+                                        <span class="form-check-label">I agree to follow these rules and will attend responsibly.</span>
+                                    </label>
+                                </div>
+                            `,
+                            icon: 'info',
                             showCancelButton: true,
                             confirmButtonColor: '#0b5cab',
                             cancelButtonColor: '#6c757d',
-                            confirmButtonText: 'Yes, register',
-                            cancelButtonText: 'Cancel'
+                            confirmButtonText: 'Yes, I agree & register',
+                            cancelButtonText: 'Cancel',
+                            allowOutsideClick: false,
+                            didRender: () => {
+                                const agree = document.getElementById('swalAgree');
+                                const btn = Swal.getConfirmButton();
+                                btn.disabled = !agree.checked;
+                                agree.addEventListener('change', () => {
+                                    btn.disabled = !agree.checked;
+                                });
+                            },
+                            preConfirm: () => {
+                                if (!document.getElementById('swalAgree').checked) {
+                                    Swal.showValidationMessage('Please agree to the event rules to register.');
+                                    return false;
+                                }
+                                return true;
+                            }
                         }).then(result => {
                             if (result.isConfirmed) {
                                 formEl.submit();
