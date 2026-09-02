@@ -127,6 +127,8 @@ body {
     min-height: 100vh;
     height: 100vh;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     background: linear-gradient(180deg, #073d78, #0b5cab);
     transition: margin 0.3s ease-out;
     z-index: 1040;
@@ -163,4 +165,53 @@ body {
         #sidebar.toggled {
             margin-left: 0;
         }
+}
+
+/* Sidebar bottom profile */
+.sidebar-profile {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 1rem 0.75rem;
+}
+
+.sidebar-profile .avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.sidebar-profile .profile-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #fff;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-profile .profile-role {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.65);
+    text-transform: capitalize;
+    line-height: 1.2;
+}
+
+.sidebar-profile .profile-action {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+    transition: 0.2s;
+}
+
+.sidebar-profile .profile-action:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.08);
 }

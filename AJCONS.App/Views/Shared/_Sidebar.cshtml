@@ -5,6 +5,7 @@
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     var isAdmin = User.IsInRole("Admin");
+
 }
 <div class="shadow text-white" id="sidebar">
     <div class="sidebar-heading text-center py-3 fs-5 fw-bold border-bottom border-light border-opacity-25 sticky-top bg-transparent">
@@ -33,11 +34,19 @@
                 <i class="fa-solid fa-circle-check me-2 text-center" style="width:20px"></i> User Approvals
             </a>
         }
-        else if (User.Identity?.IsAuthenticated == true)
+        else if (User.IsInRole("Student"))
         {
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2" asp-controller="Home" asp-action="Index">
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action == "Index" ? "active-menu" : "")" asp-controller="Student" asp-action="Index">
                 <i class="fa-solid fa-house me-2 text-center" style="width:20px"></i> Home
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action == "Event" ? "active-menu" : "")" asp-controller="Student" asp-action="Event">
+                <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action == "Job" ? "active-menu" : "")" asp-controller="Student" asp-action="Job">
+                <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Jobs
             </a>
         }
     </div>
+
+
 </div>

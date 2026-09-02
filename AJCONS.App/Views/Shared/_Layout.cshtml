@@ -35,7 +35,7 @@
     @if (!isHomePage)
     {
         <div id="dashboard-wrapper" class="d-flex">
-            @await Html.PartialAsync("_Navbar")
+            @await Html.PartialAsync("_Sidebar")
 
             <div id="page-content-wrapper" class="flex-grow-1 bg-light min-vh-100 d-flex flex-column">
                 <nav class="navbar navbar-light bg-white shadow-sm py-2 px-3 sticky-top z-3">
@@ -118,6 +118,16 @@
         });
 
         document.getElementById('btnLogout')?.addEventListener('click', function () {
+            confirmLogout();
+        });
+
+        document.querySelectorAll('.sidebar-logout').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                confirmLogout();
+            });
+        });
+
+        function confirmLogout() {
             Swal.fire({
                 title: 'Logout?',
                 text: 'Are you sure you want to logout?',
@@ -132,7 +142,7 @@
                     document.getElementById('logoutForm').submit();
                 }
             });
-        });
+        }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
