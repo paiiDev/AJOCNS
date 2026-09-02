@@ -1,4 +1,5 @@
-﻿using AJOCNS.Domain.Interfaces;
+﻿using AJOCNS.Database.Interfaces;
+using AJOCNS.Domain.Interfaces;
 using AJOCNS.Shared.DTOs.Events;
 using AJOCNS.Shared.DTOs.Student;
 using AJOCNS.Shared.DTOs.StudentDashboard;
@@ -13,11 +14,13 @@ namespace AJOCNS.App.Controllers
     {
         private readonly IStudentService _studentService;
         private readonly IEventService _eventService;
+        private readonly IStudentRepository _studentRepository;
 
-        public StudentController(IStudentService studentService, IEventService eventService)
+        public StudentController(IStudentService studentService, IEventService eventService, IStudentRepository studentRepository)
         {
             _studentService = studentService;
             _eventService = eventService;
+            _studentRepository = studentRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -73,18 +76,42 @@ namespace AJOCNS.App.Controllers
 
         public async Task<IActionResult> Event()
         {
-            var result = await _eventService.GetAllEventsAsync();
-            var visibleEvents = new List<EventDto>();
-
-            if (result.IsSuccess)
+            var student = await _studentRepository.GetStudentByUserIdAsync(GetCurrentUserId());
+            if (student is null)
             {
-                visibleEvents = result.Data
-                    .Where(e => string.Equals(e.Status, "Upcoming", StringComparison.OrdinalIgnoreCase))
-                    .OrderBy(e => e.EventDate)
-                    .ToList();
+                return View(new List<EventDto>());
             }
 
-            return View(visibleEvents);
+            var result = await _eventService.GetStudentEventsAsync(student.StudentId);
+            return View(result.IsSuccess ? result.Data : new List<EventDto>());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegisterEvent(int id)
+        {
+            var student = await _studentRepository.GetStudentByUserIdAsync(GetCurrentUserId());
+            if (student is null)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Failed";
+                TempData["SweetAlert_Message"] = "Student profile not found.";
+                return RedirectToAction("Event", "Student");
+            }
+
+            var result = await _eventService.RegisterStudentForEventAsync(id, student.StudentId);
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Registered!" : "Registration Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "You have successfully registered for this event."
+                : result.ErrorMessage ?? "Could not register for this event.";
+
+            return RedirectToAction("Event", "Student");
+        }
+
+        private int GetCurrentUserId()
+        {
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
         }
 
         public async Task<IActionResult> GetEventDetailsModal(int id)

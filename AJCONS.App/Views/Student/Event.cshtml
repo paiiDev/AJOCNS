@@ -95,14 +95,37 @@
                                         </li>
                                         <li>
                                             <i class="fa-solid fa-users text-success"></i>
-                                            <span>@(ev.MaxCapacity?.ToString() ?? "Unlimited") seats</span>
+                                            <span>
+                                                @if (ev.MaxCapacity.HasValue)
+                                                {
+                                                    var seatsLeft = ev.MaxCapacity.Value - ev.RegisteredCount;
+                                                    <text>@(seatsLeft > 0 ? seatsLeft + " seats left" : "Event full")</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Unlimited seats</text>
+                                                }
+                                            </span>
                                         </li>
                                     </ul>
 
                                     <div class="mt-auto">
-                                        <span class="btn btn-academic btn-sm w-100 rounded-pill fw-semibold event-open-btn">
-                                            <i class="fa-solid fa-circle-info me-1"></i>View details
-                                        </span>
+                                        @if (ev.IsRegistered)
+                                        {
+                                            <span class="btn btn-outline-success btn-sm w-100 rounded-pill fw-semibold disabled" aria-disabled="true">
+                                                <i class="fa-solid fa-circle-check me-1"></i>Registered
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <form asp-controller="Student" asp-action="RegisterEvent" asp-route-id="@ev.Id" method="post" class="d-inline w-100 confirm-register" data-event-title="@ev.EventTitle">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-academic btn-sm w-100 rounded-pill fw-semibold event-open-btn"
+                                                        @(ev.MaxCapacity.HasValue && ev.MaxCapacity.Value - ev.RegisteredCount <= 0 ? "disabled" : "")>
+                                                    <i class="fa-solid fa-user-plus me-1"></i>Register
+                                                </button>
+                                            </form>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -293,12 +316,38 @@
             };
 
             grid.querySelectorAll('.event-card').forEach(card => {
-                card.addEventListener('click', () => openModal(card.getAttribute('data-id')));
+                card.addEventListener('click', () => {
+                    const btn = card.querySelector('.confirm-register button[type=submit]');
+                    if (btn && btn.disabled) return;
+                    openModal(card.getAttribute('data-id'));
+                });
                 card.addEventListener('keydown', e => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if ((e.key === 'Enter' || e.key === ' ') && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
                         e.preventDefault();
                         openModal(card.getAttribute('data-id'));
                     }
+                });
+                card.querySelectorAll('.confirm-register').forEach(form => {
+                    form.addEventListener('click', e => e.stopPropagation());
+                    form.addEventListener('submit', function (event) {
+                        event.preventDefault();
+                        const title = this.getAttribute('data-event-title') || 'this event';
+                        const formEl = this;
+                        Swal.fire({
+                            title: 'Register for event?',
+                            text: `Do you want to register for "${title}"?`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#0b5cab',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Yes, register',
+                            cancelButtonText: 'Cancel'
+                        }).then(result => {
+                            if (result.isConfirmed) {
+                                formEl.submit();
+                            }
+                        });
+                    });
                 });
             });
         });

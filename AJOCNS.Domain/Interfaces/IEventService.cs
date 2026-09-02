@@ -21,5 +21,7 @@ namespace AJOCNS.Domain.Interfaces
         Task<Result<bool>> ApproveEventAsync(int eventId);
         Task<Result<bool>> RejectEventAsync(int eventId);
         Task<Result<List<EventStatusDto>>> GetEventStatusesAsync();
+        Task<Result<List<EventDto>>> GetStudentEventsAsync(int studentId);
+        Task<Result<bool>> RegisterStudentForEventAsync(int eventId, int studentId);
     }
 }

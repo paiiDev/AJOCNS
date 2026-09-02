@@ -20,5 +20,10 @@ namespace AJOCNS.Database.Interfaces
         Task<bool> UpdateEventStatusAsync(int eventId, string status);
         Task<int> CountPendingEventsAsync();
         Task<List<Event>> GetEventStatusesAsync();
+        Task<bool> IsStudentRegisteredAsync(int eventId, int studentId);
+        Task<int> CountEventRegistrationsAsync(int eventId);
+        Task<List<int>> GetStudentRegisteredEventIdsAsync(int studentId);
+        Task<Dictionary<int, int>> GetEventRegistrationCountsAsync();
+        Task<bool> AddEventRegistrationAsync(EventRegistration registration);
     }
 }

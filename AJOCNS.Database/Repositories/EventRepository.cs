@@ -156,5 +156,50 @@ namespace AJOCNS.Database.Repositories
                 .AsNoTracking()
                 .CountAsync(e => e.Status.ToLower().Contains("pend"));
         }
+
+        public async Task<bool> IsStudentRegisteredAsync(int eventId, int studentId)
+        {
+            return await _context.EventRegistrations
+                .AsNoTracking()
+                .AnyAsync(r => r.EventId == eventId && r.StudentId == studentId);
+        }
+
+        public async Task<int> CountEventRegistrationsAsync(int eventId)
+        {
+            return await _context.EventRegistrations
+                .AsNoTracking()
+                .CountAsync(r => r.EventId == eventId);
+        }
+
+        public async Task<List<int>> GetStudentRegisteredEventIdsAsync(int studentId)
+        {
+            return await _context.EventRegistrations
+                .AsNoTracking()
+                .Where(r => r.StudentId == studentId)
+                .Select(r => r.EventId)
+                .ToListAsync();
+        }
+
+        public async Task<Dictionary<int, int>> GetEventRegistrationCountsAsync()
+        {
+            return await _context.EventRegistrations
+                .AsNoTracking()
+                .GroupBy(r => r.EventId)
+                .ToDictionaryAsync(g => g.Key, g => g.Count());
+        }
+
+        public async Task<bool> AddEventRegistrationAsync(EventRegistration registration)
+        {
+            try
+            {
+                _context.EventRegistrations.Add(registration);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

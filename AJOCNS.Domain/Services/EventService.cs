@@ -35,7 +35,8 @@ namespace AJOCNS.Domain.Services
             EventMode = e.EventMode,
             Location = e.Location,
             Status = e.Status,
-            CreatedByName = e.CreatedByUser?.Email ?? "Unknown"
+            CreatedByName = e.CreatedByUser?.Email ?? "Unknown",
+            PosterImagePath = e.PosterImagePath
         };
 
         public async Task<Result<List<EventTypeDto>>> GetEventTypesAsync()
@@ -266,6 +267,76 @@ namespace AJOCNS.Domain.Services
             bool updated = await _eventRepo.UpdateEventStatusAsync(eventId, "Rejected");
             if (!updated)
                 return Result<bool>.Failure("Failed to reject event.");
+
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<List<EventDto>>> GetStudentEventsAsync(int studentId)
+        {
+            var events = await _eventRepo.GetAllEventsAsync();
+            if (events == null || !events.Any())
+            {
+                return Result<List<EventDto>>.Success(new List<EventDto>());
+            }
+
+            var registeredEventIds = await _eventRepo.GetStudentRegisteredEventIdsAsync(studentId);
+            var registrationCounts = await _eventRepo.GetEventRegistrationCountsAsync();
+
+            var eventDtos = events
+                .Where(e => string.Equals(e.Status, "Upcoming", StringComparison.OrdinalIgnoreCase))
+                .Select(e =>
+                {
+                    var dto = ToEventDto(e);
+                    dto.IsRegistered = registeredEventIds.Contains(e.EventId);
+                    dto.RegisteredCount = registrationCounts.TryGetValue(e.EventId, out var count) ? count : 0;
+                    return dto;
+                })
+                .OrderBy(e => e.EventDate)
+                .ToList();
+
+            return Result<List<EventDto>>.Success(eventDtos);
+        }
+
+        public async Task<Result<bool>> RegisterStudentForEventAsync(int eventId, int studentId)
+        {
+            var ev = await _eventRepo.GetEventById(eventId);
+            if (ev is null)
+            {
+                return Result<bool>.Failure("Event not found.");
+            }
+
+            if (!string.Equals(ev.Status, "Upcoming", StringComparison.OrdinalIgnoreCase))
+            {
+                return Result<bool>.Failure("Registration is closed for this event.");
+            }
+
+            if (await _eventRepo.IsStudentRegisteredAsync(eventId, studentId))
+            {
+                return Result<bool>.Failure("You have already registered for this event.");
+            }
+
+            if (ev.MaxCapacity.HasValue)
+            {
+                int currentCount = await _eventRepo.CountEventRegistrationsAsync(eventId);
+                if (currentCount >= ev.MaxCapacity.Value)
+                {
+                    return Result<bool>.Failure("Sorry, this event is already full.");
+                }
+            }
+
+            var registration = new EventRegistration
+            {
+                EventId = eventId,
+                StudentId = studentId,
+                Status = "Registered",
+                RegistrationDate = DateTime.UtcNow.AddHours(6).AddMinutes(30) 
+            };
+
+            bool added = await _eventRepo.AddEventRegistrationAsync(registration);
+            if (!added)
+            {
+                return Result<bool>.Failure("Failed to register for this event.");
+            }
 
             return Result<bool>.Success(true);
         }
