@@ -1,6 +1,7 @@
 ﻿using AJOCNS.Database.Interfaces;
 using AJOCNS.Domain.Interfaces;
 using AJOCNS.Shared.DTOs.Events;
+using AJOCNS.Shared.DTOs.Jobs;
 using AJOCNS.Shared.DTOs.Student;
 using AJOCNS.Shared.DTOs.StudentDashboard;
 using Microsoft.AspNetCore.Authorization;
@@ -14,12 +15,14 @@ namespace AJOCNS.App.Controllers
     {
         private readonly IStudentService _studentService;
         private readonly IEventService _eventService;
+        private readonly IJobService _jobService;
         private readonly IStudentRepository _studentRepository;
 
-        public StudentController(IStudentService studentService, IEventService eventService, IStudentRepository studentRepository)
+        public StudentController(IStudentService studentService, IEventService eventService, IJobService jobService, IStudentRepository studentRepository)
         {
             _studentService = studentService;
             _eventService = eventService;
+            _jobService = jobService;
             _studentRepository = studentRepository;
         }
 
@@ -126,6 +129,29 @@ namespace AJOCNS.App.Controllers
             }
 
             return PartialView("~/Views/Event/_EventDetailsModal.cshtml", eventDetails.Data);
+        }
+
+        public async Task<IActionResult> Job()
+        {
+            var result = await _jobService.GetOpenJobsAsync();
+            return View(result.IsSuccess ? result.Data : new List<JobPostDto>());
+        }
+
+        public async Task<IActionResult> GetJobDetailsModal(int id)
+        {
+            var jobPosts = await _jobService.GetOpenJobsAsync();
+            if (!jobPosts.IsSuccess)
+            {
+                return NotFound();
+            }
+
+            var job = jobPosts.Data.FirstOrDefault(j => j.Id == id);
+            if (job is null)
+            {
+                return NotFound();
+            }
+
+            return PartialView("_JobDetailsModal", job);
         }
     }
 }

@@ -9,6 +9,7 @@ namespace AJOCNS.Database.Interfaces
         Task<bool> DeleteJobPostAsync(int id);
         Task<JobPost?> GetJobPostById(int? id);
         Task<List<JobPost>> GetAllJobPostsAsync();
+        Task<List<JobPost>> GetOpenJobPostsAsync();
         Task<(List<JobPost> Items, int TotalCount)> GetJobPostsPagedAsync(int page, int pageSize, string? jobType = null, string? status = null);
         Task<bool> UpdateJobStatusAsync(int jobPostId, string status);
         Task<List<JobPost>> GetJobStatusesAsync();

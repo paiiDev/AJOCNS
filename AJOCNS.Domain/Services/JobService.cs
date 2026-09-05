@@ -143,6 +143,21 @@ namespace AJOCNS.Domain.Services
             return Result<List<JobPostDto>>.Success(jobPostDtos);
         }
 
+        public async Task<Result<List<JobPostDto>>> GetOpenJobsAsync()
+        {
+            var jobPosts = await _jobRepo.GetOpenJobPostsAsync();
+            if (jobPosts == null)
+            {
+                return Result<List<JobPostDto>>.Success(new List<JobPostDto>());
+            }
+
+            var jobPostDtos = jobPosts
+                .Select(j => BuildJobPostDto(j))
+                .ToList();
+
+            return Result<List<JobPostDto>>.Success(jobPostDtos);
+        }
+
         public async Task<Result<PagedJobPostDto>> GetJobPostsPagedAsync(int page, int pageSize, string? jobType = null, string? status = null)
         {
             if (page < 1) page = 1;

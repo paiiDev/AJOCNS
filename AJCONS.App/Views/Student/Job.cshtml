@@ -1,0 +1,334 @@
+@model List<AJOCNS.Shared.DTOs.Jobs.JobPostDto>
+@{
+    ViewData["Title"] = "Jobs | AJCONS";
+    var today = DateTime.Today;
+}
+
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                        Student portal
+                    </div>
+                    <h1 class="h2 fw-bold mb-1">Job opportunities</h1>
+                    <p class="text-muted mb-0">@Model.Count job post(s) open for applications right now.</p>
+                </div>
+                <a asp-controller="Student" asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to dashboard
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div class="d-flex flex-wrap gap-2" id="jobTypeFilter">
+                    <button type="button" class="btn btn-academic btn-sm rounded-pill px-3 filter-chip active" data-type="">
+                        All
+                    </button>
+                    @foreach (var type in Model.Select(j => j.JobType).Where(t => !string.IsNullOrWhiteSpace(t)).Select(t => t!).Distinct().OrderBy(t => t))
+                    {
+                        <button type="button" class="btn btn-sm rounded-pill px-3 filter-chip btn-outline-secondary" data-type="@type">
+                            @type
+                        </button>
+                    }
+                </div>
+                <div class="input-group input-group-sm" style="max-width:300px">
+                    <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="text" id="jobSearch" class="form-control" placeholder="Search jobs, companies..." />
+                </div>
+            </div>
+
+            @if (Model.Any())
+            {
+                <div class="row g-4" id="jobCardGrid">
+                    @foreach (var job in Model)
+                    {
+                        var daysLeft = (job.ClosingDate.Date - today).Days;
+                        <div class="col-md-6 col-xl-4 job-card-col"
+                             data-type="@job.JobType"
+                             data-search="@job.Title @job.CompanyName @job.Location @job.JobType @job.SalaryRange @job.Description">
+                            <div class="card border-0 rounded-4 shadow-sm h-100 overflow-hidden job-card"
+                                 role="button" tabindex="0" data-id="@job.Id"
+                                 title="View details for @job.Title">
+                                <div class="job-banner position-relative overflow-hidden">
+                                    <span class="badge job-type-badge">@(job.JobType ?? "General")</span>
+                                    <div class="job-banner-shade"></div>
+                                    <div class="job-company-circle">
+                                        <span>@(string.IsNullOrEmpty(job.CompanyName) ? "?" : job.CompanyName.Substring(0, 1).ToUpper())</span>
+                                    </div>
+                                    <div class="job-close-chip">
+                                        <span class="job-close-chip-day">@job.ClosingDate.ToString("dd")</span>
+                                        <span class="job-close-chip-month text-uppercase">@job.ClosingDate.ToString("MMM")</span>
+                                    </div>
+                                </div>
+
+                                <div class="card-body d-flex flex-column p-4">
+                                    <h5 class="fw-bold mb-1 text-dark job-card-title">@job.Title</h5>
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <i class="fa-solid fa-building text-academic"></i>
+                                        <span class="text-muted small fw-semibold">@job.CompanyName</span>
+                                    </div>
+                                    <p class="text-muted small mb-4 job-card-desc">
+                                        @(string.IsNullOrEmpty(job.Description) ? "No description provided." : (job.Description.Length > 70 ? job.Description.Substring(0, 70) + "..." : job.Description))
+                                    </p>
+
+                                    <ul class="list-unstyled job-meta mb-4">
+                                        @if (!string.IsNullOrEmpty(job.SalaryRange))
+                                        {
+                                            <li>
+                                                <i class="fa-solid fa-money-bill-wave text-success"></i>
+                                                <span>@job.SalaryRange</span>
+                                            </li>
+                                        }
+                                        <li>
+                                            <i class="fa-solid fa-location-dot text-danger"></i>
+                                            <span>@(string.IsNullOrEmpty(job.Location) ? "-" : job.Location)</span>
+                                        </li>
+                                        <li class="@(daysLeft <= 7 ? "text-danger" : "")">
+                                            <i class="fa-regular fa-calendar-check @(daysLeft <= 7 ? "text-danger" : "text-warning")"></i>
+                                            <span>
+                                                @if (daysLeft <= 0)
+                                                {
+                                                    <text>Closes today</text>
+                                                }
+                                                else if (daysLeft == 1)
+                                                {
+                                                    <text>Closes tomorrow</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Closes in @daysLeft days</text>
+                                                }
+                                                <span class="text-muted">·</span> @job.ClosingDate.ToString("dd MMM yyyy")
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-regular fa-clock text-primary"></i>
+                                            <span>Posted @job.PostedDate.ToString("dd MMM")</span>
+                                        </li>
+                                    </ul>
+
+                                    <div class="mt-auto">
+                                        <button type="button" class="btn btn-academic btn-sm w-100 rounded-pill fw-semibold job-open-btn"
+                                                data-id="@job.Id">
+                                            <i class="fa-solid fa-up-right-from-square me-1"></i>View details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="card adminlte-card border-0 rounded-4 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fa-solid fa-briefcase fs-1 text-muted mb-3 d-block"></i>
+                        <h5 class="fw-bold text-dark mb-1">No open job posts</h5>
+                        <p class="text-muted mb-0">New job opportunities from partners and mentors will appear here once posted.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</div>
+
+<div class="modal fade" id="jobDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" id="jobModalContentArea">
+            <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .job-card {
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .job-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 30px rgba(11, 92, 171, .14) !important;
+        }
+        .job-card:focus-visible {
+            outline: 3px solid rgba(11, 92, 171, .4);
+            outline-offset: 2px;
+        }
+        .job-banner {
+            height: 150px;
+            background: linear-gradient(135deg, var(--academic-blue-deep), var(--academic-blue));
+        }
+        .job-banner-icon {
+            position: absolute;
+            right: -18px;
+            bottom: -18px;
+            font-size: 130px;
+            color: rgba(255, 255, 255, .12);
+        }
+        .job-banner-shade {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, .45));
+        }
+        .job-type-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(255, 255, 255, .92);
+            color: var(--academic-blue-deep);
+            font-weight: 600;
+            padding: .4em .8em;
+            border-radius: 50rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+        }
+        .job-company-circle {
+            position: absolute;
+            left: 16px;
+            bottom: 14px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+        }
+        .job-company-circle span {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--academic-blue);
+        }
+        .job-close-chip {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background: rgba(255, 255, 255, .95);
+            border-radius: .75rem;
+            padding: .35rem .6rem;
+            text-align: center;
+            line-height: 1.1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+        }
+        .job-close-chip-day {
+            display: block;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--academic-blue);
+        }
+        .job-close-chip-month {
+            display: block;
+            font-size: .68rem;
+            font-weight: 700;
+            color: #6c757d;
+        }
+        .job-card-title {
+            min-height: 3rem;
+        }
+        .job-card-desc {
+            min-height: 3.2rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .job-meta li {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            font-size: .85rem;
+            margin-bottom: .5rem;
+            color: #343a40;
+        }
+        .job-meta li i {
+            width: 18px;
+            text-align: center;
+        }
+        .filter-chip.active {
+            background: var(--academic-blue);
+            border-color: var(--academic-blue);
+            color: #fff;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('jobCardGrid');
+            const search = document.getElementById('jobSearch');
+            const chips = document.querySelectorAll('.filter-chip');
+
+            if (!grid) return;
+
+            const applyFilters = () => {
+                const term = (search?.value || '').toLowerCase();
+                const activeChip = document.querySelector('.filter-chip.active');
+                const type = activeChip?.getAttribute('data-type') || '';
+
+                document.querySelectorAll('.job-card-col').forEach(col => {
+                    const matchesType = !type || col.getAttribute('data-type') === type;
+                    const haystack = (col.getAttribute('data-search') || '').toLowerCase();
+                    const matchesTerm = !term || haystack.includes(term);
+                    col.style.display = (matchesType && matchesTerm) ? '' : 'none';
+                });
+            };
+
+            chips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    chips.forEach(c => {
+                        c.classList.remove('active', 'btn-academic');
+                        c.classList.add('btn-outline-secondary');
+                    });
+                    chip.classList.add('active', 'btn-academic');
+                    chip.classList.remove('btn-outline-secondary');
+                    applyFilters();
+                });
+            });
+
+            search?.addEventListener('input', applyFilters);
+
+            const openModal = (jobId) => {
+                const modalElement = document.getElementById('jobDetailsModal');
+                const modal = new bootstrap.Modal(modalElement);
+                const contentArea = document.getElementById('jobModalContentArea');
+                contentArea.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+                modal.show();
+
+                fetch(`@Url.Action("GetJobDetailsModal", "Student")?id=${jobId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network Error');
+                        return response.text();
+                    })
+                    .then(html => { contentArea.innerHTML = html; })
+                    .catch(() => {
+                        contentArea.innerHTML = '<div class="p-4 text-danger">There was an error fetching job details.</div>';
+                    });
+            };
+
+            grid.querySelectorAll('.job-card').forEach(card => {
+                card.addEventListener('click', () => openModal(card.getAttribute('data-id')));
+                card.addEventListener('keydown', e => {
+                    if ((e.key === 'Enter' || e.key === ' ') && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+                        e.preventDefault();
+                        openModal(card.getAttribute('data-id'));
+                    }
+                });
+            });
+
+            grid.querySelectorAll('.job-open-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    openModal(btn.getAttribute('data-id'));
+                });
+            });
+        });
+    </script>
+}

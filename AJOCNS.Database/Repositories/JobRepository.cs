@@ -77,6 +77,16 @@ namespace AJOCNS.Database.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<JobPost>> GetOpenJobPostsAsync()
+        {
+            return await _context.JobPosts
+                .AsNoTracking()
+                .Include(j => j.PostedByUser)
+                .Where(j => j.Status == "Open" && !j.IsDeleted && j.ClosingDate > DateTime.UtcNow)
+                .OrderByDescending(j => j.PostedDate)
+                .ToListAsync();
+        }
+
         public async Task<List<JobPost>> GetJobStatusesAsync()
         {
             return await _context.JobPosts

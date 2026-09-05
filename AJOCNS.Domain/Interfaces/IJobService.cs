@@ -10,6 +10,7 @@ namespace AJOCNS.Domain.Interfaces
         Task<Result<bool>> UpdateJobPostAsync(UpdateJobPostDto dto, int currentUserId, bool isAdmin, DateTime closingDateUtc);
         Task<Result<bool>> DeleteJobPostAsync(int id, int currentUserId, bool isAdmin);
         Task<Result<List<JobPostDto>>> GetAllJobPostsAsync();
+        Task<Result<List<JobPostDto>>> GetOpenJobsAsync();
         Task<Result<PagedJobPostDto>> GetJobPostsPagedAsync(int page, int pageSize, string? jobType = null, string? status = null);
         Task<Result<bool>> ApproveJobPostAsync(int jobPostId);
         Task<Result<bool>> RejectJobPostAsync(int jobPostId);
