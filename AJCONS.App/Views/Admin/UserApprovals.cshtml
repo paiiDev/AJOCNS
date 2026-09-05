@@ -128,6 +128,11 @@
             document.querySelectorAll('.verify-form').forEach(form => {
                 form.addEventListener('submit', async (event) => {
                     event.preventDefault();
+                    const button = form.querySelector('button[type="submit"]');
+                    const originalHtml = button.innerHTML;
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i>Verifying...';
+
                     const result = await Swal.fire({
                         title: 'Verify this alumni mentor?',
                         text: 'We will check the GRN against graduation records, approve the account, and email the confirmation.',
@@ -136,7 +141,11 @@
                         confirmButtonText: 'Yes, verify',
                         cancelButtonText: 'Cancel'
                     });
-                    if (!result.isConfirmed) return;
+                    if (!result.isConfirmed) {
+                        button.disabled = false;
+                        button.innerHTML = originalHtml;
+                        return;
+                    }
 
                     const url = form.getAttribute('action');
                     const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
@@ -150,6 +159,9 @@
                         body: 'userId=' + encodeURIComponent(userId) + '&__RequestVerificationToken=' + encodeURIComponent(token)
                     });
                     const data = await response.json();
+
+                    button.disabled = false;
+                    button.innerHTML = originalHtml;
 
                     if (data.success) {
                         Swal.fire({

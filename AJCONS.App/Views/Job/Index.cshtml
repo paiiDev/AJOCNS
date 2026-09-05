@@ -1,0 +1,214 @@
+@model AJOCNS.Shared.DTOs.Jobs.PagedJobPostDto
+@{
+    ViewData["Title"] = "Job Posts | AJCONS";
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+    var selectedJobType = ViewBag.SelectedJobType as string;
+    var selectedStatus = ViewBag.SelectedStatus as string;
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                        Job management
+                    </div>
+                    <h1 class="h2 fw-bold mb-1">Job posts</h1>
+                    <p class="text-muted mb-0">@Model.TotalCount job post(s) in total.</p>
+                </div>
+                <a asp-action="CreateJobPost" asp-controller="Job" class="btn btn-academic">
+                    <i class="fa-solid fa-briefcase me-2"></i>Create job post
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+
+            <form method="get" id="filterForm" class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                <label class="fw-semibold small text-muted mb-0"><i class="fa-solid fa-filter me-1"></i>Filter by Job Type:</label>
+                <select name="jobType" class="form-select form-select-sm" style="max-width:220px" onchange="this.form.submit()">
+                    <option value="">All job types</option>
+                    @if (ViewBag.JobTypes != null)
+                    {
+                        foreach (var jobType in ViewBag.JobTypes)
+                        {
+                            <option value="@jobType" selected="@(selectedJobType == jobType.ToString())">@jobType</option>
+                        }
+                    }
+                </select>
+                <label class="fw-semibold small text-muted mb-0 ms-2"><i class="fa-solid fa-calendar-check me-1"></i>Filter by Status:</label>
+                <select name="status" class="form-select form-select-sm" style="max-width:220px" onchange="this.form.submit()">
+                    <option value="">All statuses</option>
+                    @if (ViewBag.JobStatuses != null && ViewBag.JobStatuses.IsSuccess)
+                    {
+                        foreach (var status in ViewBag.JobStatuses.Data)
+                        {
+                            <option value="@status.Status" selected="@(selectedStatus == status.Status.ToString())">@status.Status</option>
+                        }
+                    }
+                </select>
+                @if (!string.IsNullOrEmpty(selectedJobType) || selectedStatus != null)
+                {
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Clear</a>
+                }
+            </form>
+
+            <div class="card adminlte-card">
+                <div class="card-header py-3">
+                    <h3 class="card-title fw-bold mb-0">Job directory</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Title</th>
+                                <th>Company</th>
+                                <th>Type</th>
+                                <th>Location</th>
+                                <th>Salary</th>
+                                <th>Closing Date</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Jobs.Any())
+                            {
+                                foreach (var job in Model.Jobs)
+                                {
+                                    <tr>
+                                        <td class="ps-4"><strong>@job.Title</strong></td>
+                                        <td>@job.CompanyName</td>
+                                        <td>@(job.JobType ?? "-")</td>
+                                        <td>@(job.Location ?? "-")</td>
+                                        <td>@(job.SalaryRange ?? "-")</td>
+                                        <td>@job.ClosingDate.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            @switch (job.Status.ToLower())
+                                            {
+                                                case "closed":
+                                                    <span class="badge text-bg-secondary">Closed</span>
+                                                    break;
+                                                case "open":
+                                                    <span class="badge text-bg-success">Open</span>
+                                                    break;
+                                                case "pending":
+                                                    <span class="badge text-bg-warning">Pending approval</span>
+                                                    break;
+                                                case "rejected":
+                                                    <span class="badge text-bg-danger">Rejected</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge" style="background:#eaf4ff;color:#073d78">@job.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-flex justify-content-end gap-1">
+                                                @if (isAdmin && string.Equals(job.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <form asp-action="ApproveJobPost" asp-route-id="@job.Id" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Approve @job.Title">
+                                                            <i class="fa-solid fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                    <form asp-action="RejectJobPost" asp-route-id="@job.Id" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject @job.Title">
+                                                            <i class="fa-solid fa-xmark"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                <a asp-action="EditJobPost" asp-route-id="@job.Id" class="btn btn-sm btn-outline-primary"
+                                                   title="Edit @job.Title" aria-label="Edit @job.Title">
+                                                    <i class="fa-solid fa-pen"></i>
+                                                </a>
+                                                <form asp-action="DeleteJobPost" asp-controller="Job" asp-route-id="@job.Id" method="post"
+                                                      class="d-inline confirm-delete" data-job-title="@job.Title">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete @job.Title"
+                                                            aria-label="Delete @job.Title">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 text-muted">
+                                        <i class="fa-regular fa-folder-open fs-2 d-block mb-2"></i>No job posts found. Create one to begin.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="card-footer bg-white py-3">
+                        <nav aria-label="Job post pagination">
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)">Prev</a>
+                                </li>
+                                @for (int i = 1; i <= Model.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                        <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                                    </li>
+                                }
+                                <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <div class="text-center text-muted small mt-2">
+                            Page @Model.CurrentPage of @Model.TotalPages — showing @Model.Jobs.Count of @Model.TotalCount job posts
+                        </div>
+                    </div>
+                }
+
+                <div class="card-footer bg-white text-muted small py-3">
+                    Job posts created by mentors and external partners require admin approval before becoming visible.
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.confirm-delete').forEach(form => {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const title = this.getAttribute('data-job-title') || 'this job post';
+                    const formEl = this;
+
+                    Swal.fire({
+                        title: 'Delete job post?',
+                        text: `"${title}" will be permanently deleted. This cannot be undone.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, delete',
+                        cancelButtonText: 'Cancel'
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            formEl.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

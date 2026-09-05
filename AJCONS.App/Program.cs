@@ -20,12 +20,14 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IGraduationRecordRepository, GraduationRecordRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IJobRepository, JobRepository>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IStudentRegistrationService, StudentRegistrationService>();
 builder.Services.AddScoped<IGraduationRecordService, GraduationRecordService>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IJobService, JobService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 
 builder.Services.AddHostedService<EventStatusUpdateService>();
