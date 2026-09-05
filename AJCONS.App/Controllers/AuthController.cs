@@ -92,6 +92,12 @@ namespace AJOCNS.App.Controllers
             }
             else if (result.Data.Role == "Mentor")
             {
+                // If mentor account was just registered and is pending approval, don't redirect to dashboard
+                if (TempData["MentorRegistered"] != null && (bool)TempData["MentorRegistered"])
+                {
+                    ViewData["SweetAlert_Error"] = "Your mentor account is pending approval. You will be able to log in once approved.";
+                    return View(dto);
+                }
                 return RedirectToAction("Index", "Mentor");
             }
             else if (result.Data.Role == "ExternalPartner")
@@ -103,6 +109,74 @@ namespace AJOCNS.App.Controllers
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 ViewData["SweetAlert_Error"] = "Invalid role.";
                 return View(dto);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Register()
+        {
+            var vm = new RegisterViewModel();
+            await PopulateRegisterOptions(vm);
+            return View(vm);
+        }
+
+        [HttpPost("RegisterMentor")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegisterMentor([Bind(Prefix = "Mentor")] MentorRegistrationDto dto)
+        {
+            var vm = new RegisterViewModel { Mentor = dto };
+            if (!ModelState.IsValid)
+            {
+                await PopulateRegisterOptions(vm);
+                return View("Register", vm);
+            }
+
+            var result = await _authService.RegisterMentorAsync(dto);
+            if (result.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "success";
+                TempData["SweetAlert_Title"] = "Registration Submitted!";
+                TempData["SweetAlert_Message"] = "Your mentor registration has been submitted for admin approval. You will be able to log in once approved.";
+                TempData["MentorRegistered"] = true;
+                return RedirectToAction(nameof(Login));
+            }
+
+            ViewData["SweetAlert_Error"] = result.ErrorMessage;
+            await PopulateRegisterOptions(vm);
+            return View("Register", vm);
+        }
+
+        [HttpPost("RegisterExternalPartner")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegisterExternalPartner([Bind(Prefix = "ExternalPartner")] ExternalPartnerRegistrationDto dto)
+        {
+            var vm = new RegisterViewModel { ExternalPartner = dto };
+            if (!ModelState.IsValid)
+            {
+                await PopulateRegisterOptions(vm);
+                return View("Register", vm);
+            }
+
+            var result = await _authService.RegisterExternalPartnerAsync(dto);
+            if (result.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "success";
+                TempData["SweetAlert_Title"] = "Registration Submitted!";
+                TempData["SweetAlert_Message"] = "Your registration has been submitted for admin approval. You will be able to log in once approved.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            ViewData["SweetAlert_Error"] = result.ErrorMessage;
+            await PopulateRegisterOptions(vm);
+            return View("Register", vm);
+        }
+
+        private async Task PopulateRegisterOptions(RegisterViewModel vm)
+        {
+            var options = await _authService.GetRegisterOptionsAsync();
+            if (options.IsSuccess)
+            {
+                vm.Options = options.Data;
             }
         }
 

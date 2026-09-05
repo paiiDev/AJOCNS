@@ -1,0 +1,470 @@
+@model RegisterViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Register";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+
+    <style>
+        :root {
+            --brand-navy: #0b1e40;
+            --brand-sky: #0ea5e9;
+            --brand-gold: #f0b429;
+            --brand-navy-light: #122b59;
+            --bg-light: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-navbar {
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-light) 100%);
+            padding: 0.9rem 1.5rem;
+        }
+
+            .auth-navbar .auth-brand {
+                color: #fff;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.6rem;
+                font-weight: 600;
+            }
+
+                .auth-navbar .auth-brand img {
+                    height: 30px;
+                    width: auto;
+                }
+
+                .auth-navbar .auth-brand small {
+                    font-weight: 400;
+                    opacity: 0.75;
+                }
+
+            .auth-navbar .auth-nav {
+                color: rgba(255, 255, 255, 0.85);
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.2s ease;
+            }
+
+                .auth-navbar .auth-nav:hover {
+                    color: #fff;
+                }
+
+        body > .container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .auth-card {
+            border: none;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .auth-branding {
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-light) 100%);
+            color: #ffffff;
+            padding: 3.5rem 2.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+            .auth-branding::before {
+                content: '';
+                position: absolute;
+                top: -50px;
+                left: -50px;
+                width: 200px;
+                height: 200px;
+                background: rgba(14, 165, 233, 0.15);
+                filter: blur(40px);
+                border-radius: 50%;
+            }
+
+        .auth-form-wrapper {
+            padding: 3rem 2.5rem;
+            background: #ffffff;
+        }
+
+        .form-floating > .form-control:focus {
+            border-color: var(--brand-sky);
+            box-shadow: 0 0 0 0.25rem rgba(14, 165, 233, 0.15);
+        }
+
+        .form-control, .form-select {
+            border-radius: 0.75rem;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--brand-sky);
+            border-color: var(--brand-sky);
+            color: #fff;
+            font-weight: 600;
+            padding: 0.8rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary-custom:hover {
+                background-color: #0284c7;
+                border-color: #0284c7;
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 15px rgba(14, 165, 233, 0.3);
+            }
+
+        .role-tabs .nav-link {
+            border: none;
+            color: var(--brand-navy);
+            font-weight: 600;
+            border-radius: 0.75rem;
+            background: #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+            .role-tabs .nav-link.active {
+                background: var(--brand-navy);
+                color: #fff;
+            }
+
+        .text-sky {
+            color: var(--brand-sky);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .text-sky:hover {
+                color: #0284c7;
+                text-decoration: underline;
+            }
+
+        @@media (max-width: 1199.98px) {
+            .auth-branding {
+                padding: 3rem 1.75rem;
+            }
+
+            .auth-form-wrapper {
+                padding: 2.5rem 1.75rem;
+            }
+        }
+
+        @@media (max-width: 767.98px) {
+            .auth-form-wrapper {
+                padding: 2rem 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="auth-navbar d-flex justify-content-between align-items-center">
+        <a class="auth-brand" asp-controller="Home" asp-action="Index">
+            <img src="~/images/pupl.png" alt="PUPL Logo" />
+            <span>PUPL <small>AJOCNS</small></span>
+        </a>
+        <a class="auth-nav" asp-controller="Home" asp-action="Index">
+            <i class="fa-solid fa-house me-1"></i>Home
+        </a>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="card auth-card">
+                    <div class="row g-0">
+
+                        <!-- Left Side: Branding -->
+                        <div class="col-lg-4 auth-branding d-none d-lg-flex">
+                            <div class="mb-4">
+                                <i class="fa-solid fa-user-tie" style="color: var(--brand-gold); font-size: 3rem;"></i>
+                            </div>
+                            <h2 class="text-white fw-bold mb-3">Join as a Mentor or Partner</h2>
+                            <p class="text-white-50 mb-0" style="line-height: 1.8;">
+                                Alumni mentors share guidance and career insight. External partners bring with
+                                them companies and job opportunities to the PUPL community.
+                            </p>
+
+                            <div class="mt-auto pt-5">
+                                <small class="text-white-50">&copy; 2026 PUPL. All rights reserved.</small>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Forms -->
+                        <div class="col-lg-8 auth-form-wrapper">
+
+                            <div class="d-lg-none text-center mb-4">
+                                <i class="fa-solid fa-user-tie" style="color: var(--brand-gold); font-size: 2.5rem;"></i>
+                                <h3 class="fw-bold mt-2" style="color: var(--brand-navy);">AJOCNS</h3>
+                            </div>
+
+                            <div class="mb-4 text-center text-lg-start">
+                                <h3 class="fw-bold" style="color: var(--brand-navy);">Create your account</h3>
+                                <p class="text-muted mb-0">Complete the required fields. Your registration is verified against our records before approval.</p>
+                            </div>
+
+                            <!-- Role Toggle Tabs -->
+                            <ul class="nav nav-pills role-tabs d-flex gap-2 mb-4" id="roleTabs" role="tablist">
+                                <li class="nav-item flex-fill" role="presentation">
+                                    <button class="nav-link active w-100" id="mentor-tab" data-bs-toggle="pill" data-bs-target="#mentor-pane" type="button" role="tab">
+                                        <i class="fa-solid fa-graduation-cap me-2"></i>Alumni Mentor
+                                    </button>
+                                </li>
+                                <li class="nav-item flex-fill" role="presentation">
+                                    <button class="nav-link w-100" id="partner-tab" data-bs-toggle="pill" data-bs-target="#partner-pane" type="button" role="tab">
+                                        <i class="fa-solid fa-building me-2"></i>External Partner
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="roleTabContent">
+                                <!-- ============ Mentor Form ============ -->
+                                <div class="tab-pane fade show active" id="mentor-pane" role="tabpanel">
+                                    <form asp-controller="Auth" asp-action="RegisterMentor" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                                        <div class="mb-3 form-floating">
+                                            <input asp-for="Mentor.Name" class="form-control" placeholder="Full name" />
+                                            <label asp-for="Mentor.Name"><i class="fa-regular fa-user me-2 text-muted"></i>Full Name</label>
+                                            <span asp-validation-for="Mentor.Name" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+
+                                        <div class="mb-3 form-floating">
+                                            <input asp-for="Mentor.Email" type="email" class="form-control" placeholder="name@example.com" />
+                                            <label asp-for="Mentor.Email"><i class="fa-regular fa-envelope me-2 text-muted"></i>Email Address</label>
+                                            <span asp-validation-for="Mentor.Email" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="mb-3 form-floating position-relative">
+                                                    <input asp-for="Mentor.Password" type="password" class="form-control pe-5" id="mentorPassword" placeholder="Password" />
+                                                    <label asp-for="Mentor.Password"><i class="fa-solid fa-lock me-2 text-muted"></i>Password</label>
+                                                    <i class="fa-solid fa-eye text-muted position-absolute" id="toggleMentorPassword" style="right: 15px; top: 33px; cursor: pointer; z-index: 10;"></i>
+                                                    <span asp-validation-for="Mentor.Password" class="text-danger small mt-1 d-block"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3 form-floating position-relative">
+                                                    <input asp-for="Mentor.ConfirmPassword" type="password" class="form-control pe-5" id="mentorConfirmPassword" placeholder="Confirm password" />
+                                                    <label asp-for="Mentor.ConfirmPassword"><i class="fa-solid fa-lock me-2 text-muted"></i>Confirm Password</label>
+                                                    <i class="fa-solid fa-eye text-muted position-absolute" id="toggleMentorConfirm" style="right: 15px; top: 33px; cursor: pointer; z-index: 10;"></i>
+                                                    <span asp-validation-for="Mentor.ConfirmPassword" class="text-danger small mt-1 d-block"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            <div class="col-md-7">
+                                                <div class="mb-2 form-floating">
+                                                    <input asp-for="Mentor.AlumniGrn" class="form-control" id="mentorGrn" placeholder="Alumni GRN" />
+                                                    <label asp-for="Mentor.AlumniGrn"><i class="fa-solid fa-id-card me-2 text-muted"></i>Alumni GRN</label>
+                                                    <span asp-validation-for="Mentor.AlumniGrn" class="text-danger small mt-1 d-block"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="mb-2 form-floating">
+                                                    <input asp-for="Mentor.AlumniGraduationYear" type="number" min="1950" max="2100" class="form-control" id="mentorYear" placeholder="Graduation year" />
+                                                    <label asp-for="Mentor.AlumniGraduationYear"><i class="fa-solid fa-calendar me-2 text-muted"></i>Graduation Year</label>
+                                                    <span asp-validation-for="Mentor.AlumniGraduationYear" class="text-danger small mt-1 d-block"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4 form-floating">
+                                            <input asp-for="Mentor.Expertise" class="form-control" placeholder="Area of expertise (optional)" />
+                                            <label asp-for="Mentor.Expertise"><i class="fa-solid fa-lightbulb me-2 text-muted"></i>Expertise (optional)</label>
+                                        </div>
+
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary-custom">
+                                                Submit Mentor Registration <i class="fa-solid fa-arrow-right ms-2"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- ============ External Partner Form ============ -->
+                                <div class="tab-pane fade" id="partner-pane" role="tabpanel">
+                                    <form asp-controller="Auth" asp-action="RegisterExternalPartner" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                                        <div class="mb-3 form-floating">
+                                            <input asp-for="ExternalPartner.Name" class="form-control" placeholder="Full name" />
+                                            <label asp-for="ExternalPartner.Name"><i class="fa-regular fa-user me-2 text-muted"></i>Full Name</label>
+                                            <span asp-validation-for="ExternalPartner.Name" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+
+                                        <div class="mb-3 form-floating">
+                                            <input asp-for="ExternalPartner.Email" type="email" class="form-control" placeholder="name@example.com" />
+                                            <label asp-for="ExternalPartner.Email"><i class="fa-regular fa-envelope me-2 text-muted"></i>Email Address</label>
+                                            <span asp-validation-for="ExternalPartner.Email" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="mb-3 form-floating position-relative">
+                                                    <input asp-for="ExternalPartner.Password" type="password" class="form-control pe-5" id="partnerPassword" placeholder="Password" />
+                                                    <label asp-for="ExternalPartner.Password"><i class="fa-solid fa-lock me-2 text-muted"></i>Password</label>
+                                                    <i class="fa-solid fa-eye text-muted position-absolute" id="togglePartnerPassword" style="right: 15px; top: 33px; cursor: pointer; z-index: 10;"></i>
+                                                    <span asp-validation-for="ExternalPartner.Password" class="text-danger small mt-1 d-block"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3 form-floating position-relative">
+                                                    <input asp-for="ExternalPartner.ConfirmPassword" type="password" class="form-control pe-5" id="partnerConfirmPassword" placeholder="Confirm password" />
+                                                    <label asp-for="ExternalPartner.ConfirmPassword"><i class="fa-solid fa-lock me-2 text-muted"></i>Confirm Password</label>
+                                                    <i class="fa-solid fa-eye text-muted position-absolute" id="togglePartnerConfirm" style="right: 15px; top: 33px; cursor: pointer; z-index: 10;"></i>
+                                                    <span asp-validation-for="ExternalPartner.ConfirmPassword" class="text-danger small mt-1 d-block"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label asp-for="ExternalPartner.CompanyId" class="form-label small fw-semibold text-muted mb-1"><i class="fa-solid fa-building me-1"></i>Company <span class="text-danger">*</span></label>
+                                                    <select asp-for="ExternalPartner.CompanyId" class="form-select">
+                                                        <option value="">-- Select Company --</option>
+                                                        @if (Model.Options.Companies != null)
+                                                        {
+                                                            foreach (var company in Model.Options.Companies)
+                                                            {
+                                                                <option value="@company.CompanyId">@company.CompanyName</option>
+                                                            }
+                                                        }
+                                                    </select>
+                                                    <span asp-validation-for="ExternalPartner.CompanyId" class="text-danger small mt-1 d-block"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label asp-for="ExternalPartner.PositionId" class="form-label small fw-semibold text-muted mb-1"><i class="fa-solid fa-briefcase me-1"></i>Position <span class="text-danger">*</span></label>
+                                                    <select asp-for="ExternalPartner.PositionId" class="form-select">
+                                                        <option value="">-- Select Position --</option>
+                                                        @if (Model.Options.Positions != null)
+                                                        {
+                                                            foreach (var position in Model.Options.Positions)
+                                                            {
+                                                                <option value="@position.PositionId">@position.PositionName</option>
+                                                            }
+                                                        }
+                                                    </select>
+                                                    <span asp-validation-for="ExternalPartner.PositionId" class="text-danger small mt-1 d-block"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3 form-floating">
+                                            <input asp-for="ExternalPartner.Phone" class="form-control" placeholder="Phone number (optional)" />
+                                            <label asp-for="ExternalPartner.Phone"><i class="fa-solid fa-phone me-2 text-muted"></i>Phone (optional)</label>
+                                            <span asp-validation-for="ExternalPartner.Phone" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+
+                                        <div class="mb-4 form-floating">
+                                            <input asp-for="ExternalPartner.Expertise" class="form-control" placeholder="Area of expertise (optional)" />
+                                            <label asp-for="ExternalPartner.Expertise"><i class="fa-solid fa-lightbulb me-2 text-muted"></i>Expertise (optional)</label>
+                                        </div>
+
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary-custom">
+                                                Submit Partner Registration <i class="fa-solid fa-arrow-right ms-2"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <p class="text-muted mb-0">
+                                    Already have an account?
+                                    <a asp-controller="Auth" asp-action="Login" class="text-sky fw-bold">Sign in</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function bindToggle(eyeId, inputId) {
+            const eye = document.querySelector(eyeId);
+            const input = document.querySelector(inputId);
+            if (!eye || !input) return;
+            eye.addEventListener('click', function () {
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        }
+        bindToggle('#toggleMentorPassword', '#mentorPassword');
+        bindToggle('#toggleMentorConfirm', '#mentorConfirmPassword');
+        bindToggle('#togglePartnerPassword', '#partnerPassword');
+        bindToggle('#togglePartnerConfirm', '#partnerConfirmPassword');
+
+        @if (TempData["SweetAlert_Type"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: '@TempData["SweetAlert_Type"]',
+                title: '@TempData["SweetAlert_Title"]',
+                html: '@Html.Raw(TempData["SweetAlert_Message"])',
+                confirmButtonText: 'OK',
+                customClass: { confirmButton: 'btn btn-primary' },
+                buttonsStyling: false
+            });
+            </text>
+        }
+
+        @if (ViewData["SweetAlert_Error"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: 'error',
+                title: 'Registration Failed',
+                text: '@ViewData["SweetAlert_Error"]',
+                confirmButtonText: 'OK',
+                customClass: { confirmButton: 'btn btn-primary' },
+                buttonsStyling: false
+            });
+            </text>
+        }
+    </script>
+
+</body>
+</html>

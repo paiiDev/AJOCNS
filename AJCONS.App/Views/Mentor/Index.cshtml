@@ -1,0 +1,56 @@
+@{
+    ViewData["Title"] = "Mentor Dashboard | AJCONS";
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                        Alumni mentor portal
+                    </div>
+                    <h1 class="h2 fw-bold mb-1">Mentor dashboard</h1>
+                    <p class="text-muted mb-0">Welcome back, @User.Identity?.Name. Your guidance shapes tomorrow's graduates.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 rounded-4 shadow-sm h-100 bg-white">
+                        <div class="card-body p-4 p-lg-5">
+                            <span class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-pill fw-semibold">
+                                <i class="fa-solid fa-graduation-cap me-2"></i>Your mentor hub
+                            </span>
+                            <h2 class="fw-bold mb-3">Guide the next generation</h2>
+                            <p class="text-muted mb-0" style="line-height:1.8">
+                                As an alumnus mentor you can share career insight, review upcoming events, and
+                                support students on their professional journey. Your dashboard is being prepared —
+                                events you are involved with will appear here soon.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card border-0 rounded-4 shadow-sm h-100 position-relative overflow-hidden"
+                         style="background: linear-gradient(135deg, #0b1e40 0%, #122b59 100%);">
+                        <div class="card-body p-4 p-lg-5 text-white position-relative">
+                            <i class="fa-solid fa-handshake position-absolute opacity-10" style="font-size:120px; right:-20px; bottom:-20px;"></i>
+                            <span class="badge bg-light text-primary mb-3 px-3 py-2 rounded-pill fw-semibold">Quick link</span>
+                            <h4 class="fw-bold mb-2">Upcoming events</h4>
+                            <p class="text-white-50 mb-4">
+                                See what is on the AJCONS calendar and how you can take part.
+                            </p>
+                            <a asp-controller="Mentor" asp-action="Events" class="btn btn-light text-primary fw-bold px-4 py-2 rounded-pill shadow-sm">
+                                <i class="fa-solid fa-calendar-days me-2"></i>View events
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

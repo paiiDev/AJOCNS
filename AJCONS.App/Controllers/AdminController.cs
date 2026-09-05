@@ -1,5 +1,5 @@
 ﻿using AJOCNS.Domain.Interfaces;
-using AJOCNS.Shared.DTOs.Events;
+using AJOCNS.Shared.DTOs.Auth;
 using AJOCNS.Shared.DTOs.GraduationRecords;
 using AJOCNS.Shared.DTOs.StudentRegistration;
 using Microsoft.AspNetCore.Authorization;
@@ -14,12 +14,12 @@ namespace AJOCNS.App.Controllers
     {
         private readonly IStudentRegistrationService _studentRegistrationService;
         private readonly IGraduationRecordService _graduationRecordService;
-        private readonly IEventService _eventService;
-        public AdminController(IStudentRegistrationService studentRegistrationService, IGraduationRecordService graduationRecordService, IEventService eventService)
+        private readonly IAuthService _authService;
+        public AdminController(IStudentRegistrationService studentRegistrationService, IGraduationRecordService graduationRecordService, IAuthService authService)
         {
             _studentRegistrationService = studentRegistrationService;
             _graduationRecordService = graduationRecordService;
-            _eventService = eventService;
+            _authService = authService;
         }
 
         public async Task<IActionResult> Index()
@@ -27,11 +27,11 @@ namespace AJOCNS.App.Controllers
             var stats = await _studentRegistrationService.GetDashboardStatsAsync();
             ViewBag.ActiveStudentCount = stats.IsSuccess ? stats.Data.ActiveStudents : 0;
             ViewBag.ActiveMentorCount = stats.IsSuccess ? stats.Data.ActiveMentors : 0;
-            ViewBag.PendingApprovalCount = stats.IsSuccess ? stats.Data.PendingApprovals : 0;
             ViewBag.CareerEventCount = stats.IsSuccess ? stats.Data.CareerEventsHosted : 0;
 
-            var pendingEvents = await _eventService.GetPendingEventsAsync();
-            ViewBag.PendingEvents = pendingEvents.IsSuccess ? pendingEvents.Data : new List<EventDto>();
+            var pendingUsers = await _authService.GetPendingUsersAsync();
+            ViewBag.PendingUsers = pendingUsers.IsSuccess ? pendingUsers.Data : new List<PendingUserApprovalDto>();
+            ViewBag.PendingApprovalCount = pendingUsers.IsSuccess ? pendingUsers.Data.Count : 0;
 
             return View();
         }
@@ -321,6 +321,65 @@ namespace AJOCNS.App.Controllers
             }
 
             return RedirectToAction("StudentManagement", "Admin");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UserApprovals()
+        {
+            var result = await _authService.GetPendingUsersAsync();
+            ViewBag.PendingUsers = result.IsSuccess ? result.Data : new List<PendingUserApprovalDto>();
+
+            var stats = await _studentRegistrationService.GetDashboardStatsAsync();
+            ViewBag.ActiveStudentCount = stats.IsSuccess ? stats.Data.ActiveStudents : 0;
+            ViewBag.ActiveMentorCount = stats.IsSuccess ? stats.Data.ActiveMentors : 0;
+            ViewBag.PendingApprovalCount = stats.IsSuccess ? stats.Data.PendingApprovals : 0;
+            ViewBag.CareerEventCount = stats.IsSuccess ? stats.Data.CareerEventsHosted : 0;
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveUser(int userId)
+        {
+            var result = await _authService.ApproveUserAsync(userId);
+
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Approved!" : "Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "User has been approved and can now log in."
+                : result.ErrorMessage ?? "Could not approve user.";
+
+            return RedirectToAction("UserApprovals", "Admin");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectUser(int userId)
+        {
+            var result = await _authService.RejectUserAsync(userId);
+
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Rejected" : "Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "User has been rejected and cannot log in."
+                : result.ErrorMessage ?? "Could not reject user.";
+
+            return RedirectToAction("UserApprovals", "Admin");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyUser(int userId)
+        {
+            var result = await _authService.ApproveUserAsync(userId);
+
+            if (result.IsSuccess)
+            {
+                return Json(new { success = true, message = "Applicant verified. Confirmation email sent and account approved." });
+            }
+
+            return Json(new { success = false, message = result.ErrorMessage ?? "Could not verify applicant." });
         }
     }
 }

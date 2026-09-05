@@ -290,7 +290,7 @@
                             <div class="text-center mt-5">
                                 <p class="text-muted mb-0">
                                     Are you a verified PUPL student or alumnus? <br>
-                                    <a href="#" class="text-sky fw-bold">Claim your account now</a>
+                                    <a asp-controller="Auth" asp-action="Register" class="text-sky fw-bold">Register as a mentor or partner</a>
                                 </p>
                             </div>
 
@@ -315,6 +315,20 @@
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
         });
+
+        @if (TempData["SweetAlert_Type"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: '@TempData["SweetAlert_Type"]',
+                title: '@TempData["SweetAlert_Title"]',
+                html: '@Html.Raw(TempData["SweetAlert_Message"])',
+                confirmButtonText: 'OK',
+                customClass: { confirmButton: 'btn btn-primary' },
+                buttonsStyling: false
+            });
+            </text>
+        }
 
         @if (ViewData["SweetAlert_Error"] != null)
         {

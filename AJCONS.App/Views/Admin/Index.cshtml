@@ -1,7 +1,7 @@
-@using AJOCNS.Shared.DTOs.Events
+@using AJOCNS.Shared.DTOs.Auth
 @{
     ViewData["Title"] = "Admin Dashboard | AJCONS";
-    var pendingEvents = ViewBag.PendingEvents as List<EventDto> ?? new List<EventDto>();
+    var pendingUsers = ViewBag.PendingUsers as List<PendingUserApprovalDto> ?? new List<PendingUserApprovalDto>();
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -54,9 +54,8 @@
                             <h3>@ViewBag.PendingApprovalCount</h3>
                             <p>Pending approvals</p>
                         </div>
-                        <div class="icon"><i class="fa-solid fa-clipboard-check"></i></div><a asp-controller="Event"
-                                                                                             asp-action="Index"
-                                                                                             asp-route-eventStatus="Pending"
+                        <div class="icon"><i class="fa-solid fa-clipboard-check"></i></div><a asp-controller="Admin"
+                                                                                             asp-action="UserApprovals"
                                                                                               class="small-box-footer">Review queue <i class="fa-solid fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
@@ -76,17 +75,16 @@
                 <div class="col-lg-8">
 <div class="card adminlte-card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center py-3">
-                            <h3 class="card-title fw-bold mb-0">Pending approvals</h3><a asp-controller="Event"
-                                                                                        asp-action="Index"
-                                                                                        asp-route-eventStatus="Pending"
-                                                                                        class="btn btn-sm btn-outline-primary">View all</a>
+                            <h3 class="card-title fw-bold mb-0">Pending profile approvals</h3><a asp-controller="Admin"
+                                                                                         asp-action="UserApprovals"
+                                                                                         class="btn btn-sm btn-outline-primary">View all</a>
                         </div>
                         <div class="table-responsive">
-                            @if (pendingEvents.Count == 0)
+                            @if (pendingUsers.Count == 0)
                             {
                                 <div class="text-center py-5 text-muted">
                                     <i class="fa-solid fa-inbox fs-2 mb-3 d-block"></i>
-                                    No pending events waiting for review.
+                                    No pending user registrations waiting for review.
                                 </div>
                             }
                             else
@@ -94,27 +92,38 @@
                                 <table class="table table-hover mb-0 align-middle">
                                     <thead class="table-light">
                                         <tr>
-                                            <th class="ps-4">Request</th>
-                                            <th>Category</th>
-                                            <th>Scheduled</th>
-                                            <th>Status</th>
+                                            <th class="ps-4">Applicant</th>
+                                            <th>Role</th>
+                                            <th>Submitted</th>
                                             <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var evt in pendingEvents)
+                                        @foreach (var user in pendingUsers)
                                         {
                                             <tr>
                                                 <td class="ps-4">
-                                                    <strong>@evt.EventTitle</strong><small class="d-block text-muted">Requested by @evt.CreatedByName</small>
+                                                    <strong>@user.Name</strong><small class="d-block text-muted">@user.Email</small>
                                                 </td>
-                                                <td>@evt.EventTypeName</td>
-                                                <td>@evt.EventDate.ToString("d MMM yyyy, hh:mm tt")</td>
-                                                <td><span class="badge text-bg-warning">Needs review</span></td>
+                                                <td>
+                                                    @if (user.Role == "Mentor")
+                                                    {
+                                                        <span class="badge text-bg-info">Alumni Mentor</span>
+                                                    }
+                                                    else if (user.Role == "ExternalPartner")
+                                                    {
+                                                        <span class="badge text-bg-primary">External Partner</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge text-bg-secondary">@user.Role</span>
+                                                    }
+                                                </td>
+                                                <td>@user.CreatedAt.ToString("d MMM yyyy")</td>
                                                 <td class="text-end pe-4">
-                                                    <button class="btn btn-sm btn-academic btn-view-details" data-id="@evt.Id">
+                                                    <a asp-controller="Admin" asp-action="UserApprovals" class="btn btn-sm btn-academic">
                                                         Review
-                                                    </button>
+                                                    </a>
                                                 </td>
                                             </tr>
                                         }
@@ -165,38 +174,3 @@
         </div>
     </section>
 </div>
-
-<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" id="modalContentArea">
-            <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.btn-view-details').forEach(button => {
-                button.addEventListener('click', async function() {
-                    const eventId = this.getAttribute('data-id');
-                    const modalElement = document.getElementById('eventDetailsModal');
-                    const modal = new bootstrap.Modal(modalElement);
-                    const contentArea = document.getElementById('modalContentArea');
-
-                    contentArea.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
-                    modal.show();
-
-                    try {
-                        const response = await fetch(`@Url.Action("GetEventDetailsModal", "Event")?id=${eventId}`);
-                        if (!response.ok) throw new Error('Network Error');
-                        const html = await response.text();
-                        contentArea.innerHTML = html;
-                    } catch (error) {
-                        contentArea.innerHTML = '<div class="p-4 text-danger">There is error when fetching data</div>';
-                    }
-                });
-            });
-        })
-    </script>
-}

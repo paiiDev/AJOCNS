@@ -38,6 +38,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<GraduationRecord> GraduationRecords { get; set; }
 
+    public virtual DbSet<JobPost> JobPosts { get; set; }
+
     public virtual DbSet<Major> Majors { get; set; }
 
     public virtual DbSet<Mentor> Mentors { get; set; }
@@ -48,7 +50,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    
+  
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcademicYear>(entity =>
@@ -289,6 +291,22 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_Graduation_Records_Students");
         });
 
+        modelBuilder.Entity<JobPost>(entity =>
+        {
+            entity.Property(e => e.JobPostId).HasColumnName("JobPost_Id");
+            entity.Property(e => e.CompanyName).HasMaxLength(200);
+            entity.Property(e => e.JobType).HasMaxLength(100);
+            entity.Property(e => e.Location).HasMaxLength(200);
+            entity.Property(e => e.PostedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.SalaryRange).HasMaxLength(100);
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.Title).HasMaxLength(200);
+
+            entity.HasOne(d => d.PostedByUser).WithMany(p => p.JobPosts).HasForeignKey(d => d.PostedByUserId);
+        });
+
         modelBuilder.Entity<Major>(entity =>
         {
             entity.HasIndex(e => e.MajorName, "UQ_Majors_MajorName").IsUnique();
@@ -311,8 +329,7 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.MentorId).HasColumnName("Mentor_ID");
             entity.Property(e => e.AlumniGrn)
-                .HasMaxLength(10)
-                .IsFixedLength()
+                .HasMaxLength(100)
                 .HasColumnName("Alumni_GRN");
             entity.Property(e => e.AlumniGy).HasColumnName("Alumni_GY");
             entity.Property(e => e.Expertise).HasMaxLength(255);

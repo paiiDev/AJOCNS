@@ -1,0 +1,56 @@
+@{
+    ViewData["Title"] = "External Partner | AJCONS";
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                        External partner portal
+                    </div>
+                    <h1 class="h2 fw-bold mb-1">Partner dashboard</h1>
+                    <p class="text-muted mb-0">Welcome back, @User.Identity?.Name. Thank you for partnering with PUPL.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 rounded-4 shadow-sm h-100 bg-white">
+                        <div class="card-body p-4 p-lg-5">
+                            <span class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-pill fw-semibold">
+                                <i class="fa-solid fa-building me-2"></i>Your partner hub
+                            </span>
+                            <h2 class="fw-bold mb-3">Connect with future talent</h2>
+                            <p class="text-muted mb-0" style="line-height:1.8">
+                                As an external partner you can post job opportunities and connect with PUPL
+                                graduates. Your dashboard is being prepared — your company's job listings will
+                                appear here soon.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card border-0 rounded-4 shadow-sm h-100 position-relative overflow-hidden"
+                         style="background: linear-gradient(135deg, #0b1e40 0%, #122b59 100%);">
+                        <div class="card-body p-4 p-lg-5 text-white position-relative">
+                            <i class="fa-solid fa-briefcase position-absolute opacity-10" style="font-size:120px; right:-20px; bottom:-20px;"></i>
+                            <span class="badge bg-light text-primary mb-3 px-3 py-2 rounded-pill fw-semibold">Quick link</span>
+                            <h4 class="fw-bold mb-2">Job opportunities</h4>
+                            <p class="text-white-50 mb-4">
+                                Manage and review the roles your company offers to graduates.
+                            </p>
+                            <a asp-controller="ExternalPartner" asp-action="Jobs" class="btn btn-light text-primary fw-bold px-4 py-2 rounded-pill shadow-sm">
+                                <i class="fa-solid fa-briefcase me-2"></i>View jobs
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

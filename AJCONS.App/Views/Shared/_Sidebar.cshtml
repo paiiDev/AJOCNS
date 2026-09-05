@@ -30,7 +30,7 @@
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "GraduationRecords" or "EditGraduationRecord" ? "active-menu" : "")" asp-controller="Admin" asp-action="GraduationRecords">
                 <i class="fa-solid fa-file-lines me-2 text-center" style="width:20px"></i> Graduation Records
             </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2" href="#">
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "UserApprovals" ? "active-menu" : "")" asp-controller="Admin" asp-action="UserApprovals">
                 <i class="fa-solid fa-circle-check me-2 text-center" style="width:20px"></i> User Approvals
             </a>
         }
@@ -43,6 +43,24 @@
                 <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
             </a>
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action == "Job" ? "active-menu" : "")" asp-controller="Student" asp-action="Job">
+                <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Jobs
+            </a>
+        }
+        else if (User.IsInRole("Mentor"))
+        {
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Mentor" && action == "Index" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Index">
+                <i class="fa-solid fa-house me-2 text-center" style="width:20px"></i> Home
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Mentor" && action == "Events" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Events">
+                <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
+            </a>
+        }
+        else if (User.IsInRole("ExternalPartner"))
+        {
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "ExternalPartner" && action == "Index" ? "active-menu" : "")" asp-controller="ExternalPartner" asp-action="Index">
+                <i class="fa-solid fa-house me-2 text-center" style="width:20px"></i> Home
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "ExternalPartner" && action == "Jobs" ? "active-menu" : "")" asp-controller="ExternalPartner" asp-action="Jobs">
                 <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Jobs
             </a>
         }
