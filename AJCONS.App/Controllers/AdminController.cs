@@ -1,8 +1,10 @@
 ﻿using AJOCNS.Domain.Interfaces;
+using AJOCNS.Shared.DTOs.Events;
 using AJOCNS.Shared.DTOs.GraduationRecords;
 using AJOCNS.Shared.DTOs.StudentRegistration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace AJOCNS.App.Controllers
@@ -12,10 +14,12 @@ namespace AJOCNS.App.Controllers
     {
         private readonly IStudentRegistrationService _studentRegistrationService;
         private readonly IGraduationRecordService _graduationRecordService;
-        public AdminController(IStudentRegistrationService studentRegistrationService, IGraduationRecordService graduationRecordService)
+        private readonly IEventService _eventService;
+        public AdminController(IStudentRegistrationService studentRegistrationService, IGraduationRecordService graduationRecordService, IEventService eventService)
         {
             _studentRegistrationService = studentRegistrationService;
             _graduationRecordService = graduationRecordService;
+            _eventService = eventService;
         }
 
         public async Task<IActionResult> Index()
@@ -25,6 +29,10 @@ namespace AJOCNS.App.Controllers
             ViewBag.ActiveMentorCount = stats.IsSuccess ? stats.Data.ActiveMentors : 0;
             ViewBag.PendingApprovalCount = stats.IsSuccess ? stats.Data.PendingApprovals : 0;
             ViewBag.CareerEventCount = stats.IsSuccess ? stats.Data.CareerEventsHosted : 0;
+
+            var pendingEvents = await _eventService.GetPendingEventsAsync();
+            ViewBag.PendingEvents = pendingEvents.IsSuccess ? pendingEvents.Data : new List<EventDto>();
+
             return View();
         }
 

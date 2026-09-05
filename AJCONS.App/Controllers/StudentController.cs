@@ -38,6 +38,9 @@ namespace AJOCNS.App.Controllers
                 });
             }
 
+            var registeredEvents = await _eventService.GetStudentRegisteredEventsAsync(result.Data.StudentId);
+            ViewBag.RegisteredEvents = registeredEvents.IsSuccess ? registeredEvents.Data : new List<EventDto>();
+
             return View(result.Data);
         }
 

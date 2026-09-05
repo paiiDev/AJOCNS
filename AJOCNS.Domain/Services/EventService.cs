@@ -299,6 +299,50 @@ namespace AJOCNS.Domain.Services
             return Result<List<EventDto>>.Success(eventDtos);
         }
 
+        public async Task<Result<List<EventDto>>> GetStudentRegisteredEventsAsync(int studentId)
+        {
+            var events = await _eventRepo.GetStudentRegisteredEventsAsync(studentId);
+            if (events == null || !events.Any())
+            {
+                return Result<List<EventDto>>.Success(new List<EventDto>());
+            }
+
+            var registrationCounts = await _eventRepo.GetEventRegistrationCountsAsync();
+
+            var eventDtos = events
+                .Select(e =>
+                {
+                    var dto = ToEventDto(e);
+                    dto.IsRegistered = true;
+                    dto.RegisteredCount = registrationCounts.TryGetValue(e.EventId, out var count) ? count : 0;
+                    return dto;
+                })
+                .OrderBy(e => e.Status == "Completed")
+                .ThenBy(e => e.EventDate)
+                .ToList();
+
+            return Result<List<EventDto>>.Success(eventDtos);
+        }
+
+        public async Task<Result<List<EventDto>>> GetPendingEventsAsync()
+        {
+            var events = await _eventRepo.GetPendingEventsAsync();
+            if (events == null || !events.Any())
+            {
+                return Result<List<EventDto>>.Success(new List<EventDto>());
+            }
+
+            var eventDtos = events.Select(e =>
+            {
+                var dto = ToEventDto(e);
+                dto.CreatedByName = GetCreatorName(e.CreatedByUser);
+                dto.RegisteredCount = 0;
+                return dto;
+            }).ToList();
+
+            return Result<List<EventDto>>.Success(eventDtos);
+        }
+
         public async Task<Result<bool>> RegisterStudentForEventAsync(int eventId, int studentId)
         {
             var ev = await _eventRepo.GetEventById(eventId);

@@ -212,5 +212,34 @@ namespace AJOCNS.Database.Repositories
                 .OrderByDescending(r => r.RegistrationDate)
                 .ToListAsync();
         }
+
+        public async Task<List<Event>> GetStudentRegisteredEventsAsync(int studentId)
+        {
+            return await _context.Events
+                .AsNoTracking()
+                .Include(e => e.EventType)
+                .Include(e => e.CreatedByUser)
+                .Where(e => e.EventRegistrations.Any(r => r.StudentId == studentId))
+                .OrderByDescending(e => e.Status == "Upcoming")
+                .ThenBy(e => e.EventDate)
+                .ToListAsync();
+        }
+
+        public async Task<List<Event>> GetPendingEventsAsync()
+        {
+            return await _context.Events
+                .AsNoTracking()
+                .Include(e => e.EventType)
+                .Include(e => e.CreatedByUser)
+                    .ThenInclude(u => u.Admin)
+                .Include(e => e.CreatedByUser)
+                    .ThenInclude(u => u.Mentor)
+                .Include(e => e.CreatedByUser)
+                    .ThenInclude(u => u.ExternalPartner)
+                .Where(e => e.Status.ToLower().Contains("pend"))
+                .OrderBy(e => e.EventDate)
+                .Take(10)
+                .ToListAsync();
+        }
     }
 }

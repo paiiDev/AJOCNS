@@ -1,5 +1,7 @@
+@using AJOCNS.Shared.DTOs.Events
 @{
     ViewData["Title"] = "Admin Dashboard | AJCONS";
+    var pendingEvents = ViewBag.PendingEvents as List<EventDto> ?? new List<EventDto>();
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -52,7 +54,9 @@
                             <h3>@ViewBag.PendingApprovalCount</h3>
                             <p>Pending approvals</p>
                         </div>
-                        <div class="icon"><i class="fa-solid fa-clipboard-check"></i></div><a href="#"
+                        <div class="icon"><i class="fa-solid fa-clipboard-check"></i></div><a asp-controller="Event"
+                                                                                             asp-action="Index"
+                                                                                             asp-route-eventStatus="Pending"
                                                                                               class="small-box-footer">Review queue <i class="fa-solid fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
@@ -62,58 +66,61 @@
                             <h3>@ViewBag.CareerEventCount</h3>
                             <p>Career events hosted</p>
                         </div>
-                        <div class="icon"><i class="fa-solid fa-calendar-days"></i></div><a href="#"
-                                                                                            class="small-box-footer">View events <i class="fa-solid fa-arrow-circle-right"></i></a>
+                        <div class="icon"><i class="fa-solid fa-calendar-days"></i></div><a asp-controller="Event"
+                                                                                             asp-action="Index"
+                                                                                             class="small-box-footer">View events <i class="fa-solid fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
             </div>
             <div class="row g-4">
                 <div class="col-lg-8">
-                    <div class="card adminlte-card h-100">
+<div class="card adminlte-card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center py-3">
-                            <h3 class="card-title fw-bold mb-0">Pending approvals</h3><a href="#"
-                                                                                         class="btn btn-sm btn-outline-primary">View all</a>
+                            <h3 class="card-title fw-bold mb-0">Pending approvals</h3><a asp-controller="Event"
+                                                                                        asp-action="Index"
+                                                                                        asp-route-eventStatus="Pending"
+                                                                                        class="btn btn-sm btn-outline-primary">View all</a>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0 align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="ps-4">Request</th>
-                                        <th>Category</th>
-                                        <th>Submitted</th>
-                                        <th>Status</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="ps-4">
-                                            <strong>Tech Innovators Co.</strong><small class="d-block text-muted">hr@techinnovators.com</small>
-                                        </td>
-                                        <td>External partner</td>
-                                        <td>2 hours ago</td>
-                                        <td><span class="badge text-bg-warning">Needs review</span></td>
-                                        <td class="text-end pe-4">
-                                            <button class="btn btn-sm btn-academic">
-                                                Review
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="ps-4">
-                                            <strong>Career Fair 2026</strong><small class="d-block text-muted">Requested by U Kyaw, Mentor</small>
-                                        </td>
-                                        <td>Event hosting</td>
-                                        <td>1 day ago</td>
-                                        <td><span class="badge text-bg-warning">Needs review</span></td>
-                                        <td class="text-end pe-4">
-                                            <button class="btn btn-sm btn-academic">
-                                                Review
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            @if (pendingEvents.Count == 0)
+                            {
+                                <div class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-inbox fs-2 mb-3 d-block"></i>
+                                    No pending events waiting for review.
+                                </div>
+                            }
+                            else
+                            {
+                                <table class="table table-hover mb-0 align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Request</th>
+                                            <th>Category</th>
+                                            <th>Scheduled</th>
+                                            <th>Status</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var evt in pendingEvents)
+                                        {
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <strong>@evt.EventTitle</strong><small class="d-block text-muted">Requested by @evt.CreatedByName</small>
+                                                </td>
+                                                <td>@evt.EventTypeName</td>
+                                                <td>@evt.EventDate.ToString("d MMM yyyy, hh:mm tt")</td>
+                                                <td><span class="badge text-bg-warning">Needs review</span></td>
+                                                <td class="text-end pe-4">
+                                                    <button class="btn btn-sm btn-academic btn-view-details" data-id="@evt.Id">
+                                                        Review
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
                         </div>
                     </div>
                 </div>
@@ -123,7 +130,8 @@
                             <h3 class="card-title fw-bold mb-0">Academic records</h3>
                         </div>
                         <div class="list-group list-group-flush">
-                            <a href="#"
+                            <a asp-action="GraduationRecords"
+                               asp-controller="Admin"
                                class="list-group-item list-group-item-action d-flex gap-3 py-3">
                                 <i class="fa-solid fa-file-lines text-academic mt-1"></i><span>
                                     <strong class="d-block">Graduation records</strong><small class="text-muted">
@@ -131,7 +139,8 @@
                                         verified academic records
                                     </small>
                                 </span>
-                            </a><a href="#"
+                            </a><a asp-action="StudentManagement"
+                                   asp-controller="Admin"
                                    class="list-group-item list-group-item-action d-flex gap-3 py-3">
                                 <i class="fa-solid fa-book-open text-academic mt-1"></i><span>
                                     <strong class="d-block">Majors & degrees</strong><small class="text-muted">
@@ -139,7 +148,8 @@
                                         programme information
                                     </small>
                                 </span>
-                            </a><a href="#"
+                            </a><a asp-action="StudentManagement"
+                                   asp-controller="Admin"
                                    class="list-group-item list-group-item-action d-flex gap-3 py-3">
                                 <i class="fa-solid fa-calendar-week text-academic mt-1"></i><span>
                                     <strong class="d-block">Academic years</strong><small class="text-muted">
@@ -155,3 +165,38 @@
         </div>
     </section>
 </div>
+
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" id="modalContentArea">
+            <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.btn-view-details').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const eventId = this.getAttribute('data-id');
+                    const modalElement = document.getElementById('eventDetailsModal');
+                    const modal = new bootstrap.Modal(modalElement);
+                    const contentArea = document.getElementById('modalContentArea');
+
+                    contentArea.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+                    modal.show();
+
+                    try {
+                        const response = await fetch(`@Url.Action("GetEventDetailsModal", "Event")?id=${eventId}`);
+                        if (!response.ok) throw new Error('Network Error');
+                        const html = await response.text();
+                        contentArea.innerHTML = html;
+                    } catch (error) {
+                        contentArea.innerHTML = '<div class="p-4 text-danger">There is error when fetching data</div>';
+                    }
+                });
+            });
+        })
+    </script>
+}

@@ -25,5 +25,7 @@ namespace AJOCNS.Domain.Interfaces
         Task<Result<bool>> RegisterStudentForEventAsync(int eventId, int studentId);
         Task<Result<List<EventRegistrantDto>>> GetEventRegistrantsAsync(int eventId, int currentUserId, bool isAdmin);
         Task<Result<bool>> SendZoomLinkToRegistrantsAsync(int eventId, int currentUserId, bool isAdmin, string zoomLink);
+        Task<Result<List<EventDto>>> GetStudentRegisteredEventsAsync(int studentId);
+        Task<Result<List<EventDto>>> GetPendingEventsAsync();
     }
 }
