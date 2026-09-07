@@ -16,11 +16,13 @@ namespace AJOCNS.App.Controllers
         private static readonly TimeZoneInfo MyanmarTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Myanmar Standard Time");
         private readonly IEventService _eventService;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IMentorService _mentorService;
 
-        public EventController(IEventService eventService, IWebHostEnvironment webHostEnvironment)
+        public EventController(IEventService eventService, IWebHostEnvironment webHostEnvironment, IMentorService mentorService)
         {
             _eventService = eventService;
             _webHostEnvironment = webHostEnvironment;
+            _mentorService = mentorService;
         }
 
         public async Task<IActionResult> Index(int page = 1, string? eventType = null, string? eventStatus = null)
@@ -36,9 +38,13 @@ namespace AJOCNS.App.Controllers
             ViewBag.EventStatuses = eventStatusesResult;
             ViewBag.SelectedEventStatus = eventStatus;
 
-            var result = await _eventService.GetEventsPagedAsync(page, pageSize, eventType, eventStatus);
-            ViewBag.IsAdmin = User.IsInRole("Admin");
-           
+            bool isAdmin = User.IsInRole("Admin");
+            int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            ViewBag.IsAdmin = isAdmin;
+
+            var result = isAdmin
+                ? await _eventService.GetEventsPagedAsync(page, pageSize, eventType, eventStatus)
+                : await _eventService.GetEventsPagedForUserAsync(currentUserId, page, pageSize, eventType, eventStatus);
 
             if (!result.IsSuccess)
             {
@@ -57,9 +63,30 @@ namespace AJOCNS.App.Controllers
 
             int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             bool isAdmin = User.IsInRole("Admin");
+            if (!isAdmin && eventDetails.Data.CreatedByUserId != currentUserId)
+            {
+                return NotFound();
+            }
+
             ViewBag.CanManageEvent = isAdmin || eventDetails.Data.CreatedByUserId == currentUserId;
 
+            await SetEventMentorProfileAsync(eventDetails.Data);
+
             return PartialView("_EventDetailsModal", eventDetails.Data);
+        }
+
+        private async Task SetEventMentorProfileAsync(EventDto eventDto)
+        {
+            if (!string.Equals(eventDto.CreatedByRole, "Mentor", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var mentorProfile = await _mentorService.GetMentorProfileAsync(eventDto.CreatedByUserId);
+            if (mentorProfile.IsSuccess)
+            {
+                ViewBag.EventMentorProfile = mentorProfile.Data;
+            }
         }
 
         [HttpGet]
@@ -87,6 +114,7 @@ namespace AJOCNS.App.Controllers
             }
 
             ViewBag.EventTitle = eventDetails.Data.EventTitle;
+            ViewBag.IsAdmin = isAdmin;
             return View(registrantsResult.Data);
         }
 
@@ -193,7 +221,9 @@ namespace AJOCNS.App.Controllers
                     TempData["SweetAlert_Message"] = isAdmin
                         ? "Event has been created successfully."
                         : "Event submitted. It will be visible once approved by an admin.";
-                    return RedirectToAction("Index", "Event");
+                    return isAdmin
+                        ? RedirectToAction("Index", "Event")
+                        : RedirectToAction("Events", "Mentor");
                 }
 
                 ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Could not create event.");

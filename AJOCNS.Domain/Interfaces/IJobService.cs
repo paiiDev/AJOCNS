@@ -12,8 +12,10 @@ namespace AJOCNS.Domain.Interfaces
         Task<Result<List<JobPostDto>>> GetAllJobPostsAsync();
         Task<Result<List<JobPostDto>>> GetOpenJobsAsync();
         Task<Result<PagedJobPostDto>> GetJobPostsPagedAsync(int page, int pageSize, string? jobType = null, string? status = null);
+        Task<Result<PagedJobPostDto>> GetJobPostsPagedForUserAsync(int userId, int page, int pageSize, string? jobType = null, string? status = null);
         Task<Result<bool>> ApproveJobPostAsync(int jobPostId);
         Task<Result<bool>> RejectJobPostAsync(int jobPostId);
         Task<Result<List<JobStatusDto>>> GetJobStatusesAsync();
+        Task<Result<List<JobPostDto>>> GetPendingJobPostsAsync();
     }
 }

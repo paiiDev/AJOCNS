@@ -29,6 +29,7 @@ namespace AJOCNS.Domain.Services
         {
             Id = e.EventId,
             CreatedByUserId = e.CreatedByUserId,
+            CreatedByRole = e.CreatedByUser?.Role ?? "",
             EventTitle = e.EventTitle,
             Description = e.Description,
             EventTypeName = e.EventType?.EventTypeName ?? "-",
@@ -189,6 +190,7 @@ namespace AJOCNS.Domain.Services
             {
                 Id = result.EventId,
                 CreatedByUserId = result.CreatedByUserId,
+                CreatedByRole = result.CreatedByUser?.Role ?? "",
                 EventTitle = result.EventTitle,
                 EventDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(result.EventDate, DateTimeKind.Utc), MyanmarTimeZone),
                 Description = result.Description?? "-",
@@ -243,6 +245,24 @@ namespace AJOCNS.Domain.Services
             if (pageSize < 1) pageSize = 10;
 
             var (items, totalCount) = await _eventRepo.GetEventsPagedAsync(page, pageSize, eventType, eventStatus);
+
+            var paged = new PagedEventDto
+            {
+                Events = (items ?? new List<Event>()).Select(ToEventDto).ToList(),
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+
+            return Result<PagedEventDto>.Success(paged);
+        }
+
+        public async Task<Result<PagedEventDto>> GetEventsPagedForUserAsync(int userId, int page, int pageSize, string? eventType = null, string? eventStatus = null)
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            var (items, totalCount) = await _eventRepo.GetEventsPagedForUserAsync(userId, page, pageSize, eventType, eventStatus);
 
             var paged = new PagedEventDto
             {

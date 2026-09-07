@@ -1,6 +1,7 @@
 ﻿@model AJOCNS.Shared.DTOs.Events.EventDto
 @{
     var canManage = ViewBag.CanManageEvent as bool? ?? false;
+    var mentorProfile = ViewBag.EventMentorProfile as AJOCNS.Shared.DTOs.Mentor.MentorProfileDto;
 }
 
 <style>
@@ -108,6 +109,49 @@
         white-space: pre-line;
         font-size: .95rem;
     }
+    .mentor-banner {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        background: linear-gradient(135deg, rgba(24,56,92,.05), rgba(24,56,92,.12));
+        border: 1px solid rgba(24,56,92,.18);
+        border-radius: .85rem;
+        padding: .65rem 1rem;
+        cursor: pointer;
+        transition: background .15s ease;
+    }
+    .mentor-banner:hover { background: linear-gradient(135deg, rgba(24,56,92,.1), rgba(24,56,92,.18)); }
+    .mentor-banner-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--academic-blue);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+    .mentor-info-card {
+        border: 1px solid #eef2f6;
+        border-radius: .85rem;
+        padding: 1rem 1.25rem;
+        background: #fafbfd;
+    }
+    .mentor-position-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        background: #fff;
+        border: 1px solid #e8edf3;
+        border-radius: 50rem;
+        padding: .3rem .8rem;
+        font-size: .8rem;
+        font-weight: 600;
+        color: #2c3e5d;
+    }
 </style>
 
 <div class="event-modal-hero @(!string.IsNullOrEmpty(Model.PosterImagePath) ? "" : "no-poster")">
@@ -191,6 +235,70 @@
             </div>
         </div>
     </div>
+
+    @if (mentorProfile != null)
+    {
+        @* See mentor info toggle *@
+        <div class="mentor-banner mb-3" id="mentorInfoBanner"
+             data-bs-toggle="collapse" data-bs-target="#mentorInfoCard" aria-expanded="false" aria-controls="mentorInfoCard">
+            <div class="mentor-banner-avatar">
+                @{
+                    var nameParts = (mentorProfile.Name ?? "Mentor").Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+                    var initials = string.Concat(nameParts.Take(2).Select(w => char.ToUpperInvariant(w[0])));
+                    if (string.IsNullOrWhiteSpace(initials)) { initials = "M"; }
+                }
+                @initials
+            </div>
+            <div class="flex-grow-1">
+                <div class="small text-uppercase fw-semibold" style="color:#8a94a6;letter-spacing:.4px;"><i class="fa-solid fa-user-graduate me-1"></i>Posted by an alumni mentor</div>
+                <div class="fw-bold">@mentorProfile.Name</div>
+            </div>
+            <i class="fa-solid fa-chevron-down me-1" id="mentorInfoChevron" style="transition: transform .2s ease;"></i>
+        </div>
+
+        <div class="collapse mb-4" id="mentorInfoCard">
+            <div class="mentor-info-card">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-1">
+                    <div>
+                        <h6 class="fw-bold mb-1">@mentorProfile.Name</h6>
+                        <div class="small text-muted"><i class="fa-solid fa-at me-1"></i>@mentorProfile.Email</div>
+                        <div class="small text-muted"><i class="fa-solid fa-graduation-cap me-1"></i>Alumni &middot; Class of @mentorProfile.AlumniGy</div>
+                    </div>
+                    <span class="badge text-bg-light border"><i class="fa-solid fa-building me-1"></i>@mentorProfile.CurrentPositions.Count current position(s)</span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(mentorProfile.Expertise))
+                {
+                    <div class="mt-2">
+                        <div class="small text-uppercase fw-semibold" style="color:#8a94a6;letter-spacing:.4px;font-size:.7rem;">Areas of expertise</div>
+                        <div class="mt-1">@mentorProfile.Expertise</div>
+                    </div>
+                }
+
+                @if (mentorProfile.HasEmploymentRecords)
+                {
+                    <div class="mt-3 d-flex flex-wrap gap-2">
+                        @foreach (var pos in mentorProfile.EmploymentRecords.Where(e => e.IsCurrent))
+                        {
+                            <span class="mentor-position-chip"><i class="fa-solid fa-briefcase text-primary"></i>@pos.PositionName &middot; @pos.CompanyName</span>
+                        }
+                        @foreach (var pos in mentorProfile.EmploymentRecords.Where(e => !e.IsCurrent).OrderByDescending(e => e.EndDate))
+                        {
+                            <span class="mentor-position-chip text-muted"><i class="fa-solid fa-briefcase"></i>@pos.PositionName &middot; @pos.CompanyName</span>
+                        }
+                        @if (!mentorProfile.EmploymentRecords.Any())
+                        {
+                            <span class="small text-muted">No employment history added yet.</span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="small text-muted mt-2">This mentor has not added employment details yet.</div>
+                }
+            </div>
+        </div>
+    }
 
     <h6 class="event-modal-section-title"><i class="fa-solid fa-circle-info me-2"></i>About This Event</h6>
     <p class="event-modal-desc">

@@ -1,6 +1,10 @@
-﻿using AJOCNS.Domain.Interfaces;
+﻿using ajocns.database.interfaces;
+using AJOCNS.Domain.Interfaces;
 using AJOCNS.Shared.DTOs.Auth;
+using AJOCNS.Shared.DTOs.Events;
 using AJOCNS.Shared.DTOs.GraduationRecords;
+using AJOCNS.Shared.DTOs.Jobs;
+using AJOCNS.Shared.DTOs.Mentor;
 using AJOCNS.Shared.DTOs.StudentRegistration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +19,19 @@ namespace AJOCNS.App.Controllers
         private readonly IStudentRegistrationService _studentRegistrationService;
         private readonly IGraduationRecordService _graduationRecordService;
         private readonly IAuthService _authService;
-        public AdminController(IStudentRegistrationService studentRegistrationService, IGraduationRecordService graduationRecordService, IAuthService authService)
+        private readonly IEventService _eventService;
+        private readonly IJobService _jobService;
+        private readonly IMentorService _mentorService;
+        private readonly IAuthRepository _authRepository;
+        public AdminController(IStudentRegistrationService studentRegistrationService, IGraduationRecordService graduationRecordService, IAuthService authService, IEventService eventService, IJobService jobService, IMentorService mentorService, IAuthRepository authRepository)
         {
             _studentRegistrationService = studentRegistrationService;
             _graduationRecordService = graduationRecordService;
             _authService = authService;
+            _eventService = eventService;
+            _jobService = jobService;
+            _mentorService = mentorService;
+            _authRepository = authRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -32,6 +44,12 @@ namespace AJOCNS.App.Controllers
             var pendingUsers = await _authService.GetPendingUsersAsync();
             ViewBag.PendingUsers = pendingUsers.IsSuccess ? pendingUsers.Data : new List<PendingUserApprovalDto>();
             ViewBag.PendingApprovalCount = pendingUsers.IsSuccess ? pendingUsers.Data.Count : 0;
+
+            var pendingEvents = await _eventService.GetPendingEventsAsync();
+            var pendingJobs = await _jobService.GetPendingJobPostsAsync();
+            ViewBag.PendingPostApprovalCount =
+                (pendingEvents.IsSuccess ? pendingEvents.Data.Count : 0)
+                + (pendingJobs.IsSuccess ? pendingJobs.Data.Count : 0);
 
             return View();
         }
@@ -380,6 +398,133 @@ namespace AJOCNS.App.Controllers
             }
 
             return Json(new { success = false, message = result.ErrorMessage ?? "Could not verify applicant." });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ContentApprovals()
+        {
+            var pendingEvents = await _eventService.GetPendingEventsAsync();
+            ViewBag.PendingEvents = pendingEvents.IsSuccess ? pendingEvents.Data : new List<EventDto>();
+
+            var pendingJobs = await _jobService.GetPendingJobPostsAsync();
+            ViewBag.PendingJobs = pendingJobs.IsSuccess ? pendingJobs.Data : new List<JobPostDto>();
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveEventPost(int id)
+        {
+            var result = await _eventService.ApproveEventAsync(id);
+
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Approved!" : "Approval Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "Event has been approved and is now upcoming."
+                : result.ErrorMessage ?? "Could not approve event.";
+
+            return RedirectToAction("ContentApprovals", "Admin");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectEventPost(int id)
+        {
+            var result = await _eventService.RejectEventAsync(id);
+
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Rejected" : "Rejection Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "Event has been rejected."
+                : result.ErrorMessage ?? "Could not reject event.";
+
+            return RedirectToAction("ContentApprovals", "Admin");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveJobPost(int id)
+        {
+            var result = await _jobService.ApproveJobPostAsync(id);
+
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Approved!" : "Approval Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "Job post has been approved and is now open."
+                : result.ErrorMessage ?? "Could not approve job post.";
+
+            return RedirectToAction("ContentApprovals", "Admin");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectJobPost(int id)
+        {
+            var result = await _jobService.RejectJobPostAsync(id);
+
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Rejected" : "Rejection Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "Job post has been rejected."
+                : result.ErrorMessage ?? "Could not reject job post.";
+
+            return RedirectToAction("ContentApprovals", "Admin");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Mentors()
+        {
+            var result = await _mentorService.GetAllMentorsAsync();
+            return View(result.IsSuccess ? result.Data : new List<MentorProfileDto>());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeactivateMentor(int id)
+        {
+            var mentor = await _mentorService.GetMentorProfileAsync(id);
+            if (!mentor.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Not Found";
+                TempData["SweetAlert_Message"] = "Mentor account could not be found.";
+                return RedirectToAction("Mentors", "Admin");
+            }
+
+            var updated = await _authRepository.UpdateUserStatusAsync(id, "Inactive");
+
+            TempData["SweetAlert_Type"] = updated ? "success" : "error";
+            TempData["SweetAlert_Title"] = updated ? "Deactivated" : "Update Failed";
+            TempData["SweetAlert_Message"] = updated
+                ? $"{mentor.Data.Name} can no longer sign in until reactivated."
+                : "Could not deactivate the mentor account.";
+
+            return RedirectToAction("Mentors", "Admin");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivateMentor(int id)
+        {
+            var mentor = await _mentorService.GetMentorProfileAsync(id);
+            if (!mentor.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Not Found";
+                TempData["SweetAlert_Message"] = "Mentor account could not be found.";
+                return RedirectToAction("Mentors", "Admin");
+            }
+
+            var updated = await _authRepository.UpdateUserStatusAsync(id, "Active");
+
+            TempData["SweetAlert_Type"] = updated ? "success" : "error";
+            TempData["SweetAlert_Title"] = updated ? "Activated" : "Update Failed";
+            TempData["SweetAlert_Message"] = updated
+                ? $"{mentor.Data.Name} can now sign in again."
+                : "Could not activate the mentor account.";
+
+            return RedirectToAction("Mentors", "Admin");
         }
     }
 }

@@ -1,0 +1,31 @@
+@model AJOCNS.Shared.DTOs.Mentor.EmploymentRecordDto
+
+<div class="employment-card @(Model.IsCurrent ? "current" : "")">
+    <div class="employment-card-header">
+        <div class="employment-company-icon"><i class="fa-solid fa-building"></i></div>
+        <div class="flex-grow-1">
+            <div class="employment-company-name">@Model.CompanyName</div>
+            <div class="employment-position">@Model.PositionName</div>
+        </div>
+        @if (Model.IsCurrent)
+        {
+            <span class="badge bg-success bg-opacity-10 text-success employment-badge"><i class="fa-solid fa-circle me-1" style="font-size:0.4rem;"></i>Current</span>
+        }
+    </div>
+    <div class="employment-duration">
+        <i class="fa-regular fa-calendar"></i>
+        <span>@Model.StartDate.ToString("MMM yyyy") @(Model.IsCurrent ? "– Present" : "– " + (Model.EndDate?.ToString("MMM yyyy") ?? ""))</span>
+        <span class="mx-1">·</span>
+        <span>@Model.DurationDisplay</span>
+    </div>
+    <div class="employment-actions">
+        <button type="button" class="btn btn-outline-secondary btn-sm btn-edit-employment"
+                data-record='@System.Text.Json.JsonSerializer.Serialize(Model)'>
+            <i class="fa-solid fa-pen me-1"></i>Edit
+        </button>
+        <button type="button" class="btn btn-outline-danger btn-sm btn-delete-employment"
+                data-id="@Model.Id">
+            <i class="fa-solid fa-trash me-1"></i>Delete
+        </button>
+    </div>
+</div>

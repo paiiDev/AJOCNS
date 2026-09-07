@@ -5,7 +5,6 @@
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     var isAdmin = User.IsInRole("Admin");
-
 }
 <div class="shadow text-white" id="sidebar">
     <div class="sidebar-heading text-center py-3 fs-5 fw-bold border-bottom border-light border-opacity-25 sticky-top bg-transparent">
@@ -33,8 +32,14 @@
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "GraduationRecords" or "EditGraduationRecord" ? "active-menu" : "")" asp-controller="Admin" asp-action="GraduationRecords">
                 <i class="fa-solid fa-file-lines me-2 text-center" style="width:20px"></i> Graduation Records
             </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "Mentors" ? "active-menu" : "")" asp-controller="Admin" asp-action="Mentors">
+                <i class="fa-solid fa-user-graduate me-2 text-center" style="width:20px"></i> Mentors
+            </a>
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "UserApprovals" ? "active-menu" : "")" asp-controller="Admin" asp-action="UserApprovals">
                 <i class="fa-solid fa-circle-check me-2 text-center" style="width:20px"></i> User Approvals
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "ContentApprovals" ? "active-menu" : "")" asp-controller="Admin" asp-action="ContentApprovals">
+                <i class="fa-solid fa-clipboard-check me-2 text-center" style="width:20px"></i> Post Approvals
             </a>
         }
         else if (User.IsInRole("Student"))
@@ -54,8 +59,14 @@
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Mentor" && action == "Index" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Index">
                 <i class="fa-solid fa-house me-2 text-center" style="width:20px"></i> Home
             </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Mentor" && action == "Events" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Events">
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @((controller == "Mentor" && action == "Events") || controller == "Event" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Events">
                 <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @((controller == "Mentor" && action == "Jobs") || controller == "Job" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Jobs">
+                <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Job Posts
+            </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Mentor" && action == "Profile" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Profile">
+                <i class="fa-solid fa-user me-2 text-center" style="width:20px"></i> Profile
             </a>
         }
         else if (User.IsInRole("ExternalPartner"))

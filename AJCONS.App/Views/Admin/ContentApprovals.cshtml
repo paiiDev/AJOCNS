@@ -1,0 +1,191 @@
+@using AJOCNS.Shared.DTOs.Events
+@using AJOCNS.Shared.DTOs.Jobs
+@{
+    ViewData["Title"] = "Post Approvals | AJCONS";
+    var pendingEvents = ViewBag.PendingEvents as List<EventDto> ?? new List<EventDto>();
+    var pendingJobs = ViewBag.PendingJobs as List<JobPostDto> ?? new List<JobPostDto>();
+    var totalPending = pendingEvents.Count + pendingJobs.Count;
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                        Content administration
+                    </div>
+                    <h1 class="h2 fw-bold mb-1">Event &amp; job post approvals</h1>
+                    <p class="text-muted mb-0">Review events and job posts submitted by mentors and external partners.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="Index" asp-controller="Admin" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-gauge-high me-2"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="card adminlte-card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h3 class="card-title fw-bold mb-0"><i class="fa-solid fa-calendar-days me-2"></i>Pending events</h3>
+                    <span class="badge rounded-pill text-bg-warning">@pendingEvents.Count waiting</span>
+                </div>
+                <div class="table-responsive">
+                    @if (pendingEvents.Count == 0)
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-inbox fs-2 mb-3 d-block"></i>
+                            No pending events waiting for approval.
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Event</th>
+                                    <th>Type</th>
+                                    <th>Date &amp; Time</th>
+                                    <th>Submitted by</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ev in pendingEvents)
+                                {
+                                    <tr>
+                                        <td class="ps-4"><strong>@ev.EventTitle</strong></td>
+                                        <td>@ev.EventTypeName</td>
+                                        <td>@ev.EventDate.ToString("dd MMM yyyy, HH:mm")</td>
+                                        <td>@ev.CreatedByName</td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-inline-flex gap-2">
+                                                <form asp-action="RejectEventPost" asp-controller="Admin" asp-route-id="@ev.Id" method="post" class="d-inline reject-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject @ev.EventTitle">
+                                                        <i class="fa-solid fa-xmark me-1"></i>Reject
+                                                    </button>
+                                                </form>
+                                                <form asp-action="ApproveEventPost" asp-controller="Admin" asp-route-id="@ev.Id" method="post" class="d-inline approve-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-success" title="Approve @ev.EventTitle">
+                                                        <i class="fa-solid fa-check me-1"></i>Approve
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+
+            <div class="card adminlte-card">
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h3 class="card-title fw-bold mb-0"><i class="fa-solid fa-briefcase me-2"></i>Pending job posts</h3>
+                    <span class="badge rounded-pill text-bg-warning">@pendingJobs.Count waiting</span>
+                </div>
+                <div class="table-responsive">
+                    @if (pendingJobs.Count == 0)
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-inbox fs-2 mb-3 d-block"></i>
+                            No pending job posts waiting for approval.
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Title</th>
+                                    <th>Company</th>
+                                    <th>Type</th>
+                                    <th>Closing Date</th>
+                                    <th>Submitted by</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var job in pendingJobs)
+                                {
+                                    <tr>
+                                        <td class="ps-4"><strong>@job.Title</strong></td>
+                                        <td>@job.CompanyName</td>
+                                        <td>@(job.JobType ?? "-")</td>
+                                        <td>@job.ClosingDate.ToString("dd MMM yyyy")</td>
+                                        <td>@job.PostedByName</td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-inline-flex gap-2">
+                                                <form asp-action="RejectJobPost" asp-controller="Admin" asp-route-id="@job.Id" method="post" class="d-inline reject-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject @job.Title">
+                                                        <i class="fa-solid fa-xmark me-1"></i>Reject
+                                                    </button>
+                                                </form>
+                                                <form asp-action="ApproveJobPost" asp-controller="Admin" asp-route-id="@job.Id" method="post" class="d-inline approve-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-success" title="Approve @job.Title">
+                                                        <i class="fa-solid fa-check me-1"></i>Approve
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.approve-form').forEach(form => {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const title = form.querySelector('button[type="submit"]').getAttribute('title') || 'item';
+                    const result = await Swal.fire({
+                        title: 'Approve this post?',
+                        text: `${title} will become visible after approval.`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, approve',
+                        cancelButtonText: 'Cancel'
+                    });
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.reject-form').forEach(form => {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const title = form.querySelector('button[type="submit"]').getAttribute('title') || 'item';
+                    const result = await Swal.fire({
+                        title: 'Reject this post?',
+                        text: `${title} will be marked as rejected.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, reject',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#dc3545'
+                    });
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

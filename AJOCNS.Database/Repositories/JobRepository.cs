@@ -127,6 +127,36 @@ namespace AJOCNS.Database.Repositories
             return (items, totalCount);
         }
 
+        public async Task<(List<JobPost> Items, int TotalCount)> GetJobPostsPagedForUserAsync(int userId, int page, int pageSize, string? jobType = null, string? status = null)
+        {
+            var query = _context.JobPosts
+                .AsNoTracking()
+                .Include(j => j.PostedByUser)
+                .Where(j => j.PostedByUserId == userId)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(jobType))
+            {
+                query = query.Where(j => j.JobType == jobType);
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(j => j.Status == status);
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(j => j.Status == "Open")
+                .ThenByDescending(j => j.PostedDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<bool> UpdateJobStatusAsync(int jobPostId, string status)
         {
             try
@@ -142,6 +172,21 @@ namespace AJOCNS.Database.Repositories
             {
                 return false;
             }
+        }
+
+        public async Task<List<JobPost>> GetPendingJobPostsAsync()
+        {
+            return await _context.JobPosts
+                .AsNoTracking()
+                .Include(j => j.PostedByUser)
+                    .ThenInclude(u => u.Admin)
+                .Include(j => j.PostedByUser)
+                    .ThenInclude(u => u.Mentor)
+                .Include(j => j.PostedByUser)
+                    .ThenInclude(u => u.ExternalPartner)
+                .Where(j => j.Status.ToLower().Contains("pend") && !j.IsDeleted)
+                .OrderBy(j => j.ClosingDate)
+                .ToListAsync();
         }
 
         public async Task<int> CountPendingJobPostsAsync()

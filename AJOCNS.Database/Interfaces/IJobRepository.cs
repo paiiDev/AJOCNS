@@ -11,8 +11,10 @@ namespace AJOCNS.Database.Interfaces
         Task<List<JobPost>> GetAllJobPostsAsync();
         Task<List<JobPost>> GetOpenJobPostsAsync();
         Task<(List<JobPost> Items, int TotalCount)> GetJobPostsPagedAsync(int page, int pageSize, string? jobType = null, string? status = null);
+        Task<(List<JobPost> Items, int TotalCount)> GetJobPostsPagedForUserAsync(int userId, int page, int pageSize, string? jobType = null, string? status = null);
         Task<bool> UpdateJobStatusAsync(int jobPostId, string status);
         Task<List<JobPost>> GetJobStatusesAsync();
+        Task<List<JobPost>> GetPendingJobPostsAsync();
         Task<int> CountPendingJobPostsAsync();
     }
 }

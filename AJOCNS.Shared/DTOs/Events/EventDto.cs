@@ -6,6 +6,8 @@ namespace AJOCNS.Shared.DTOs.Events
 
         public int CreatedByUserId { get; set; }
 
+        public string CreatedByRole { get; set; } = "";
+
         public string EventTitle { get; set; } = null!;
 
         public string? Description { get; set; }

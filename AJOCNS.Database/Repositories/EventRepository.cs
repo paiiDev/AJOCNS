@@ -133,6 +133,37 @@ namespace AJOCNS.Database.Repositories
             return (items, totalCount);
         }
 
+        public async Task<(List<Event> Items, int TotalCount)> GetEventsPagedForUserAsync(int userId, int page, int pageSize, string? eventType = null, string? eventStatus = null)
+        {
+            var query = _context.Events
+                .AsNoTracking()
+                .Include(e => e.EventType)
+                .Include(e => e.CreatedByUser)
+                .Where(e => e.CreatedByUserId == userId)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(eventType))
+            {
+                query = query.Where(e => e.EventType.EventTypeName == eventType);
+            }
+
+            if (!string.IsNullOrEmpty(eventStatus))
+            {
+                query = query.Where(e => e.Status == eventStatus);
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(e => e.Status == "Upcoming")
+                .ThenBy(e => e.EventDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<bool> UpdateEventStatusAsync(int eventId, string status)
         {
             try
@@ -238,7 +269,6 @@ namespace AJOCNS.Database.Repositories
                     .ThenInclude(u => u.ExternalPartner)
                 .Where(e => e.Status.ToLower().Contains("pend"))
                 .OrderBy(e => e.EventDate)
-                .Take(10)
                 .ToListAsync();
         }
     }

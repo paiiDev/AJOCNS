@@ -38,9 +38,13 @@ namespace AJOCNS.App.Controllers
             ViewBag.JobStatuses = jobStatusesResult;
             ViewBag.SelectedStatus = status;
 
-            ViewBag.IsAdmin = User.IsInRole("Admin");
+            bool isAdmin = User.IsInRole("Admin");
+            ViewBag.IsAdmin = isAdmin;
 
-            var result = await _jobService.GetJobPostsPagedAsync(page, pageSize, jobType, status);
+            var result = isAdmin
+                ? await _jobService.GetJobPostsPagedAsync(page, pageSize, jobType, status)
+                : await _jobService.GetJobPostsPagedForUserAsync(
+                    int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), page, pageSize, jobType, status);
 
             if (!result.IsSuccess)
             {
@@ -84,7 +88,13 @@ namespace AJOCNS.App.Controllers
                 TempData["SweetAlert_Message"] = isAdmin
                     ? "Job post has been created successfully."
                     : "Job post submitted. It will be visible once approved by an admin.";
-                return RedirectToAction("Index", "Job");
+
+                if (isAdmin)
+                    return RedirectToAction("Index", "Job");
+
+                return User.IsInRole("Mentor")
+                    ? RedirectToAction("Jobs", "Mentor")
+                    : RedirectToAction("Jobs", "ExternalPartner");
             }
 
             ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Could not create job post.");

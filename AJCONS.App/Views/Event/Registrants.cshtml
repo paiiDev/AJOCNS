@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Event Registrants | AJCONS";
     var eventTitle = ViewBag.EventTitle as string ?? "Event";
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
 }
 
 <div class="content-wrapper bg-transparent">
@@ -30,7 +31,7 @@
                     </h3>
                     <div class="input-group input-group-sm" style="max-width:280px">
                         <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                        <input type="text" id="registrantSearch" class="form-control" placeholder="Search by name, SRN or email..." />
+                        <input type="text" id="registrantSearch" class="form-control" placeholder="Search by name @(isAdmin ? ", SRN or email" : "or email")..." />
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -39,7 +40,10 @@
                             <tr>
                                 <th class="ps-4">#</th>
                                 <th>Name</th>
-                                <th>SRN</th>
+                                @if (isAdmin)
+                                {
+                                    <th>SRN</th>
+                                }
                                 <th>Email</th>
                                 <th>Registered At</th>
                             </tr>
@@ -50,10 +54,13 @@
                                 for (int i = 0; i < Model.Count; i++)
                                 {
                                     var r = Model[i];
-                                    <tr data-search="@(r.Name) @r.Srn @r.Email">
+                                    <tr data-search="@(r.Name) @(isAdmin ? r.Srn : "") @r.Email">
                                         <td class="ps-4 text-muted">@(i + 1)</td>
                                         <td class="fw-semibold">@r.Name</td>
-                                        <td>@r.Srn</td>
+                                        @if (isAdmin)
+                                        {
+                                            <td>@r.Srn</td>
+                                        }
                                         <td class="small text-break">@r.Email</td>
                                         <td class="small text-muted">@r.RegistrationDate.ToString("dd MMM yyyy, hh:mm tt")</td>
                                     </tr>
@@ -62,7 +69,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
+                                    <td colspan="@(isAdmin ? 5 : 4)" class="text-center py-5 text-muted">
                                         <i class="fa-regular fa-user-slash fs-2 d-block mb-2"></i>No students have registered for this event yet.
                                     </td>
                                 </tr>

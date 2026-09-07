@@ -44,14 +44,15 @@
                             <h3>@ViewBag.ActiveMentorCount</h3>
                             <p>Active alumni mentors</p>
                         </div>
-                        <div class="icon"><i class="fa-solid fa-people-group"></i></div><a href="#"
-                                                                                           class="small-box-footer">View mentors <i class="fa-solid fa-arrow-circle-right"></i></a>
+                        <div class="icon"><i class="fa-solid fa-people-group"></i></div><a asp-controller="Admin"
+                                                                                           asp-action="Mentors"
+                                                                                            class="small-box-footer">View mentors <i class="fa-solid fa-arrow-circle-right"></i></a>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-xl-3">
+<div class="col-12 col-sm-6 col-xl-3">
                     <div class="small-box bg-warning mb-0 shadow-sm">
                         <div class="inner">
-                            <h3>@ViewBag.PendingApprovalCount</h3>
+                            <h3>@(ViewBag.PendingApprovalCount + ViewBag.PendingPostApprovalCount)</h3>
                             <p>Pending approvals</p>
                         </div>
                         <div class="icon"><i class="fa-solid fa-clipboard-check"></i></div><a asp-controller="Admin"
@@ -166,6 +167,20 @@
                                         current batches
                                     </small>
                                 </span>
+                            </a><a asp-action="ContentApprovals"
+                                   asp-controller="Admin"
+                                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3 py-3">
+                                <span class="d-flex gap-3">
+                                    <i class="fa-solid fa-clipboard-check text-academic mt-1"></i>
+                                    <span>
+                                        <strong class="d-block">Event &amp; post approvals</strong>
+                                        <small class="text-muted">Review mentor submissions</small>
+                                    </span>
+                                </span>
+                                @if (ViewBag.PendingPostApprovalCount > 0)
+                                {
+                                    <span class="badge rounded-pill text-bg-warning">@ViewBag.PendingPostApprovalCount</span>
+                                }
                             </a>
                         </div>
                     </div>

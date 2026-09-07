@@ -1,7 +1,9 @@
 @using System.Security.Claims
+@using AJOCNS.Shared.DTOs.Mentor
 @{
     var isHomePage = string.Equals(ViewContext.RouteData.Values["controller"]?.ToString(), "Home", StringComparison.OrdinalIgnoreCase)
         && string.Equals(ViewContext.RouteData.Values["action"]?.ToString(), "Index", StringComparison.OrdinalIgnoreCase);
+    var mentorProfile = ViewBag.Profile as MentorProfileDto;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -44,26 +46,38 @@
                             <i class="fa-solid fa-bars fs-5"></i>
                         </button>
                         <ul class="navbar-nav ms-auto align-items-center flex-row">
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa-solid fa-circle-user fs-5 text-primary align-middle me-1"></i> @User.Identity?.Name
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2 position-absolute">
-                                        <li><span class="dropdown-item-text text-muted small">@(User.FindFirstValue(ClaimTypes.Role) ?? "Visitor")</span></li>
-                                        <li><hr class="dropdown-divider" /></li>
-                                        <li>
-                                            <form id="logoutForm" asp-controller="Auth" asp-action="Logout" method="post">
-                                                @Html.AntiForgeryToken()
-                                                <button class="dropdown-item text-danger py-2" type="button" id="btnLogout">
-                                                    <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </li>
-                            }
+@if (User.Identity?.IsAuthenticated == true)
+                             {
+                                 <li class="nav-item dropdown">
+                                     <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                         <i class="fa-solid fa-circle-user fs-5 text-primary align-middle me-1"></i> @User.Identity?.Name
+                                     </a>
+                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2 position-absolute" style="min-width:260px">
+                                         @if (mentorProfile is not null)
+                                         {
+                                             <li class="dropdown-header pb-2 mb-1 border-bottom">
+                                                 <div class="fw-bold small">@mentorProfile.Name</div>
+                                                 <div class="text-muted" style="font-size:.72rem">@mentorProfile.Email</div>
+                                                 @if (!string.IsNullOrEmpty(mentorProfile.Expertise))
+                                                 {
+                                                     <div class="text-muted" style="font-size:.7rem">@mentorProfile.Expertise</div>
+                                                 }
+                                             </li>
+                                             <li><hr class="dropdown-divider" /></li>
+                                         }
+                                         <li><span class="dropdown-item-text text-muted small">@(User.FindFirstValue(ClaimTypes.Role) ?? "Visitor")</span></li>
+                                         <li><hr class="dropdown-divider" /></li>
+                                         <li>
+                                             <form id="logoutForm" asp-controller="Auth" asp-action="Logout" method="post">
+                                                 @Html.AntiForgeryToken()
+                                                 <button class="dropdown-item text-danger py-2" type="button" id="btnLogout">
+                                                     <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                                                 </button>
+                                             </form>
+                                         </li>
+                                     </ul>
+                                 </li>
+                             }
                             else
                             {
                                 <li class="nav-item ms-3">

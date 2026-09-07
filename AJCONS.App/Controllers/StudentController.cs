@@ -17,13 +17,15 @@ namespace AJOCNS.App.Controllers
         private readonly IEventService _eventService;
         private readonly IJobService _jobService;
         private readonly IStudentRepository _studentRepository;
+        private readonly IMentorService _mentorService;
 
-        public StudentController(IStudentService studentService, IEventService eventService, IJobService jobService, IStudentRepository studentRepository)
+        public StudentController(IStudentService studentService, IEventService eventService, IJobService jobService, IStudentRepository studentRepository, IMentorService mentorService)
         {
             _studentService = studentService;
             _eventService = eventService;
             _jobService = jobService;
             _studentRepository = studentRepository;
+            _mentorService = mentorService;
         }
 
         public async Task<IActionResult> Index()
@@ -128,7 +130,23 @@ namespace AJOCNS.App.Controllers
                 return NotFound();
             }
 
+            await SetEventMentorProfileAsync(eventDetails.Data);
+
             return PartialView("~/Views/Event/_EventDetailsModal.cshtml", eventDetails.Data);
+        }
+
+        private async Task SetEventMentorProfileAsync(EventDto eventDto)
+        {
+            if (!string.Equals(eventDto.CreatedByRole, "Mentor", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var mentorProfile = await _mentorService.GetMentorProfileAsync(eventDto.CreatedByUserId);
+            if (mentorProfile.IsSuccess)
+            {
+                ViewBag.EventMentorProfile = mentorProfile.Data;
+            }
         }
 
         public async Task<IActionResult> Job()

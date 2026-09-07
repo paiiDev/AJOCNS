@@ -176,6 +176,24 @@ namespace AJOCNS.Domain.Services
             return Result<PagedJobPostDto>.Success(paged);
         }
 
+        public async Task<Result<PagedJobPostDto>> GetJobPostsPagedForUserAsync(int userId, int page, int pageSize, string? jobType = null, string? status = null)
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            var (items, totalCount) = await _jobRepo.GetJobPostsPagedForUserAsync(userId, page, pageSize, jobType, status);
+
+            var paged = new PagedJobPostDto
+            {
+                Jobs = (items ?? new List<JobPost>()).Select(ToJobPostDto).ToList(),
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+
+            return Result<PagedJobPostDto>.Success(paged);
+        }
+
         public async Task<Result<bool>> ApproveJobPostAsync(int jobPostId)
         {
             bool updated = await _jobRepo.UpdateJobStatusAsync(jobPostId, "Open");
@@ -208,6 +226,21 @@ namespace AJOCNS.Domain.Services
             }).ToList();
 
             return Result<List<JobStatusDto>>.Success(statusDtos);
+        }
+
+        public async Task<Result<List<JobPostDto>>> GetPendingJobPostsAsync()
+        {
+            var jobPosts = await _jobRepo.GetPendingJobPostsAsync();
+            if (jobPosts == null || !jobPosts.Any())
+            {
+                return Result<List<JobPostDto>>.Success(new List<JobPostDto>());
+            }
+
+            var jobPostDtos = jobPosts
+                .Select(j => BuildJobPostDto(j))
+                .ToList();
+
+            return Result<List<JobPostDto>>.Success(jobPostDtos);
         }
 
         private JobPostDto BuildJobPostDto(JobPost j)
