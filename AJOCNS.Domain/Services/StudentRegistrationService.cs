@@ -98,7 +98,7 @@ namespace AJOCNS.Domain.Services
         <!-- Footer -->
         <div style='background-color: #f4f5f7; padding: 15px; text-align: center; font-size: 12px; color: #777777; border-top: 1px solid #e9ecef;'>
             <p style='margin: 0;'>This is an automated message. Please do not reply to this email.</p>
-            <p style='margin: 5px 0 0 0;'>&copy; {DateTime.Now.Year} AJOCNS. All rights reserved.</p>
+<p style='margin: 5px 0 0 0;'>&copy; {MyanmarTime.Now.Year} AJOCNS. All rights reserved.</p>
         </div>
 
     </div>
@@ -366,7 +366,7 @@ namespace AJOCNS.Domain.Services
 
         private string GenerateNewGRN()
         {
-            string year = DateTime.Now.ToString("yyyy");
+string year = MyanmarTime.Now.ToString("yyyy");
             string random = new Random().Next(10000, 99999).ToString();
             return $"PUPL-{year}-{random}";
         }

@@ -326,16 +326,13 @@
                                     <form asp-controller="Auth" asp-action="RegisterExternalPartner" method="post" class="partner-registration-form">
                                         @Html.AntiForgeryToken()
                                         <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
-
-                                        <div class="mb-3 form-floating">
-                                            <input asp-for="ExternalPartner.Name" class="form-control" placeholder="Full name" />
-                                            <label asp-for="ExternalPartner.Name"><i class="fa-regular fa-user me-2 text-muted"></i>Full Name</label>
-                                            <span asp-validation-for="ExternalPartner.Name" class="text-danger small mt-1 d-block"></span>
+                                        <div class="alert alert-primary border-0 small mb-3">
+                                            <i class="fa-solid fa-building me-2"></i>Register one account for your company. This account will represent the company on AJCONS.
                                         </div>
 
                                         <div class="mb-3 form-floating">
                                             <input asp-for="ExternalPartner.Email" type="email" class="form-control" placeholder="name@example.com" />
-                                            <label asp-for="ExternalPartner.Email"><i class="fa-regular fa-envelope me-2 text-muted"></i>Email Address</label>
+                                            <label asp-for="ExternalPartner.Email"><i class="fa-regular fa-envelope me-2 text-muted"></i>Company account email</label>
                                             <span asp-validation-for="ExternalPartner.Email" class="text-danger small mt-1 d-block"></span>
                                         </div>
 
@@ -359,18 +356,11 @@
                                         </div>
 
                                         <div class="row g-3">
-                                            <div class="col-md-6">
+                                            <div class="col-12">
                                                 <div class="mb-3 form-floating">
                                                     <input asp-for="ExternalPartner.CompanyName" class="form-control" placeholder="Company name" />
-                                                    <label asp-for="ExternalPartner.CompanyName"><i class="fa-solid fa-building me-2 text-muted"></i>Company</label>
+                                                    <label asp-for="ExternalPartner.CompanyName"><i class="fa-solid fa-building me-2 text-muted"></i>Company name</label>
                                                     <span asp-validation-for="ExternalPartner.CompanyName" class="text-danger small mt-1 d-block"></span>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3 form-floating">
-                                                    <input asp-for="ExternalPartner.PositionName" class="form-control" placeholder="Position" />
-                                                    <label asp-for="ExternalPartner.PositionName"><i class="fa-solid fa-briefcase me-2 text-muted"></i>Position</label>
-                                                    <span asp-validation-for="ExternalPartner.PositionName" class="text-danger small mt-1 d-block"></span>
                                                 </div>
                                             </div>
                                         </div>
@@ -379,11 +369,6 @@
                                             <input asp-for="ExternalPartner.Phone" class="form-control" placeholder="Phone number (optional)" />
                                             <label asp-for="ExternalPartner.Phone"><i class="fa-solid fa-phone me-2 text-muted"></i>Phone (optional)</label>
                                             <span asp-validation-for="ExternalPartner.Phone" class="text-danger small mt-1 d-block"></span>
-                                        </div>
-
-                                        <div class="mb-4 form-floating">
-                                            <input asp-for="ExternalPartner.Expertise" class="form-control" placeholder="Area of expertise (optional)" />
-                                            <label asp-for="ExternalPartner.Expertise"><i class="fa-solid fa-lightbulb me-2 text-muted"></i>Expertise (optional)</label>
                                         </div>
 
                                         <div class="d-grid">

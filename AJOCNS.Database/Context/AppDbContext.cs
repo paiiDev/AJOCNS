@@ -200,7 +200,7 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.EventRegiId).HasColumnName("Event_Regi_ID");
             entity.Property(e => e.EventId).HasColumnName("Event_ID");
-            entity.Property(e => e.RegistrationDate).HasDefaultValueSql("(sysdatetime())");
+            entity.Property(e => e.RegistrationDate).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasDefaultValue("Registered");
@@ -297,7 +297,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CompanyName).HasMaxLength(200);
             entity.Property(e => e.JobType).HasMaxLength(100);
             entity.Property(e => e.Location).HasMaxLength(200);
-            entity.Property(e => e.PostedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.PostedDate).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.SalaryRange).HasMaxLength(100);
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
@@ -388,7 +388,7 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => e.Email, "UQ_Users_Email").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("User_ID");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysdatetime())");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.IsFirstLogin)

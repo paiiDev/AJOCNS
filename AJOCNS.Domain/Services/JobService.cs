@@ -8,7 +8,6 @@ namespace AJOCNS.Domain.Services
 {
     public class JobService : IJobService
     {
-        private static readonly TimeZoneInfo MyanmarTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Myanmar Standard Time");
         private readonly IJobRepository _jobRepo;
 
         public JobService(IJobRepository jobRepo)
@@ -27,8 +26,8 @@ namespace AJOCNS.Domain.Services
             JobType = j.JobType,
             Location = j.Location,
             SalaryRange = j.SalaryRange,
-            PostedDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(j.PostedDate, DateTimeKind.Utc), MyanmarTimeZone),
-            ClosingDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(j.ClosingDate, DateTimeKind.Utc), MyanmarTimeZone),
+            PostedDate = MyanmarTime.ToMyanmar(j.PostedDate),
+            ClosingDate = MyanmarTime.ToMyanmar(j.ClosingDate),
             Status = j.Status,
             PostedByName = j.PostedByUser?.Email ?? "Unknown"
         };
@@ -80,7 +79,7 @@ namespace AJOCNS.Domain.Services
                 JobType = jobPost.JobType,
                 Location = jobPost.Location,
                 SalaryRange = jobPost.SalaryRange,
-                ClosingDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(jobPost.ClosingDate, DateTimeKind.Utc), MyanmarTimeZone)
+                ClosingDate = MyanmarTime.ToMyanmar(jobPost.ClosingDate)
             };
 
             return Result<UpdateJobPostDto>.Success(dto);

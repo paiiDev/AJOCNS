@@ -15,7 +15,6 @@ namespace AJOCNS.Domain.Services
 {
     public class EventService : IEventService
     {
-        private static readonly TimeZoneInfo MyanmarTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Myanmar Standard Time");
         private readonly IEventRepository _eventRepo;
         private readonly IEmailService _emailService;
 
@@ -33,7 +32,7 @@ namespace AJOCNS.Domain.Services
             EventTitle = e.EventTitle,
             Description = e.Description,
             EventTypeName = e.EventType?.EventTypeName ?? "-",
-            EventDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(e.EventDate, DateTimeKind.Utc), MyanmarTimeZone),
+            EventDate = MyanmarTime.ToMyanmar(e.EventDate),
             MaxCapacity = e.MaxCapacity,
             EventMode = e.EventMode,
             Location = e.Location,
@@ -106,7 +105,7 @@ namespace AJOCNS.Domain.Services
                 EventTitle = ev.EventTitle,
                 Description = ev.Description,
                 EventTypeId = ev.EventTypeId,
-                EventDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(ev.EventDate, DateTimeKind.Utc), MyanmarTimeZone),
+                EventDate = MyanmarTime.ToMyanmar(ev.EventDate),
                 MaxCapacity = ev.MaxCapacity,
                 EventMode = ev.EventMode,
                 Location = ev.Location,
@@ -192,7 +191,7 @@ namespace AJOCNS.Domain.Services
                 CreatedByUserId = result.CreatedByUserId,
                 CreatedByRole = result.CreatedByUser?.Role ?? "",
                 EventTitle = result.EventTitle,
-                EventDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(result.EventDate, DateTimeKind.Utc), MyanmarTimeZone),
+                EventDate = MyanmarTime.ToMyanmar(result.EventDate),
                 Description = result.Description?? "-",
                 EventMode = result.EventMode?? "-",
                 EventTypeName = result.EventType.EventTypeName ?? "-",
@@ -395,7 +394,7 @@ namespace AJOCNS.Domain.Services
                 EventId = eventId,
                 StudentId = studentId,
                 Status = "Registered",
-                RegistrationDate = DateTime.UtcNow.AddHours(6).AddMinutes(30) 
+                RegistrationDate = DateTime.UtcNow
             };
 
             bool added = await _eventRepo.AddEventRegistrationAsync(registration);
@@ -430,7 +429,7 @@ namespace AJOCNS.Domain.Services
                     Name = r.Student!.Name,
                     Srn = r.Student.Srn,
                     Email = r.Student.User!.Email,
-                    RegistrationDate = r.RegistrationDate
+                    RegistrationDate = MyanmarTime.ToMyanmar(r.RegistrationDate)
                 })
                 .ToList();
 
@@ -467,8 +466,7 @@ namespace AJOCNS.Domain.Services
             }
 
             string subject = $"{ev.EventTitle} — Event & Zoom Link";
-            string eventDateMyanmar = TimeZoneInfo.ConvertTimeFromUtc(
-                DateTime.SpecifyKind(ev.EventDate, DateTimeKind.Utc), MyanmarTimeZone)
+            string eventDateMyanmar = MyanmarTime.ToMyanmar(ev.EventDate)
                 .ToString("dd MMM yyyy, hh:mm tt");
             string organizer = GetCreatorName(ev.CreatedByUser);
 

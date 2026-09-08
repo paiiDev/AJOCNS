@@ -1,3 +1,5 @@
+using AJOCNS.Shared.Common;
+
 namespace AJOCNS.Shared.DTOs.Mentor
 {
     public class EmploymentRecordDto
@@ -22,7 +24,7 @@ namespace AJOCNS.Shared.DTOs.Mentor
         {
             get
             {
-                var end = EndDate ?? DateTime.Now;
+            var end = EndDate ?? MyanmarTime.Now;
                 var months = (end.Year - StartDate.Year) * 12 + end.Month - StartDate.Month;
                 if (months < 12)
                     return $"{months} month{(months != 1 ? "s" : "")}";

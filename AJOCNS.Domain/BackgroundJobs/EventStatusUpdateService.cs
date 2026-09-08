@@ -27,7 +27,7 @@ namespace AJOCNS.Domain.BackgroundJobs
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    var pastEvents = await context.Events.Where(e => e.Status == "Upcoming" && e.EventDate < DateTime.Now).ToListAsync(stoppingToken);
+                var pastEvents = await context.Events.Where(e => e.Status == "Upcoming" && e.EventDate < DateTime.UtcNow).ToListAsync(stoppingToken);
                     if(pastEvents.Any())
                     {
                         foreach (var pastEvent in pastEvents)
@@ -37,7 +37,7 @@ namespace AJOCNS.Domain.BackgroundJobs
                         await context.SaveChangesAsync(stoppingToken);
                     }
                 }
-                var now = DateTime.Now;
+                    var now = DateTime.UtcNow;
                 var nextMidnight = now.Date.AddDays(1); 
                 var timeUntilMidnight = nextMidnight - now;
 

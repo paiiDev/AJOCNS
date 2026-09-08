@@ -4,10 +4,6 @@ namespace AJOCNS.Shared.DTOs.Auth
 {
     public class ExternalPartnerRegistrationDto
     {
-        [Required(ErrorMessage = "Full name is required.")]
-        [MaxLength(255)]
-        public string Name { get; set; }
-
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress]
         public string Email { get; set; }
@@ -26,15 +22,8 @@ namespace AJOCNS.Shared.DTOs.Auth
         [MaxLength(255)]
         public string CompanyName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Position is required.")]
-        [MaxLength(150)]
-        public string PositionName { get; set; } = string.Empty;
-
         [Phone(ErrorMessage = "Enter a valid phone number.")]
         [MaxLength(30)]
         public string? Phone { get; set; }
-
-        [MaxLength(255)]
-        public string? Expertise { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using AJOCNS.Domain.Interfaces;
+using AJOCNS.Shared.Common;
 using AJOCNS.Shared.DTOs.Jobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,6 @@ namespace AJOCNS.App.Controllers
     [Authorize(Roles = "Admin,Mentor,ExternalPartner")]
     public class JobController : Controller
     {
-        private static readonly TimeZoneInfo MyanmarTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Myanmar Standard Time");
         private static readonly List<string> JobTypes = new List<string>
         {
             "Full-time",
@@ -58,7 +58,7 @@ namespace AJOCNS.App.Controllers
         public IActionResult CreateJobPost()
         {
             ViewBag.JobTypes = JobTypes;
-            var nowMyanmar = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, MyanmarTimeZone);
+            var nowMyanmar = MyanmarTime.Now;
             var defaultClosingDate = nowMyanmar.AddDays(30);
             return View(new CreateJobPostDto { ClosingDate = defaultClosingDate });
         }
@@ -77,7 +77,7 @@ namespace AJOCNS.App.Controllers
             int postedByUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
 
             var closingDateMyanmar = dto.ClosingDate;
-            var closingDateUtc = TimeZoneInfo.ConvertTimeToUtc(closingDateMyanmar, MyanmarTimeZone);
+            var closingDateUtc = MyanmarTime.ToUtc(closingDateMyanmar);
 
             var result = await _jobService.CreateJobPostAsync(dto, postedByUserId, autoApprove: isAdmin, closingDateUtc);
 
@@ -158,7 +158,7 @@ namespace AJOCNS.App.Controllers
 
             int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             bool isAdmin = User.IsInRole("Admin");
-            var closingDateUtc = TimeZoneInfo.ConvertTimeToUtc(dto.ClosingDate, MyanmarTimeZone);
+            var closingDateUtc = MyanmarTime.ToUtc(dto.ClosingDate);
 
             var result = await _jobService.UpdateJobPostAsync(dto, currentUserId, isAdmin, closingDateUtc);
             if (result.IsSuccess)

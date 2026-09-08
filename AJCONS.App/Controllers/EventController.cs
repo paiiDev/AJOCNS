@@ -1,4 +1,5 @@
 ﻿using AJOCNS.Domain.Interfaces;
+using AJOCNS.Shared.Common;
 using AJOCNS.Shared.DTOs.Events;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,6 @@ namespace AJOCNS.App.Controllers
     [Authorize(Roles = "Admin,Mentor")]
     public class EventController : Controller
     {
-        private static readonly TimeZoneInfo MyanmarTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Myanmar Standard Time");
         private readonly IEventService _eventService;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMentorService _mentorService;
@@ -178,7 +178,7 @@ namespace AJOCNS.App.Controllers
         public async Task<IActionResult> CreateEvent()
         {
             await PopulateEventTypes();
-            var nowMyanmar = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, MyanmarTimeZone);
+            var nowMyanmar = MyanmarTime.Now;
             var defaultEventDate = new DateTime(nowMyanmar.Year, nowMyanmar.Month, nowMyanmar.Day, nowMyanmar.Hour, nowMyanmar.Minute, 0);
             return View(new CreateEventDto { EventDate = defaultEventDate });
         }
@@ -210,7 +210,7 @@ namespace AJOCNS.App.Controllers
                 int createdByUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
 
                 var eventDateMyanmar = dto.EventDate;
-                var eventDateUtc = TimeZoneInfo.ConvertTimeToUtc(eventDateMyanmar, MyanmarTimeZone);
+                var eventDateUtc = MyanmarTime.ToUtc(eventDateMyanmar);
 
                 var result = await _eventService.CreateEventAsync(dto, createdByUserId, autoApprove: isAdmin, eventDateUtc: eventDateUtc, posterPath);
 
@@ -300,7 +300,7 @@ namespace AJOCNS.App.Controllers
 
             int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             bool isAdmin = User.IsInRole("Admin");
-            var eventDateUtc = TimeZoneInfo.ConvertTimeToUtc(dto.EventDate, MyanmarTimeZone);
+            var eventDateUtc = MyanmarTime.ToUtc(dto.EventDate);
 
             var result = await _eventService.UpdateEventAsync(dto, currentUserId, isAdmin, eventDateUtc, newPosterPath);
             if (result.IsSuccess)

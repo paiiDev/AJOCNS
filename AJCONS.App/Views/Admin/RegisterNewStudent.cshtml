@@ -108,7 +108,7 @@
                                             {
                                                 foreach (var acs in ViewBag.AcademicYears.Data)
                                                 {
-                                                    int currentYear = DateTime.Now.Year; 
+int currentYear = MyanmarTime.Now.Year;
                                                     int academicStartYear = 0;
 
                                                     if (!string.IsNullOrEmpty(acs.AcademicYear) && acs.AcademicYear.Length >= 4)

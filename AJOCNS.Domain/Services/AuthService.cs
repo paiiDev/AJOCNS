@@ -94,14 +94,13 @@ namespace AJOCNS.Domain.Services
             }
 
             var companyName = dto.CompanyName.Trim();
-            var positionName = dto.PositionName.Trim();
-            if (string.IsNullOrWhiteSpace(companyName) || string.IsNullOrWhiteSpace(positionName))
+            if (string.IsNullOrWhiteSpace(companyName))
             {
-                return Result<bool>.Failure("Company and position are required.");
+                return Result<bool>.Failure("Company is required.");
             }
 
             var company = await _authRepo.GetOrCreateCompanyAsync(companyName);
-            var position = await _authRepo.GetOrCreatePositionAsync(positionName);
+            var position = await _authRepo.GetOrCreatePositionAsync("Company Account");
 
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
@@ -116,11 +115,10 @@ namespace AJOCNS.Domain.Services
                 IsDeleted = false,
                 ExternalPartner = new ExternalPartner
                 {
-                    Name = dto.Name.Trim(),
+                    Name = companyName,
                     CompanyId = company.CompanyId,
                     PositionId = position.PositionId,
-                    Phone = dto.Phone,
-                    Expertise = dto.Expertise
+                    Phone = dto.Phone
                 }
             };
 
@@ -174,7 +172,7 @@ namespace AJOCNS.Domain.Services
                         ? u.ExternalPartner?.Name ?? "-"
                         : "-",
                 Status = u.Status,
-                CreatedAt = u.CreatedAt
+                CreatedAt = MyanmarTime.ToMyanmar(u.CreatedAt)
             }).ToList();
 
             return Result<List<PendingUserApprovalDto>>.Success(dtos);
@@ -193,7 +191,7 @@ namespace AJOCNS.Domain.Services
                 Phone = u.ExternalPartner.Phone,
                 Expertise = u.ExternalPartner.Expertise,
                 Status = u.Status,
-                CreatedAt = u.CreatedAt
+                CreatedAt = MyanmarTime.ToMyanmar(u.CreatedAt)
             }).ToList();
 
             return Result<List<ExternalPartnerAdminDto>>.Success(dtos);
@@ -230,7 +228,7 @@ namespace AJOCNS.Domain.Services
                 Phone = user.ExternalPartner.Phone,
                 Expertise = user.ExternalPartner.Expertise,
                 Status = user.Status,
-                CreatedAt = user.CreatedAt
+                CreatedAt = MyanmarTime.ToMyanmar(user.CreatedAt)
             });
         }
 
