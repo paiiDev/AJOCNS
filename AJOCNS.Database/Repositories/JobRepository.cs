@@ -14,6 +14,28 @@ namespace AJOCNS.Database.Repositories
             _context = context;
         }
 
+        public async Task<bool> CreateApplicationAsync(JobApplication application)
+        {
+            if (await _context.JobApplications.AnyAsync(a => a.JobPostId == application.JobPostId && a.StudentId == application.StudentId)) return false;
+            _context.JobApplications.Add(application);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public Task<List<JobApplication>> GetApplicantsByJobIdAsync(int partnerUserId, int jobPostId) =>
+            _context.JobApplications.AsNoTracking().Include(a => a.StudentUser).ThenInclude(u => u.Student)
+                .Where(a => a.JobPostId == jobPostId && a.JobPost.PostedByUserId == partnerUserId)
+                .OrderByDescending(a => a.AppliedDate).ToListAsync();
+
+        public async Task<bool> UpdateApplicationStatusAsync(int applicationId, string status)
+        {
+            var application = await _context.JobApplications.FindAsync(applicationId);
+            if (application is null) return false;
+            application.Status = status;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> CreateJobPostAsync(JobPost jobPost)
         {
             try

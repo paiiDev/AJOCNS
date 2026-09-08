@@ -90,7 +90,7 @@ namespace AJOCNS.App.Controllers
                     : "Job post submitted. It will be visible once approved by an admin.";
 
                 if (isAdmin)
-                    return RedirectToAction("Index", "Job");
+                 return RedirectToAction(User.IsInRole("ExternalPartner") ? "MyJobPosts" : "Index", User.IsInRole("ExternalPartner") ? "ExternalPartner" : "Job");
 
                 return User.IsInRole("Mentor")
                     ? RedirectToAction("Jobs", "Mentor")
@@ -113,7 +113,7 @@ namespace AJOCNS.App.Controllers
             TempData["SweetAlert_Message"] = result.IsSuccess
                 ? "Job post has been approved and is now open."
                 : result.ErrorMessage ?? "Could not approve job post.";
-            return RedirectToAction("Index", "Job");
+                 return RedirectToAction(User.IsInRole("ExternalPartner") ? "MyJobPosts" : "Index", User.IsInRole("ExternalPartner") ? "ExternalPartner" : "Job");
         }
 
         [HttpPost]
@@ -127,7 +127,7 @@ namespace AJOCNS.App.Controllers
             TempData["SweetAlert_Message"] = result.IsSuccess
                 ? "Job post has been rejected."
                 : result.ErrorMessage ?? "Could not reject job post.";
-            return RedirectToAction("Index", "Job");
+             return RedirectToAction(User.IsInRole("ExternalPartner") ? "MyJobPosts" : "Index", User.IsInRole("ExternalPartner") ? "ExternalPartner" : "Job");
         }
 
         [HttpGet]
@@ -139,7 +139,7 @@ namespace AJOCNS.App.Controllers
                 TempData["SweetAlert_Type"] = "error";
                 TempData["SweetAlert_Title"] = "Not Found";
                 TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Job post could not be found.";
-                return RedirectToAction("Index", "Job");
+                return RedirectToAction(User.IsInRole("ExternalPartner") ? "MyJobPosts" : "Index", User.IsInRole("ExternalPartner") ? "ExternalPartner" : "Job");
             }
 
             ViewBag.JobTypes = JobTypes;

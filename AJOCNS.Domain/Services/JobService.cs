@@ -15,6 +15,46 @@ namespace AJOCNS.Domain.Services
             _jobRepo = jobRepo;
         }
 
+        public Task<Result<List<JobPostDto>>> GetActiveJobsAsync() => GetOpenJobsAsync();
+
+        public async Task<Result<bool>> ApplyForJobAsync(int studentId, ApplyJobDto dto)
+        {
+            if (dto.Resume is null || dto.Resume.Length == 0 || !string.Equals(Path.GetExtension(dto.Resume.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
+                return Result<bool>.Failure("A PDF resume is required.");
+            var job = await _jobRepo.GetJobPostById(dto.JobPostId);
+            if (job is null || job.Status != "Open" || job.IsDeleted || job.ClosingDate <= DateTime.UtcNow)
+                return Result<bool>.Failure("This job is no longer accepting applications.");
+            var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "resumes");
+            Directory.CreateDirectory(folder);
+            var fileName = $"{Guid.NewGuid():N}.pdf";
+            await using (var stream = File.Create(Path.Combine(folder, fileName))) await dto.Resume.CopyToAsync(stream);
+            var saved = await _jobRepo.CreateApplicationAsync(new JobApplication
+            {
+                JobPostId = dto.JobPostId, StudentId = studentId, CoverLetter = dto.CoverLetter.Trim(),
+                ResumeUrl = $"/uploads/resumes/{fileName}", AppliedDate = DateTime.UtcNow, Status = "Pending"
+            });
+            return saved ? Result<bool>.Success(true) : Result<bool>.Failure("You have already applied for this job.");
+        }
+
+        public async Task<Result<List<ApplicantListDto>>> GetApplicantsByJobIdAsync(int partnerUserId, int jobPostId)
+        {
+            var applicants = await _jobRepo.GetApplicantsByJobIdAsync(partnerUserId, jobPostId);
+            return Result<List<ApplicantListDto>>.Success(applicants.Select(a => new ApplicantListDto
+            {
+                ApplicationId = a.JobApplicationId, StudentName = a.StudentUser.Student?.Name ?? a.StudentUser.Email,
+                StudentEmail = a.StudentUser.Email,
+                AppliedDate = MyanmarTime.ToMyanmar(a.AppliedDate), CoverLetter = a.CoverLetter,
+                ResumeUrl = a.ResumeUrl, Status = a.Status
+            }).ToList());
+        }
+
+        public async Task<Result<bool>> UpdateApplicationStatusAsync(int applicationId, string newStatus)
+        {
+            if (newStatus is not ("Shortlisted" or "Rejected" or "Pending")) return Result<bool>.Failure("Invalid application status.");
+            return await _jobRepo.UpdateApplicationStatusAsync(applicationId, newStatus)
+                ? Result<bool>.Success(true) : Result<bool>.Failure("Application not found.");
+        }
+
         private static JobPostDto ToJobPostDto(JobPost j) => new JobPostDto
         {
             Id = j.JobPostId,

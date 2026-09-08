@@ -155,21 +155,30 @@ namespace AJOCNS.App.Controllers
             return View(result.IsSuccess ? result.Data : new List<JobPostDto>());
         }
 
-        public async Task<IActionResult> GetJobDetailsModal(int id)
+        [HttpGet]
+        public async Task<IActionResult> JobBoard()
         {
-            var jobPosts = await _jobService.GetOpenJobsAsync();
-            if (!jobPosts.IsSuccess)
-            {
-                return NotFound();
-            }
+            var result = await _jobService.GetActiveJobsAsync();
+            return View(result.IsSuccess ? result.Data : new List<JobPostDto>());
+        }
 
-            var job = jobPosts.Data.FirstOrDefault(j => j.Id == id);
-            if (job is null)
-            {
-                return NotFound();
-            }
+        [HttpGet]
+        public async Task<IActionResult> JobDetails(int id)
+        {
+            var result = await _jobService.GetActiveJobsAsync();
+            var job = result.IsSuccess ? result.Data.FirstOrDefault(j => j.Id == id) : null;
+            return job is null ? NotFound() : View(job);
+        }
 
-            return PartialView("_JobDetailsModal", job);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApplyJob(ApplyJobDto dto)
+        {
+            if (!ModelState.IsValid)
+                return RedirectToAction(nameof(JobDetails), new { id = dto.JobPostId });
+
+            await _jobService.ApplyForJobAsync(GetCurrentUserId(), dto);
+            return RedirectToAction(nameof(JobDetails), new { id = dto.JobPostId });
         }
     }
 }
