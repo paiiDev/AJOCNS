@@ -29,6 +29,8 @@ public partial class User
 
     public virtual ICollection<JobPost> JobPosts { get; set; } = new List<JobPost>();
 
+    public virtual ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
+
     public virtual Mentor? Mentor { get; set; }
 
     public virtual Student? Student { get; set; }

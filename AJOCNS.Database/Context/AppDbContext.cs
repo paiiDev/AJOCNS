@@ -40,6 +40,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<JobPost> JobPosts { get; set; }
 
+    public virtual DbSet<JobApplication> JobApplications { get; set; }
+
     public virtual DbSet<Major> Majors { get; set; }
 
     public virtual DbSet<Mentor> Mentors { get; set; }
@@ -65,6 +67,19 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.AcademicYear1)
                 .HasMaxLength(20)
                 .HasColumnName("AcademicYear");
+        });
+
+        modelBuilder.Entity<JobApplication>(entity =>
+        {
+            entity.HasKey(e => e.JobApplicationId);
+            entity.Property(e => e.JobApplicationId).HasColumnName("JobApplication_Id");
+            entity.Property(e => e.CoverLetter).HasMaxLength(1000).IsRequired();
+            entity.Property(e => e.ResumeUrl).HasMaxLength(500);
+            entity.Property(e => e.AppliedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Status).HasMaxLength(50).HasDefaultValue("Pending");
+            entity.HasIndex(e => new { e.JobPostId, e.StudentId }).IsUnique();
+            entity.HasOne(e => e.JobPost).WithMany(e => e.JobApplications).HasForeignKey(e => e.JobPostId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.StudentUser).WithMany(e => e.JobApplications).HasForeignKey(e => e.StudentId).OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Admin>(entity =>

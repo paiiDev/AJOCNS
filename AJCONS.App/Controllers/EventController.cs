@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace AJOCNS.App.Controllers
 {
 
-    [Authorize(Roles = "Admin,Mentor")]
+    [Authorize(Roles = "Admin,Mentor,ExternalPartner")]
     public class EventController : Controller
     {
         private readonly IEventService _eventService;
@@ -89,6 +89,22 @@ namespace AJOCNS.App.Controllers
             }
         }
 
+        private void SetBackToEventsUrl()
+        {
+            if (User.IsInRole("Mentor"))
+            {
+                ViewBag.EventsBackUrl = Url.Action("Events", "Mentor");
+            }
+            else if (User.IsInRole("ExternalPartner"))
+            {
+                ViewBag.EventsBackUrl = Url.Action("Events", "ExternalPartner");
+            }
+            else
+            {
+                ViewBag.EventsBackUrl = Url.Action("Index", "Event");
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> Registrants(int id)
         {
@@ -113,6 +129,7 @@ namespace AJOCNS.App.Controllers
                 return RedirectToAction("Index", "Event");
             }
 
+            SetBackToEventsUrl();
             ViewBag.EventTitle = eventDetails.Data.EventTitle;
             ViewBag.IsAdmin = isAdmin;
             return View(registrantsResult.Data);
@@ -139,6 +156,8 @@ namespace AJOCNS.App.Controllers
                 TempData["SweetAlert_Message"] = "You are not the organizer of this event.";
                 return RedirectToAction("Index", "Event");
             }
+
+            SetBackToEventsUrl();
 
             ViewBag.EventTitle = eventDetails.Data.EventTitle;
             return View(new SendZoomLinkDto { EventId = id, EventTitle = eventDetails.Data.EventTitle });
@@ -168,16 +187,30 @@ namespace AJOCNS.App.Controllers
 
             if (result.IsSuccess)
             {
-                return RedirectToAction("Index", "Event");
+                return RedirectToEventsIndex();
             }
 
             return RedirectToAction("SendZoomLink", "Event", new { id = dto.EventId });
+        }
+
+        private IActionResult RedirectToEventsIndex()
+        {
+            if (User.IsInRole("Mentor"))
+            {
+                return RedirectToAction("Events", "Mentor");
+            }
+            if (User.IsInRole("ExternalPartner"))
+            {
+                return RedirectToAction("Events", "ExternalPartner");
+            }
+            return RedirectToAction("Index", "Event");
         }
 
         [HttpGet]
         public async Task<IActionResult> CreateEvent()
         {
             await PopulateEventTypes();
+            SetBackToEventsUrl();
             var nowMyanmar = MyanmarTime.Now;
             var defaultEventDate = new DateTime(nowMyanmar.Year, nowMyanmar.Month, nowMyanmar.Day, nowMyanmar.Hour, nowMyanmar.Minute, 0);
             return View(new CreateEventDto { EventDate = defaultEventDate });
@@ -187,6 +220,8 @@ namespace AJOCNS.App.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateEvent(CreateEventDto dto)
         {
+            SetBackToEventsUrl();
+
             if (!ModelState.IsValid)
             {
                 await PopulateEventTypes();
@@ -223,7 +258,9 @@ namespace AJOCNS.App.Controllers
                         : "Event submitted. It will be visible once approved by an admin.";
                     return isAdmin
                         ? RedirectToAction("Index", "Event")
-                        : RedirectToAction("Events", "Mentor");
+                        : User.IsInRole("Mentor")
+                            ? RedirectToAction("Events", "Mentor")
+                            : RedirectToAction("Events", "ExternalPartner");
                 }
 
                 ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Could not create event.");
@@ -272,6 +309,7 @@ namespace AJOCNS.App.Controllers
                 return RedirectToAction("Index", "Event");
             }
 
+            SetBackToEventsUrl();
             await PopulateEventTypes();
             return View(result.Data);
         }
@@ -280,6 +318,8 @@ namespace AJOCNS.App.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditEvent(UpdateEventDto dto)
         {
+            SetBackToEventsUrl();
+
             if (!ModelState.IsValid)
             {
                 await PopulateEventTypes();
