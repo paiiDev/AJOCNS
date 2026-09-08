@@ -1,0 +1,110 @@
+@model AJOCNS.Shared.DTOs.Auth.ExternalPartnerAdminDto
+@{
+    ViewData["Title"] = "External Partner Details | AJCONS";
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">Account administration</div>
+                    <h1 class="h2 fw-bold mb-1">External partner details</h1>
+                    <p class="text-muted mb-0">Review the submitted information before approving this registration.</p>
+                </div>
+                <a asp-action="UserApprovals" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to approvals
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card adminlte-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3">
+                            <h3 class="card-title fw-bold mb-0">Submitted information</h3>
+                            <span class="badge rounded-pill text-bg-warning">@Model.Status</span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Full name</small>
+                                    <strong>@Model.Name</strong>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Email address</small>
+                                    <strong>@Model.Email</strong>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Company</small>
+                                    <strong>@Model.CompanyName</strong>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Position</small>
+                                    <strong>@Model.PositionName</strong>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Phone</small>
+                                    <strong>@(string.IsNullOrWhiteSpace(Model.Phone) ? "Not provided" : Model.Phone)</strong>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Submitted</small>
+                                    <strong>@Model.CreatedAt.ToString("d MMM yyyy, hh:mm tt")</strong>
+                                </div>
+                                <div class="col-12">
+                                    <small class="text-muted d-block">Area of expertise</small>
+                                    <strong>@(string.IsNullOrWhiteSpace(Model.Expertise) ? "Not provided" : Model.Expertise)</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card adminlte-card h-100">
+                        <div class="card-header py-3">
+                            <h3 class="card-title fw-bold mb-0">Review decision</h3>
+                        </div>
+                        <div class="card-body p-4">
+                            <p class="text-muted">Confirm that the submitted partner and company information is appropriate before granting access.</p>
+                            <div class="d-grid gap-2 mt-4">
+                                <form asp-action="ApproveUser" asp-controller="Admin" method="post" class="approve-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@Model.UserId" />
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="fa-solid fa-check me-2"></i>Approve partner
+                                    </button>
+                                </form>
+                                <form asp-action="RejectUser" asp-controller="Admin" method="post" class="reject-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@Model.UserId" />
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="fa-solid fa-xmark me-2"></i>Reject registration
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.approve-form').forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!confirm('Approve this external partner?')) event.preventDefault();
+                });
+            });
+            document.querySelectorAll('.reject-form').forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!confirm('Reject this external partner registration?')) event.preventDefault();
+                });
+            });
+        });
+    </script>
+}

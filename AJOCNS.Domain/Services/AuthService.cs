@@ -93,15 +93,15 @@ namespace AJOCNS.Domain.Services
                 return Result<bool>.Failure("An account with this email already exists.");
             }
 
-            if (!await _authRepo.CompanyExistsAsync(dto.CompanyId))
+            var companyName = dto.CompanyName.Trim();
+            var positionName = dto.PositionName.Trim();
+            if (string.IsNullOrWhiteSpace(companyName) || string.IsNullOrWhiteSpace(positionName))
             {
-                return Result<bool>.Failure("Selected company is not valid.");
+                return Result<bool>.Failure("Company and position are required.");
             }
 
-            if (!await _authRepo.PositionExistsAsync(dto.PositionId))
-            {
-                return Result<bool>.Failure("Selected position is not valid.");
-            }
+            var company = await _authRepo.GetOrCreateCompanyAsync(companyName);
+            var position = await _authRepo.GetOrCreatePositionAsync(positionName);
 
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
@@ -117,8 +117,8 @@ namespace AJOCNS.Domain.Services
                 ExternalPartner = new ExternalPartner
                 {
                     Name = dto.Name.Trim(),
-                    CompanyId = dto.CompanyId,
-                    PositionId = dto.PositionId,
+                    CompanyId = company.CompanyId,
+                    PositionId = position.PositionId,
                     Phone = dto.Phone,
                     Expertise = dto.Expertise
                 }
@@ -178,6 +178,60 @@ namespace AJOCNS.Domain.Services
             }).ToList();
 
             return Result<List<PendingUserApprovalDto>>.Success(dtos);
+        }
+
+        public async Task<Result<List<ExternalPartnerAdminDto>>> GetExternalPartnersAsync()
+        {
+            var partners = await _authRepo.GetExternalPartnersAsync();
+            var dtos = partners.Select(u => new ExternalPartnerAdminDto
+            {
+                UserId = u.UserId,
+                Name = u.ExternalPartner!.Name,
+                Email = u.Email,
+                CompanyName = u.ExternalPartner.Company.CompanyName,
+                PositionName = u.ExternalPartner.Position.Position1,
+                Phone = u.ExternalPartner.Phone,
+                Expertise = u.ExternalPartner.Expertise,
+                Status = u.Status,
+                CreatedAt = u.CreatedAt
+            }).ToList();
+
+            return Result<List<ExternalPartnerAdminDto>>.Success(dtos);
+        }
+
+        public async Task<Result<bool>> UpdateExternalPartnerStatusAsync(int userId, string status)
+        {
+            if (!await _authRepo.IsExternalPartnerAsync(userId))
+            {
+                return Result<bool>.Failure("External partner was not found.");
+            }
+
+            var updated = await _authRepo.UpdateUserStatusAsync(userId, status);
+            return updated
+                ? Result<bool>.Success(true)
+                : Result<bool>.Failure("External partner was not found or could not be updated.");
+        }
+
+        public async Task<Result<ExternalPartnerAdminDto>> GetPendingExternalPartnerAsync(int userId)
+        {
+            var user = await _authRepo.GetPendingUserByIdAsync(userId);
+            if (user?.Role != "ExternalPartner" || user.ExternalPartner is null)
+            {
+                return Result<ExternalPartnerAdminDto>.Failure("Pending external partner was not found.");
+            }
+
+            return Result<ExternalPartnerAdminDto>.Success(new ExternalPartnerAdminDto
+            {
+                UserId = user.UserId,
+                Name = user.ExternalPartner.Name,
+                Email = user.Email,
+                CompanyName = user.ExternalPartner.Company.CompanyName,
+                PositionName = user.ExternalPartner.Position.Position1,
+                Phone = user.ExternalPartner.Phone,
+                Expertise = user.ExternalPartner.Expertise,
+                Status = user.Status,
+                CreatedAt = user.CreatedAt
+            });
         }
 
         public async Task<Result<bool>> ApproveUserAsync(int userId)

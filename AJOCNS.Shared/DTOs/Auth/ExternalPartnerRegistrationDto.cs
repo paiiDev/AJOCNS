@@ -23,10 +23,12 @@ namespace AJOCNS.Shared.DTOs.Auth
         public string ConfirmPassword { get; set; }
 
         [Required(ErrorMessage = "Company is required.")]
-        public int CompanyId { get; set; }
+        [MaxLength(255)]
+        public string CompanyName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Position is required.")]
-        public int PositionId { get; set; }
+        [MaxLength(150)]
+        public string PositionName { get; set; } = string.Empty;
 
         [Phone(ErrorMessage = "Enter a valid phone number.")]
         [MaxLength(30)]

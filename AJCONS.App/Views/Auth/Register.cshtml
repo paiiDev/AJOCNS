@@ -51,7 +51,7 @@
             border-radius: 1.5rem;
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-            max-width: 960px;
+            max-width: 900px;
             width: 100%;
         }
 
@@ -172,6 +172,11 @@
         .text-sky:hover {
             color: #0284c7;
             text-decoration: underline;
+        }
+
+        .partner-registration-form {
+            max-width: 620px;
+            margin-inline: auto;
         }
 
         @@media (max-width: 1199.98px) {
@@ -318,7 +323,7 @@
 
                                 <!-- ============ External Partner Form ============ -->
                                 <div class="tab-pane fade" id="partner-pane" role="tabpanel">
-                                    <form asp-controller="Auth" asp-action="RegisterExternalPartner" method="post">
+                                    <form asp-controller="Auth" asp-action="RegisterExternalPartner" method="post" class="partner-registration-form">
                                         @Html.AntiForgeryToken()
                                         <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
@@ -355,35 +360,17 @@
 
                                         <div class="row g-3">
                                             <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label asp-for="ExternalPartner.CompanyId" class="form-label small fw-semibold text-muted mb-1"><i class="fa-solid fa-building me-1"></i>Company <span class="text-danger">*</span></label>
-                                                    <select asp-for="ExternalPartner.CompanyId" class="form-select">
-                                                        <option value="">-- Select Company --</option>
-                                                        @if (Model.Options.Companies != null)
-                                                        {
-                                                            foreach (var company in Model.Options.Companies)
-                                                            {
-                                                                <option value="@company.CompanyId">@company.CompanyName</option>
-                                                            }
-                                                        }
-                                                    </select>
-                                                    <span asp-validation-for="ExternalPartner.CompanyId" class="text-danger small mt-1 d-block"></span>
+                                                <div class="mb-3 form-floating">
+                                                    <input asp-for="ExternalPartner.CompanyName" class="form-control" placeholder="Company name" />
+                                                    <label asp-for="ExternalPartner.CompanyName"><i class="fa-solid fa-building me-2 text-muted"></i>Company</label>
+                                                    <span asp-validation-for="ExternalPartner.CompanyName" class="text-danger small mt-1 d-block"></span>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label asp-for="ExternalPartner.PositionId" class="form-label small fw-semibold text-muted mb-1"><i class="fa-solid fa-briefcase me-1"></i>Position <span class="text-danger">*</span></label>
-                                                    <select asp-for="ExternalPartner.PositionId" class="form-select">
-                                                        <option value="">-- Select Position --</option>
-                                                        @if (Model.Options.Positions != null)
-                                                        {
-                                                            foreach (var position in Model.Options.Positions)
-                                                            {
-                                                                <option value="@position.PositionId">@position.PositionName</option>
-                                                            }
-                                                        }
-                                                    </select>
-                                                    <span asp-validation-for="ExternalPartner.PositionId" class="text-danger small mt-1 d-block"></span>
+                                                <div class="mb-3 form-floating">
+                                                    <input asp-for="ExternalPartner.PositionName" class="form-control" placeholder="Position" />
+                                                    <label asp-for="ExternalPartner.PositionName"><i class="fa-solid fa-briefcase me-2 text-muted"></i>Position</label>
+                                                    <span asp-validation-for="ExternalPartner.PositionName" class="text-danger small mt-1 d-block"></span>
                                                 </div>
                                             </div>
                                         </div>

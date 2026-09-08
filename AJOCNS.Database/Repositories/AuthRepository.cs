@@ -70,6 +70,34 @@ namespace AJOCNS.Database.Repositories
             return await _context.Positions.AnyAsync(p => p.PositionId == positionId);
         }
 
+        public async Task<Company> GetOrCreateCompanyAsync(string companyName)
+        {
+            var company = await _context.Companies.FirstOrDefaultAsync(c => c.CompanyName == companyName);
+            if (company is not null)
+            {
+                return company;
+            }
+
+            company = new Company { CompanyName = companyName };
+            _context.Companies.Add(company);
+            await _context.SaveChangesAsync();
+            return company;
+        }
+
+        public async Task<Position> GetOrCreatePositionAsync(string positionName)
+        {
+            var position = await _context.Positions.FirstOrDefaultAsync(p => p.Position1 == positionName);
+            if (position is not null)
+            {
+                return position;
+            }
+
+            position = new Position { Position1 = positionName };
+            _context.Positions.Add(position);
+            await _context.SaveChangesAsync();
+            return position;
+        }
+
         public async Task<List<User>> GetPendingUsersAsync()
         {
             return await _context.Users
@@ -81,11 +109,32 @@ namespace AJOCNS.Database.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<User>> GetExternalPartnersAsync()
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .Include(u => u.ExternalPartner!)
+                    .ThenInclude(p => p.Company)
+                .Include(u => u.ExternalPartner!)
+                    .ThenInclude(p => p.Position)
+                .Where(u => u.Role == "ExternalPartner" && u.ExternalPartner != null)
+                .OrderByDescending(u => u.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<bool> IsExternalPartnerAsync(int userId)
+        {
+            return await _context.Users.AnyAsync(u => u.UserId == userId && u.Role == "ExternalPartner");
+        }
+
         public async Task<User?> GetPendingUserByIdAsync(int userId)
         {
             return await _context.Users
                 .Include(u => u.Mentor)
                 .Include(u => u.ExternalPartner)
+                    .ThenInclude(p => p!.Company)
+                .Include(u => u.ExternalPartner)
+                    .ThenInclude(p => p!.Position)
                 .FirstOrDefaultAsync(u => u.UserId == userId && u.Status == "Pending");
         }
 

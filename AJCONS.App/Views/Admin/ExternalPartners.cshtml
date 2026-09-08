@@ -1,0 +1,120 @@
+@model List<AJOCNS.Shared.DTOs.Auth.ExternalPartnerAdminDto>
+@{
+    ViewData["Title"] = "External Partners | AJCONS";
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">Partner directory</div>
+            <h1 class="h2 fw-bold mb-1">External partners</h1>
+            <p class="text-muted mb-0">Review partner accounts and manage their access to the platform.</p>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="card adminlte-card border-0">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3">
+                    <h3 class="card-title fw-bold mb-0">@(Model.Count) partner account@(Model.Count == 1 ? "" : "s")</h3>
+                    <div class="d-flex flex-wrap gap-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-search text-muted"></i></span>
+                            <input type="search" id="partnerSearch" class="form-control" placeholder="Search partners..." aria-label="Search external partners" />
+                        </div>
+                        <a asp-action="UserApprovals" class="btn btn-sm btn-outline-primary">Review pending approvals</a>
+                    </div>
+                </div>
+                @if (Model.Count == 0)
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-building-circle-check fs-2 mb-3 d-block"></i>
+                        No external partner accounts have been registered yet.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 partner-table" style="min-width:850px;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Partner</th>
+                                    <th>Company</th>
+                                    <th>Position</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-4">Access</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var partner in Model)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <strong>@partner.Name</strong>
+                                            <small class="d-block text-muted">@partner.Email</small>
+                                            @if (!string.IsNullOrWhiteSpace(partner.Phone))
+                                            {
+                                                <small class="d-block text-muted">@partner.Phone</small>
+                                            }
+                                        </td>
+                                        <td>@partner.CompanyName</td>
+                                        <td>@partner.PositionName</td>
+                                        <td>
+                                            <span class="badge rounded-pill @(partner.Status == "Active" ? "text-bg-success" : partner.Status == "Pending" ? "text-bg-warning" : "text-bg-secondary")">
+                                                @partner.Status
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            @if (partner.Status == "Active")
+                                            {
+                                                <form asp-action="UpdateExternalPartnerStatus" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="userId" value="@partner.UserId" />
+                                                    <input type="hidden" name="status" value="Inactive" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                                                </form>
+                                            }
+                                            else if (partner.Status == "Inactive")
+                                            {
+                                                <form asp-action="UpdateExternalPartnerStatus" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="userId" value="@partner.UserId" />
+                                                    <input type="hidden" name="status" value="Active" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <a asp-action="UserApprovals" class="btn btn-sm btn-academic">Review</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <div id="partnerNoResults" class="text-center py-5 text-muted d-none">No partners match your search.</div>
+                    </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('partnerSearch');
+            const rows = [...document.querySelectorAll('.partner-table tbody tr')];
+            const empty = document.getElementById('partnerNoResults');
+            search?.addEventListener('input', () => {
+                const term = search.value.trim().toLowerCase();
+                let visible = 0;
+                rows.forEach(row => {
+                    const matches = row.innerText.toLowerCase().includes(term);
+                    row.classList.toggle('d-none', !matches);
+                    if (matches) visible++;
+                });
+                empty?.classList.toggle('d-none', visible !== 0);
+            });
+        });
+    </script>
+}
+                }
+            </div>
+        </div>
+    </section>
+</div>

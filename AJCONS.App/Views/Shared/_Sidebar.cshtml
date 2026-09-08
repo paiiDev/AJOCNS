@@ -35,6 +35,9 @@
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "Mentors" ? "active-menu" : "")" asp-controller="Admin" asp-action="Mentors">
                 <i class="fa-solid fa-user-graduate me-2 text-center" style="width:20px"></i> Mentors
             </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "ExternalPartners" ? "active-menu" : "")" asp-controller="Admin" asp-action="ExternalPartners">
+                <i class="fa-solid fa-building me-2 text-center" style="width:20px"></i> External Partners
+            </a>
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "UserApprovals" ? "active-menu" : "")" asp-controller="Admin" asp-action="UserApprovals">
                 <i class="fa-solid fa-circle-check me-2 text-center" style="width:20px"></i> User Approvals
             </a>

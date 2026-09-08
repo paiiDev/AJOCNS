@@ -29,9 +29,15 @@
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
             <div class="card adminlte-card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3">
                     <h3 class="card-title fw-bold mb-0"><i class="fa-solid fa-calendar-days me-2"></i>Pending events</h3>
-                    <span class="badge rounded-pill text-bg-warning">@pendingEvents.Count waiting</span>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-search text-muted"></i></span>
+                            <input type="search" id="eventSearch" class="form-control" placeholder="Search events..." aria-label="Search pending events" />
+                        </div>
+                        <span class="badge rounded-pill text-bg-warning">@pendingEvents.Count waiting</span>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     @if (pendingEvents.Count == 0)
@@ -43,7 +49,7 @@
                     }
                     else
                     {
-                        <table class="table table-hover mb-0 align-middle">
+                        <table class="table table-hover mb-0 align-middle event-table" style="min-width:760px;">
                             <thead class="table-light">
                                 <tr>
                                     <th class="ps-4">Event</th>
@@ -81,14 +87,21 @@
                                 }
                             </tbody>
                         </table>
+                        <div id="eventNoResults" class="text-center py-5 text-muted d-none">No events match your search.</div>
                     }
                 </div>
             </div>
 
             <div class="card adminlte-card">
-                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3">
                     <h3 class="card-title fw-bold mb-0"><i class="fa-solid fa-briefcase me-2"></i>Pending job posts</h3>
-                    <span class="badge rounded-pill text-bg-warning">@pendingJobs.Count waiting</span>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-search text-muted"></i></span>
+                            <input type="search" id="jobSearch" class="form-control" placeholder="Search job posts..." aria-label="Search pending job posts" />
+                        </div>
+                        <span class="badge rounded-pill text-bg-warning">@pendingJobs.Count waiting</span>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     @if (pendingJobs.Count == 0)
@@ -100,7 +113,7 @@
                     }
                     else
                     {
-                        <table class="table table-hover mb-0 align-middle">
+                        <table class="table table-hover mb-0 align-middle job-table" style="min-width:820px;">
                             <thead class="table-light">
                                 <tr>
                                     <th class="ps-4">Title</th>
@@ -140,6 +153,7 @@
                                 }
                             </tbody>
                         </table>
+                        <div id="jobNoResults" class="text-center py-5 text-muted d-none">No job posts match your search.</div>
                     }
                 </div>
             </div>
@@ -150,6 +164,24 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const setupSearch = (inputId, tableClass, emptyId) => {
+                const input = document.getElementById(inputId);
+                const rows = [...document.querySelectorAll(`.${tableClass} tbody tr`)];
+                const empty = document.getElementById(emptyId);
+                input?.addEventListener('input', () => {
+                    const term = input.value.trim().toLowerCase();
+                    let visible = 0;
+                    rows.forEach(row => {
+                        const matches = row.innerText.toLowerCase().includes(term);
+                        row.classList.toggle('d-none', !matches);
+                        if (matches) visible++;
+                    });
+                    empty?.classList.toggle('d-none', visible !== 0);
+                });
+            };
+            setupSearch('eventSearch', 'event-table', 'eventNoResults');
+            setupSearch('jobSearch', 'job-table', 'jobNoResults');
+
             document.querySelectorAll('.approve-form').forEach(form => {
                 form.addEventListener('submit', async (event) => {
                     event.preventDefault();

@@ -54,6 +54,50 @@ namespace AJOCNS.App.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ExternalPartners()
+        {
+            var result = await _authService.GetExternalPartnersAsync();
+            return View(result.IsSuccess ? result.Data : new List<ExternalPartnerAdminDto>());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExternalPartnerDetails(int userId)
+        {
+            var result = await _authService.GetPendingExternalPartnerAsync(userId);
+            if (!result.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Partner not found";
+                TempData["SweetAlert_Message"] = result.ErrorMessage;
+                return RedirectToAction(nameof(UserApprovals));
+            }
+
+            return View(result.Data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateExternalPartnerStatus(int userId, string status)
+        {
+            if (status is not ("Active" or "Inactive"))
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Invalid status";
+                TempData["SweetAlert_Message"] = "The requested status is not valid.";
+                return RedirectToAction(nameof(ExternalPartners));
+            }
+
+            var result = await _authService.UpdateExternalPartnerStatusAsync(userId, status);
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Status updated" : "Update failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "External partner status updated successfully."
+                : result.ErrorMessage ?? "Could not update external partner status.";
+
+            return RedirectToAction(nameof(ExternalPartners));
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> StudentManagement(int page = 1, int? majorId = null, int? acyId = null, bool excludeDropout = false)

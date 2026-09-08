@@ -25,9 +25,20 @@
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
             <div class="card adminlte-card">
-                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3">
                     <h3 class="card-title fw-bold mb-0">Pending registrations</h3>
-                    <span class="badge rounded-pill text-bg-warning">@pendingUsers.Count waiting</span>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-search text-muted"></i></span>
+                            <input type="search" id="approvalSearch" class="form-control" placeholder="Search applicants..." aria-label="Search pending applicants" />
+                        </div>
+                        <span class="badge rounded-pill text-bg-warning">@pendingUsers.Count waiting</span>
+                    </div>
+                </div>
+                <div class="px-4 pt-3 approval-filters" role="group" aria-label="Filter approvals by role">
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill me-1 mb-2 active" data-filter="all">All</button>
+                    <button type="button" class="btn btn-sm btn-outline-info rounded-pill me-1 mb-2" data-filter="Mentor">Alumni Mentors</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill mb-2" data-filter="ExternalPartner">External Partners</button>
                 </div>
                 <div class="table-responsive">
                     @if (pendingUsers.Count == 0)
@@ -51,7 +62,7 @@
                             <tbody>
                                 @foreach (var user in pendingUsers)
                                 {
-                                    <tr>
+                                    <tr data-role="@user.Role">
                                         <td class="ps-4">
                                             <strong>@user.Name</strong>
                                             <small class="d-block text-muted">@user.Email</small>
@@ -94,6 +105,9 @@
                                             else
                                             {
                                                 <div class="d-inline-flex gap-2">
+                                                     <a asp-action="ExternalPartnerDetails" asp-controller="Admin" asp-route-userId="@user.UserId" class="btn btn-sm btn-outline-primary">
+                                                         <i class="fa-solid fa-eye me-1"></i>Details
+                                                     </a>
                                                     <form asp-action="ApproveUser" asp-controller="Admin" method="post" class="d-inline approve-form">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="userId" value="@user.UserId" />
@@ -115,6 +129,9 @@
                                 }
                             </tbody>
                         </table>
+                        <div id="approvalNoResults" class="text-center py-5 text-muted d-none">
+                            <i class="fa-solid fa-filter fs-2 mb-3 d-block"></i>No pending registrations match your filters.
+                        </div>
                     }
                 </div>
             </div>
@@ -125,6 +142,32 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('approvalSearch');
+            const rows = [...document.querySelectorAll('.approval-filters ~ .table-responsive table tbody tr')];
+            const empty = document.getElementById('approvalNoResults');
+            let role = 'all';
+            const filterRows = () => {
+                const term = search?.value.trim().toLowerCase() || '';
+                let visible = 0;
+                rows.forEach(row => {
+                    const matches = (role === 'all' || row.dataset.role === role) && row.innerText.toLowerCase().includes(term);
+                    row.classList.toggle('d-none', !matches);
+                    if (matches) visible++;
+                });
+                empty?.classList.toggle('d-none', visible !== 0);
+            };
+            search?.addEventListener('input', filterRows);
+            document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
+                role = button.dataset.filter;
+                document.querySelectorAll('[data-filter]').forEach(item => {
+                    item.classList.remove('active', 'btn-primary');
+                    item.classList.add(item.dataset.filter === 'Mentor' ? 'btn-outline-info' : item.dataset.filter === 'ExternalPartner' ? 'btn-outline-primary' : 'btn-outline-secondary');
+                });
+                button.classList.add('active', 'btn-primary');
+                button.classList.remove('btn-outline-info', 'btn-outline-primary', 'btn-outline-secondary');
+                filterRows();
+            }));
+
             document.querySelectorAll('.verify-form').forEach(form => {
                 form.addEventListener('submit', async (event) => {
                     event.preventDefault();

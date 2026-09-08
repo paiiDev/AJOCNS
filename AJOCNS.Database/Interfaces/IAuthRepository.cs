@@ -14,7 +14,11 @@ namespace ajocns.database.interfaces
         Task<List<Position>> GetPositionsAsync();
         Task<bool> CompanyExistsAsync(int companyId);
         Task<bool> PositionExistsAsync(int positionId);
+        Task<Company> GetOrCreateCompanyAsync(string companyName);
+        Task<Position> GetOrCreatePositionAsync(string positionName);
         Task<List<User>> GetPendingUsersAsync();
+        Task<List<User>> GetExternalPartnersAsync();
+        Task<bool> IsExternalPartnerAsync(int userId);
         Task<User?> GetPendingUserByIdAsync(int userId);
         Task<bool> UpdateUserStatusAsync(int userId, string status);
     }
