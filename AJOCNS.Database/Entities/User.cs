@@ -27,9 +27,9 @@ public partial class User
 
     public virtual ExternalPartner? ExternalPartner { get; set; }
 
-    public virtual ICollection<JobPost> JobPosts { get; set; } = new List<JobPost>();
-
     public virtual ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
+
+    public virtual ICollection<JobPost> JobPosts { get; set; } = new List<JobPost>();
 
     public virtual Mentor? Mentor { get; set; }
 

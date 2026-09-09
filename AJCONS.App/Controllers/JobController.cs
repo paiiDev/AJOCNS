@@ -42,7 +42,7 @@ namespace AJOCNS.App.Controllers
             ViewBag.IsAdmin = isAdmin;
 
             var result = isAdmin
-                ? await _jobService.GetJobPostsPagedAsync(page, pageSize, jobType, status)
+                ? await _jobService.GetJobPostsPagedAsync(page, pageSize, jobType, string.IsNullOrEmpty(status) ? "__published__" : status)
                 : await _jobService.GetJobPostsPagedForUserAsync(
                     int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), page, pageSize, jobType, status);
 
@@ -61,6 +61,13 @@ namespace AJOCNS.App.Controllers
             var nowMyanmar = MyanmarTime.Now;
             var defaultClosingDate = nowMyanmar.AddDays(30);
             return View(new CreateJobPostDto { ClosingDate = defaultClosingDate });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var result = await _jobService.GetJobPostForEditAsync(id);
+            return result.IsSuccess ? View(result.Data) : NotFound();
         }
 
         [HttpPost]

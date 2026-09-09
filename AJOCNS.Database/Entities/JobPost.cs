@@ -31,7 +31,7 @@ public partial class JobPost
 
     public int PostedByUserId { get; set; }
 
-    public virtual User PostedByUser { get; set; } = null!;
-
     public virtual ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
+
+    public virtual User PostedByUser { get; set; } = null!;
 }

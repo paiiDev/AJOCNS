@@ -1,0 +1,9 @@
+@model AJOCNS.Shared.DTOs.Jobs.UpdateJobPostDto
+@{ ViewData["Title"] = "Job Post Details"; }
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4"><div><div class="text-uppercase small fw-bold text-primary">Job management</div><h1 class="fw-bold mb-0">Job post details</h1></div><a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-2"></i>Back to job posts</a></div>
+    <div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4 p-lg-5"><h2 class="fw-bold">@Model.Title</h2><p class="text-muted"><i class="fa-solid fa-building me-2"></i>@Model.CompanyName</p>
+        <div class="row g-3 mb-4"><div class="col-md-4"><div class="bg-light rounded-3 p-3"><small class="text-muted d-block">Job type</small><strong>@(Model.JobType ?? "-")</strong></div></div><div class="col-md-4"><div class="bg-light rounded-3 p-3"><small class="text-muted d-block">Location</small><strong>@(Model.Location ?? "-")</strong></div></div><div class="col-md-4"><div class="bg-light rounded-3 p-3"><small class="text-muted d-block">Closing date</small><strong>@Model.ClosingDate.ToString("dd MMM yyyy, HH:mm")</strong></div></div></div>
+        <h5>Description</h5><p class="mb-4" style="white-space:pre-line">@Model.Description</p><h5>Requirements</h5><p class="mb-0" style="white-space:pre-line">@(Model.Requirements ?? "No requirements provided.")</p>
+    </div></div>
+</div>

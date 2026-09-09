@@ -68,7 +68,8 @@
                                         <td>@ev.EventDate.ToString("dd MMM yyyy, HH:mm")</td>
                                         <td>@ev.CreatedByName</td>
                                         <td class="text-end pe-4">
-                                            <div class="d-inline-flex gap-2">
+                                                <div class="d-inline-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary approval-details" data-url="@Url.Action("PendingEventDetails", "Admin", new { id = ev.Id })"><i class="fa-solid fa-eye me-1"></i>Details</button>
                                                 <form asp-action="RejectEventPost" asp-controller="Admin" asp-route-id="@ev.Id" method="post" class="d-inline reject-form">
                                                     @Html.AntiForgeryToken()
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject @ev.EventTitle">
@@ -134,7 +135,8 @@
                                         <td>@job.ClosingDate.ToString("dd MMM yyyy")</td>
                                         <td>@job.PostedByName</td>
                                         <td class="text-end pe-4">
-                                            <div class="d-inline-flex gap-2">
+                                                <div class="d-inline-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary approval-details" data-url="@Url.Action("PendingJobDetails", "Admin", new { id = job.Id })"><i class="fa-solid fa-eye me-1"></i>Details</button>
                                                 <form asp-action="RejectJobPost" asp-controller="Admin" asp-route-id="@job.Id" method="post" class="d-inline reject-form">
                                                     @Html.AntiForgeryToken()
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject @job.Title">
@@ -148,6 +150,7 @@
                                                     </button>
                                                 </form>
                                             </div>
+
                                         </td>
                                     </tr>
                                 }
@@ -156,6 +159,14 @@
                         <div id="jobNoResults" class="text-center py-5 text-muted d-none">No job posts match your search.</div>
                     }
                 </div>
+
+<div class="modal fade" id="approvalDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" id="approvalDetailsContent">
+            <div class="text-center p-5"><div class="spinner-border text-primary"></div></div>
+        </div>
+    </div>
+</div>
             </div>
         </div>
     </section>
@@ -176,11 +187,26 @@
                         row.classList.toggle('d-none', !matches);
                         if (matches) visible++;
                     });
+
                     empty?.classList.toggle('d-none', visible !== 0);
                 });
             };
             setupSearch('eventSearch', 'event-table', 'eventNoResults');
             setupSearch('jobSearch', 'job-table', 'jobNoResults');
+
+            document.querySelectorAll('.approval-details').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const content = document.getElementById('approvalDetailsContent');
+                    content.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('approvalDetailsModal')).show();
+                    try {
+                        const response = await fetch(button.dataset.url);
+                        content.innerHTML = response.ok ? await response.text() : '<div class="alert alert-danger m-4">Details could not be loaded.</div>';
+                    } catch {
+                        content.innerHTML = '<div class="alert alert-danger m-4">Details could not be loaded.</div>';
+                    }
+                });
+            });
 
             document.querySelectorAll('.approve-form').forEach(form => {
                 form.addEventListener('submit', async (event) => {

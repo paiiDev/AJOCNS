@@ -30,7 +30,7 @@ namespace AJOCNS.Domain.Services
             await using (var stream = File.Create(Path.Combine(folder, fileName))) await dto.Resume.CopyToAsync(stream);
             var saved = await _jobRepo.CreateApplicationAsync(new JobApplication
             {
-                JobPostId = dto.JobPostId, StudentId = studentId, CoverLetter = dto.CoverLetter.Trim(),
+                JobPostId = dto.JobPostId, UserId = studentId, CoverLetter = dto.CoverLetter.Trim(),
                 ResumeUrl = $"/uploads/resumes/{fileName}", AppliedDate = DateTime.UtcNow, Status = "Pending"
             });
             return saved ? Result<bool>.Success(true) : Result<bool>.Failure("You have already applied for this job.");
@@ -41,8 +41,8 @@ namespace AJOCNS.Domain.Services
             var applicants = await _jobRepo.GetApplicantsByJobIdAsync(partnerUserId, jobPostId);
             return Result<List<ApplicantListDto>>.Success(applicants.Select(a => new ApplicantListDto
             {
-                ApplicationId = a.JobApplicationId, StudentName = a.StudentUser.Student?.Name ?? a.StudentUser.Email,
-                StudentEmail = a.StudentUser.Email,
+                ApplicationId = a.JobApplicationId, StudentName = a.User.Student?.Name ?? a.User.Email,
+                StudentEmail = a.User.Email,
                 AppliedDate = MyanmarTime.ToMyanmar(a.AppliedDate), CoverLetter = a.CoverLetter,
                 ResumeUrl = a.ResumeUrl, Status = a.Status
             }).ToList());
@@ -70,6 +70,7 @@ namespace AJOCNS.Domain.Services
             ClosingDate = MyanmarTime.ToMyanmar(j.ClosingDate),
             Status = j.Status,
             PostedByName = j.PostedByUser?.Email ?? "Unknown"
+            ,PostedByRole = j.PostedByUser?.Role ?? string.Empty
         };
 
         public async Task<Result<bool>> CreateJobPostAsync(CreateJobPostDto dto, int postedByUserId, bool autoApprove, DateTime closingDateUtc)

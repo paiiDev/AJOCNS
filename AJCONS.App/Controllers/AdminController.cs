@@ -55,6 +55,22 @@ namespace AJOCNS.App.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> PendingEventDetails(int id)
+        {
+            var result = await _eventService.GetPendingEventsAsync();
+            var item = result.IsSuccess ? result.Data.FirstOrDefault(e => e.Id == id) : null;
+            return item is null ? NotFound() : PartialView("~/Views/Event/_EventDetailsModal.cshtml", item);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PendingJobDetails(int id)
+        {
+            var result = await _jobService.GetPendingJobPostsAsync();
+            var item = result.IsSuccess ? result.Data.FirstOrDefault(j => j.Id == id) : null;
+            return item is null ? NotFound() : PartialView("~/Views/Student/_JobDetailsModal.cshtml", item);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ExternalPartners()
         {
             var result = await _authService.GetExternalPartnersAsync();

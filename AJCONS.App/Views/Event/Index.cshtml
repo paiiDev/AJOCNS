@@ -48,7 +48,10 @@
                     {
                         foreach (var eventStatus in ViewBag.EventStatuses.Data)
                         {
-                            <option value="@eventStatus.Status" selected="@(SelectedEventStatus == eventStatus.Status.ToString())">@eventStatus.Status</option>
+                            if (eventStatus.Status is "Upcoming" or "Completed")
+                            {
+                                <option value="@eventStatus.Status" selected="@(SelectedEventStatus == eventStatus.Status.ToString())">@eventStatus.Status</option>
+                            }
                         }
                     }
                 </select>

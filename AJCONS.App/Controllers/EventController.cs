@@ -43,7 +43,7 @@ namespace AJOCNS.App.Controllers
             ViewBag.IsAdmin = isAdmin;
 
             var result = isAdmin
-                ? await _eventService.GetEventsPagedAsync(page, pageSize, eventType, eventStatus)
+                ? await _eventService.GetEventsPagedAsync(page, pageSize, eventType, string.IsNullOrEmpty(eventStatus) ? "__published__" : eventStatus)
                 : await _eventService.GetEventsPagedForUserAsync(currentUserId, page, pageSize, eventType, eventStatus);
 
             if (!result.IsSuccess)

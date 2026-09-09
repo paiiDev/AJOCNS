@@ -27,5 +27,7 @@ namespace AJOCNS.Shared.DTOs.Jobs
         public string Status { get; set; } = null!;
 
         public string PostedByName { get; set; } = null!;
+
+        public string PostedByRole { get; set; } = null!;
     }
 }

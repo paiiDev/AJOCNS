@@ -116,7 +116,11 @@ namespace AJOCNS.Database.Repositories
                 query = query.Where(e => e.EventType.EventTypeName == eventType);
             }
 
-            if(!string.IsNullOrEmpty(eventStatus))
+            if (eventStatus == "__published__")
+            {
+                query = query.Where(e => e.Status == "Upcoming" || e.Status == "Completed");
+            }
+            else if(!string.IsNullOrEmpty(eventStatus))
             {
                 query = query.Where(e => e.Status == eventStatus);
             }

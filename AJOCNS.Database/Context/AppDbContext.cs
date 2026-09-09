@@ -38,9 +38,9 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<GraduationRecord> GraduationRecords { get; set; }
 
-    public virtual DbSet<JobPost> JobPosts { get; set; }
-
     public virtual DbSet<JobApplication> JobApplications { get; set; }
+
+    public virtual DbSet<JobPost> JobPosts { get; set; }
 
     public virtual DbSet<Major> Majors { get; set; }
 
@@ -52,7 +52,10 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-  
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=.;Database=AJOCNS_DB;Trusted_Connection=True;TrustServerCertificate=True;");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcademicYear>(entity =>
@@ -67,19 +70,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.AcademicYear1)
                 .HasMaxLength(20)
                 .HasColumnName("AcademicYear");
-        });
-
-        modelBuilder.Entity<JobApplication>(entity =>
-        {
-            entity.HasKey(e => e.JobApplicationId);
-            entity.Property(e => e.JobApplicationId).HasColumnName("JobApplication_Id");
-            entity.Property(e => e.CoverLetter).HasMaxLength(1000).IsRequired();
-            entity.Property(e => e.ResumeUrl).HasMaxLength(500);
-            entity.Property(e => e.AppliedDate).HasDefaultValueSql("(getutcdate())");
-            entity.Property(e => e.Status).HasMaxLength(50).HasDefaultValue("Pending");
-            entity.HasIndex(e => new { e.JobPostId, e.StudentId }).IsUnique();
-            entity.HasOne(e => e.JobPost).WithMany(e => e.JobApplications).HasForeignKey(e => e.JobPostId).OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(e => e.StudentUser).WithMany(e => e.JobApplications).HasForeignKey(e => e.StudentId).OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Admin>(entity =>
@@ -215,7 +205,7 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.EventRegiId).HasColumnName("Event_Regi_ID");
             entity.Property(e => e.EventId).HasColumnName("Event_ID");
-            entity.Property(e => e.RegistrationDate).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.RegistrationDate).HasDefaultValueSql("(sysdatetime())");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasDefaultValue("Registered");
@@ -306,13 +296,40 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_Graduation_Records_Students");
         });
 
+        modelBuilder.Entity<JobApplication>(entity =>
+        {
+            entity.HasIndex(e => e.JobPostId, "IX_JobApplications_JobPostId");
+
+            entity.HasIndex(e => e.UserId, "IX_JobApplications_StudentId");
+
+            entity.HasIndex(e => new { e.JobPostId, e.UserId }, "UQ_JobApplications_JobPost_Student").IsUnique();
+
+            entity.Property(e => e.JobApplicationId).HasColumnName("JobApplication_Id");
+            entity.Property(e => e.AppliedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.CoverLetter).HasMaxLength(1000);
+            entity.Property(e => e.ResumeUrl).HasMaxLength(500);
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.UserId).HasColumnName("User_Id");
+
+            entity.HasOne(d => d.JobPost).WithMany(p => p.JobApplications)
+                .HasForeignKey(d => d.JobPostId)
+                .HasConstraintName("FK_JobApplications_JobPosts");
+
+            entity.HasOne(d => d.User).WithMany(p => p.JobApplications)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_JobApplications_Users");
+        });
+
         modelBuilder.Entity<JobPost>(entity =>
         {
             entity.Property(e => e.JobPostId).HasColumnName("JobPost_Id");
             entity.Property(e => e.CompanyName).HasMaxLength(200);
             entity.Property(e => e.JobType).HasMaxLength(100);
             entity.Property(e => e.Location).HasMaxLength(200);
-            entity.Property(e => e.PostedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.PostedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.SalaryRange).HasMaxLength(100);
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
@@ -403,7 +420,7 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => e.Email, "UQ_Users_Email").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("User_ID");
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysdatetime())");
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.IsFirstLogin)

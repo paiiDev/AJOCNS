@@ -16,14 +16,14 @@ namespace AJOCNS.Database.Repositories
 
         public async Task<bool> CreateApplicationAsync(JobApplication application)
         {
-            if (await _context.JobApplications.AnyAsync(a => a.JobPostId == application.JobPostId && a.StudentId == application.StudentId)) return false;
+            if (await _context.JobApplications.AnyAsync(a => a.JobPostId == application.JobPostId && a.UserId == application.UserId)) return false;
             _context.JobApplications.Add(application);
             await _context.SaveChangesAsync();
             return true;
         }
 
         public Task<List<JobApplication>> GetApplicantsByJobIdAsync(int partnerUserId, int jobPostId) =>
-            _context.JobApplications.AsNoTracking().Include(a => a.StudentUser).ThenInclude(u => u.Student)
+            _context.JobApplications.AsNoTracking().Include(a => a.User).ThenInclude(u => u.Student)
                 .Where(a => a.JobPostId == jobPostId && a.JobPost.PostedByUserId == partnerUserId)
                 .OrderByDescending(a => a.AppliedDate).ToListAsync();
 
@@ -104,7 +104,7 @@ namespace AJOCNS.Database.Repositories
             return await _context.JobPosts
                 .AsNoTracking()
                 .Include(j => j.PostedByUser)
-                .Where(j => j.Status == "Open" && !j.IsDeleted && j.ClosingDate > DateTime.UtcNow)
+                .Where(j => (j.Status == "Open" || j.Status == "Approved") && !j.IsDeleted && j.ClosingDate > DateTime.UtcNow)
                 .OrderByDescending(j => j.PostedDate)
                 .ToListAsync();
         }
@@ -132,7 +132,11 @@ namespace AJOCNS.Database.Repositories
                 query = query.Where(j => j.JobType == jobType);
             }
 
-            if (!string.IsNullOrEmpty(status))
+            if (status == "__published__")
+            {
+                query = query.Where(j => j.Status == "Open" || j.Status == "Closed" || j.Status == "Completed");
+            }
+            else if (!string.IsNullOrEmpty(status))
             {
                 query = query.Where(j => j.Status == status);
             }
