@@ -104,7 +104,9 @@ namespace AJOCNS.Database.Repositories
             return await _context.JobPosts
                 .AsNoTracking()
                 .Include(j => j.PostedByUser)
-                .Where(j => (j.Status == "Open" || j.Status == "Approved") && !j.IsDeleted && j.ClosingDate > DateTime.UtcNow)
+                .Where(j => !j.IsDeleted && j.ClosingDate > DateTime.UtcNow &&
+                    (j.Status.ToLower() == "open" || j.Status.ToLower() == "approved" || j.Status.ToLower() == "active" || j.Status.ToLower() == "published" ||
+                     (j.PostedByUser.Role.ToLower() == "externalpartner" && j.Status.ToLower() == "pending")))
                 .OrderByDescending(j => j.PostedDate)
                 .ToListAsync();
         }

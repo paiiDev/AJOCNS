@@ -22,7 +22,8 @@ namespace AJOCNS.Domain.Services
             if (dto.Resume is null || dto.Resume.Length == 0 || !string.Equals(Path.GetExtension(dto.Resume.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
                 return Result<bool>.Failure("A PDF resume is required.");
             var job = await _jobRepo.GetJobPostById(dto.JobPostId);
-            if (job is null || job.Status != "Open" || job.IsDeleted || job.ClosingDate <= DateTime.UtcNow)
+            if (job is null || job.IsDeleted || job.ClosingDate <= DateTime.UtcNow ||
+                (job.Status.ToLower() == "rejected"))
                 return Result<bool>.Failure("This job is no longer accepting applications.");
             var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "resumes");
             Directory.CreateDirectory(folder);
