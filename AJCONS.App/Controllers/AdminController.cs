@@ -78,17 +78,29 @@ namespace AJOCNS.App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExternalPartnerDetails(int userId)
+        public async Task<IActionResult> ExternalPartnerDetails(int userId, string? returnAction = null)
         {
             var result = await _authService.GetPendingExternalPartnerAsync(userId);
             if (!result.IsSuccess)
             {
-                TempData["SweetAlert_Type"] = "error";
-                TempData["SweetAlert_Title"] = "Partner not found";
-                TempData["SweetAlert_Message"] = result.ErrorMessage;
-                return RedirectToAction(nameof(UserApprovals));
+                var allPartners = await _authService.GetExternalPartnersAsync();
+                var partner = allPartners.IsSuccess
+                    ? allPartners.Data.FirstOrDefault(p => p.UserId == userId)
+                    : null;
+                if (partner is null)
+                {
+                    TempData["SweetAlert_Type"] = "error";
+                    TempData["SweetAlert_Title"] = "Partner not found";
+                    TempData["SweetAlert_Message"] = "The requested external partner could not be found.";
+                    return RedirectToAction(nameof(ExternalPartners));
+                }
+                ViewBag.IsPending = false;
+                ViewBag.ReturnAction = returnAction;
+                return View(partner);
             }
 
+            ViewBag.IsPending = true;
+            ViewBag.ReturnAction = returnAction;
             return View(result.Data);
         }
 
@@ -402,10 +414,20 @@ namespace AJOCNS.App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> UserApprovals()
+        public async Task<IActionResult> UserApprovals(string? role = null)
         {
             var result = await _authService.GetPendingUsersAsync();
-            ViewBag.PendingUsers = result.IsSuccess ? result.Data : new List<PendingUserApprovalDto>();
+            var pendingUsers = result.IsSuccess ? result.Data : new List<PendingUserApprovalDto>();
+
+            if (!string.IsNullOrEmpty(role) && !string.Equals(role, "All", StringComparison.OrdinalIgnoreCase))
+            {
+                pendingUsers = pendingUsers
+                    .Where(u => string.Equals(u.Role, role, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            ViewBag.PendingUsers = pendingUsers;
+            ViewBag.SelectedRole = string.IsNullOrEmpty(role) ? "All" : role;
 
             var stats = await _studentRegistrationService.GetDashboardStatsAsync();
             ViewBag.ActiveStudentCount = stats.IsSuccess ? stats.Data.ActiveStudents : 0;
@@ -536,7 +558,26 @@ namespace AJOCNS.App.Controllers
         public async Task<IActionResult> Mentors()
         {
             var result = await _mentorService.GetAllMentorsAsync();
-            return View(result.IsSuccess ? result.Data : new List<MentorProfileDto>());
+            var mentors = result.IsSuccess ? result.Data : new List<MentorProfileDto>();
+            mentors = mentors
+                .Where(m => !string.Equals(m.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            return View(mentors);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MentorDetails(int userId)
+        {
+            var result = await _mentorService.GetMentorProfileAsync(userId);
+            if (!result.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Mentor not found";
+                TempData["SweetAlert_Message"] = result.ErrorMessage ?? "The requested mentor could not be found.";
+                return RedirectToAction(nameof(Mentors));
+            }
+
+            return View(result.Data);
         }
 
         [HttpPost]

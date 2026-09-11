@@ -1,0 +1,181 @@
+@model AJOCNS.Shared.DTOs.Mentor.MentorProfileDto
+@{
+    ViewData["Title"] = "Mentor Details | AJCONS";
+    var nameParts = (Model.Name ?? "Mentor").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var initials = string.Concat(nameParts.Take(2).Select(w => char.ToUpperInvariant(w[0])));
+    if (string.IsNullOrWhiteSpace(initials)) { initials = "M"; }
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">Alumni administration</div>
+                    <h1 class="h2 fw-bold mb-1">Mentor details</h1>
+                    <p class="text-muted mb-0">View the full profile and employment history for this mentor.</p>
+                </div>
+                <a asp-action="Mentors" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to mentors
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card adminlte-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3">
+                            <h3 class="card-title fw-bold mb-0">Profile information</h3>
+                            <span class="badge rounded-pill @(Model.Status == "Active" ? "text-bg-success" : Model.Status == "Pending" ? "text-bg-warning" : "text-bg-secondary")">@Model.Status</span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width:56px;height:56px;font-size:1.2rem;">@initials</div>
+                                <div>
+                                    <h4 class="fw-bold mb-0">@Model.Name</h4>
+                                    <div class="text-muted">@Model.Email</div>
+                                </div>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Alumni graduation year</small>
+                                    <strong>Class of @Model.AlumniGy</strong>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Alumni GRN</small>
+                                    <strong>@Model.AlumniGrn</strong>
+                                </div>
+                                <div class="col-12">
+                                    <small class="text-muted d-block">Area of expertise</small>
+                                    <strong>@(string.IsNullOrWhiteSpace(Model.Expertise) ? "Not provided" : Model.Expertise)</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.HasEmploymentRecords)
+                    {
+                        <div class="card adminlte-card mt-4">
+                            <div class="card-header py-3">
+                                <h3 class="card-title fw-bold mb-0">
+                                    Employment history
+                                    <span class="badge rounded-pill text-bg-secondary ms-2">@(Model.CurrentPositions.Count) current &middot; @(Model.PreviousPositions.Count) previous</span>
+                                </h3>
+                            </div>
+                            <div class="card-body p-4">
+                                @if (Model.CurrentPositions.Any())
+                                {
+                                    <h6 class="text-uppercase fw-bold small text-success mb-3" style="letter-spacing:.06em">Current positions</h6>
+                                    @foreach (var pos in Model.CurrentPositions)
+                                    {
+                                        <div class="d-flex align-items-start gap-3 mb-3 p-3 rounded border border-success border-opacity-25 bg-success bg-opacity-5">
+                                            <i class="fa-solid fa-briefcase text-success mt-1"></i>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-semibold">@pos.PositionName</div>
+                                                <div class="text-muted small">@pos.CompanyName</div>
+                                                <div class="text-muted small mt-1">
+                                                    <i class="fa-regular fa-calendar me-1"></i>@pos.StartDate.ToString("MMM yyyy") &ndash; Present &middot; @pos.DurationDisplay
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                @if (Model.PreviousPositions.Any())
+                                {
+                                    <h6 class="text-uppercase fw-bold small text-muted mb-3 mt-4" style="letter-spacing:.06em">Previous positions</h6>
+                                    @foreach (var pos in Model.PreviousPositions)
+                                    {
+                                        <div class="d-flex align-items-start gap-3 mb-3 p-3 rounded border">
+                                            <i class="fa-solid fa-briefcase text-muted mt-1"></i>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-semibold">@pos.PositionName</div>
+                                                <div class="text-muted small">@pos.CompanyName</div>
+                                                <div class="text-muted small mt-1">
+                                                    <i class="fa-regular fa-calendar me-1"></i>@pos.StartDate.ToString("MMM yyyy") &ndash; @(pos.EndDate?.ToString("MMM yyyy") ?? "") &middot; @pos.DurationDisplay
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card adminlte-card h-100">
+                        <div class="card-header py-3">
+                            <h3 class="card-title fw-bold mb-0">Account status</h3>
+                        </div>
+                        <div class="card-body p-4">
+                            <p class="text-muted">Manage this mentor's access to the platform.</p>
+                            <div class="d-grid gap-2 mt-4">
+                                @if (Model.Status == "Active")
+                                {
+                                    <form asp-action="DeactivateMentor" asp-controller="Admin" asp-route-id="@Model.UserId" method="post" class="deactivate-form">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                            <i class="fa-solid fa-user-slash me-2"></i>Deactivate account
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="ActivateMentor" asp-controller="Admin" asp-route-id="@Model.UserId" method="post" class="activate-form">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fa-solid fa-user-check me-2"></i>Activate account
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.deactivate-form').forEach(form => {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const result = await Swal.fire({
+                        title: 'Deactivate mentor?',
+                        text: 'This mentor will be unable to sign in until reactivated.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, deactivate',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#dc3545'
+                    });
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.activate-form').forEach(form => {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const result = await Swal.fire({
+                        title: 'Activate mentor?',
+                        text: 'This mentor will be able to sign in again.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, activate',
+                        cancelButtonText: 'Cancel'
+                    });
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

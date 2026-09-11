@@ -64,28 +64,33 @@
                                             </span>
                                         </td>
                                         <td class="text-end pe-4">
-                                            @if (partner.Status == "Active")
-                                            {
-                                                <form asp-action="UpdateExternalPartnerStatus" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="userId" value="@partner.UserId" />
-                                                    <input type="hidden" name="status" value="Inactive" />
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
-                                                </form>
-                                            }
-                                            else if (partner.Status == "Inactive")
-                                            {
-                                                <form asp-action="UpdateExternalPartnerStatus" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="userId" value="@partner.UserId" />
-                                                    <input type="hidden" name="status" value="Active" />
-                                                    <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
-                                                </form>
-                                            }
-                                            else
-                                            {
-                                                <a asp-action="UserApprovals" class="btn btn-sm btn-academic">Review</a>
-                                            }
+                                            <div class="d-inline-flex gap-2">
+                                                <a asp-action="ExternalPartnerDetails" asp-controller="Admin" asp-route-userId="@partner.UserId" asp-route-returnAction="ExternalPartners" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa-solid fa-eye me-1"></i>Details
+                                                </a>
+                                                @if (partner.Status == "Active")
+                                                {
+                                                    <form asp-action="UpdateExternalPartnerStatus" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="userId" value="@partner.UserId" />
+                                                        <input type="hidden" name="status" value="Inactive" />
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                                                    </form>
+                                                }
+                                                else if (partner.Status == "Inactive")
+                                                {
+                                                    <form asp-action="UpdateExternalPartnerStatus" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="userId" value="@partner.UserId" />
+                                                        <input type="hidden" name="status" value="Active" />
+                                                        <button type="submit" class="btn btn-sm btn-outline-success">Activate</button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-action="UserApprovals" class="btn btn-sm btn-academic">Review</a>
+                                                }
+                                            </div>
                                         </td>
                                     </tr>
                                 }

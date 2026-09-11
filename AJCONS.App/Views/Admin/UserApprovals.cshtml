@@ -36,9 +36,9 @@
                     </div>
                 </div>
                 <div class="px-4 pt-3 approval-filters" role="group" aria-label="Filter approvals by role">
-                    <button type="button" class="btn btn-sm btn-primary rounded-pill me-1 mb-2 active" data-filter="all">All</button>
-                    <button type="button" class="btn btn-sm btn-outline-info rounded-pill me-1 mb-2" data-filter="Mentor">Alumni Mentors</button>
-                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill mb-2" data-filter="ExternalPartner">External Partners</button>
+                    <a asp-action="UserApprovals" asp-route-role="All" class="btn btn-sm rounded-pill me-1 mb-2 @(ViewBag.SelectedRole == "All" ? "btn-primary active" : "btn-outline-secondary")">All</a>
+                    <a asp-action="UserApprovals" asp-route-role="Mentor" class="btn btn-sm rounded-pill me-1 mb-2 @(ViewBag.SelectedRole == "Mentor" ? "btn-primary active" : "btn-outline-info")">Alumni Mentors</a>
+                    <a asp-action="UserApprovals" asp-route-role="ExternalPartner" class="btn btn-sm rounded-pill mb-2 @(ViewBag.SelectedRole == "ExternalPartner" ? "btn-primary active" : "btn-outline-primary")">External Partners</a>
                 </div>
                 <div class="table-responsive">
                     @if (pendingUsers.Count == 0)
@@ -145,28 +145,17 @@
             const search = document.getElementById('approvalSearch');
             const rows = [...document.querySelectorAll('.approval-filters ~ .table-responsive table tbody tr')];
             const empty = document.getElementById('approvalNoResults');
-            let role = 'all';
             const filterRows = () => {
                 const term = search?.value.trim().toLowerCase() || '';
                 let visible = 0;
                 rows.forEach(row => {
-                    const matches = (role === 'all' || row.dataset.role === role) && row.innerText.toLowerCase().includes(term);
+                    const matches = row.innerText.toLowerCase().includes(term);
                     row.classList.toggle('d-none', !matches);
                     if (matches) visible++;
                 });
                 empty?.classList.toggle('d-none', visible !== 0);
             };
             search?.addEventListener('input', filterRows);
-            document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
-                role = button.dataset.filter;
-                document.querySelectorAll('[data-filter]').forEach(item => {
-                    item.classList.remove('active', 'btn-primary');
-                    item.classList.add(item.dataset.filter === 'Mentor' ? 'btn-outline-info' : item.dataset.filter === 'ExternalPartner' ? 'btn-outline-primary' : 'btn-outline-secondary');
-                });
-                button.classList.add('active', 'btn-primary');
-                button.classList.remove('btn-outline-info', 'btn-outline-primary', 'btn-outline-secondary');
-                filterRows();
-            }));
 
             document.querySelectorAll('.verify-form').forEach(form => {
                 form.addEventListener('submit', async (event) => {

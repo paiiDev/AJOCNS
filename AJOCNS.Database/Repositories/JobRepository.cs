@@ -14,6 +14,11 @@ namespace AJOCNS.Database.Repositories
             _context = context;
         }
 
+        public Task<List<JobApplication>> GetApplicationsByUserIdAsync(int userId) =>
+            _context.JobApplications.AsNoTracking().Include(a => a.JobPost)
+                .Where(a => a.UserId == userId && !a.JobPost.IsDeleted)
+                .OrderByDescending(a => a.AppliedDate).ToListAsync();
+
         public async Task<bool> CreateApplicationAsync(JobApplication application)
         {
             if (await _context.JobApplications.AnyAsync(a => a.JobPostId == application.JobPostId && a.UserId == application.UserId)) return false;

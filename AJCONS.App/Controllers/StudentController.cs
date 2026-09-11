@@ -45,6 +45,8 @@ namespace AJOCNS.App.Controllers
 
             var registeredEvents = await _eventService.GetStudentRegisteredEventsAsync(result.Data.StudentId);
             ViewBag.RegisteredEvents = registeredEvents.IsSuccess ? registeredEvents.Data : new List<EventDto>();
+            var appliedJobs = await _jobService.GetAppliedJobsAsync(userId);
+            ViewBag.AppliedJobs = appliedJobs.IsSuccess ? appliedJobs.Data : new List<AppliedJobDto>();
 
             return View(result.Data);
         }
@@ -159,6 +161,12 @@ namespace AJOCNS.App.Controllers
         public async Task<IActionResult> JobBoard()
         {
             var result = await _jobService.GetActiveJobsAsync();
+            if (result.IsSuccess)
+            {
+                var applications = await _jobService.GetAppliedJobsAsync(GetCurrentUserId());
+                var appliedIds = applications.IsSuccess ? applications.Data.Select(a => a.JobPostId).ToHashSet() : new HashSet<int>();
+                foreach (var job in result.Data) job.IsApplied = appliedIds.Contains(job.Id);
+            }
             return View(result.IsSuccess ? result.Data : new List<JobPostDto>());
         }
 

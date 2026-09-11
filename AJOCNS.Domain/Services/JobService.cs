@@ -15,6 +15,16 @@ namespace AJOCNS.Domain.Services
             _jobRepo = jobRepo;
         }
 
+        public async Task<Result<List<AppliedJobDto>>> GetAppliedJobsAsync(int userId)
+        {
+            var applications = await _jobRepo.GetApplicationsByUserIdAsync(userId);
+            return Result<List<AppliedJobDto>>.Success(applications.Select(a => new AppliedJobDto
+            {
+                JobPostId = a.JobPostId, Title = a.JobPost.Title, CompanyName = a.JobPost.CompanyName,
+                AppliedDate = MyanmarTime.ToMyanmar(a.AppliedDate), Status = a.Status
+            }).ToList());
+        }
+
         public Task<Result<List<JobPostDto>>> GetActiveJobsAsync() => GetOpenJobsAsync();
 
         public async Task<Result<bool>> ApplyForJobAsync(int studentId, ApplyJobDto dto)

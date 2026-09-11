@@ -1,6 +1,9 @@
 @model AJOCNS.Shared.DTOs.Auth.ExternalPartnerAdminDto
 @{
     ViewData["Title"] = "External Partner Details | AJCONS";
+    var isPending = ViewBag.IsPending as bool? ?? true;
+    var returnAction = ViewBag.ReturnAction as string;
+    var backAction = returnAction == "ExternalPartners" ? "ExternalPartners" : "UserApprovals";
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -9,10 +12,10 @@
                 <div>
                     <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">Account administration</div>
                     <h1 class="h2 fw-bold mb-1">External partner details</h1>
-                    <p class="text-muted mb-0">Review the submitted information before approving this registration.</p>
+                    <p class="text-muted mb-0">@(isPending ? "Review the submitted information before approving this registration." : "View the full profile information for this external partner.")</p>
                 </div>
-                <a asp-action="UserApprovals" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-arrow-left me-2"></i>Back to approvals
+                <a asp-action="@backAction" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to @(isPending ? "approvals" : "partners")
                 </a>
             </div>
         </div>
@@ -24,8 +27,8 @@
                 <div class="col-lg-8">
                     <div class="card adminlte-card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center py-3">
-                            <h3 class="card-title fw-bold mb-0">Submitted information</h3>
-                            <span class="badge rounded-pill text-bg-warning">@Model.Status</span>
+                            <h3 class="card-title fw-bold mb-0">Account information</h3>
+                            <span class="badge rounded-pill @(Model.Status == "Active" ? "text-bg-success" : Model.Status == "Pending" ? "text-bg-warning" : "text-bg-secondary")">@Model.Status</span>
                         </div>
                         <div class="card-body p-4">
                             <div class="row g-4">
@@ -64,26 +67,57 @@
                 <div class="col-lg-4">
                     <div class="card adminlte-card h-100">
                         <div class="card-header py-3">
-                            <h3 class="card-title fw-bold mb-0">Review decision</h3>
+                            <h3 class="card-title fw-bold mb-0">@(isPending ? "Review decision" : "Account status")</h3>
                         </div>
                         <div class="card-body p-4">
-                            <p class="text-muted">Confirm that the submitted partner and company information is appropriate before granting access.</p>
-                            <div class="d-grid gap-2 mt-4">
-                                <form asp-action="ApproveUser" asp-controller="Admin" method="post" class="approve-form">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="userId" value="@Model.UserId" />
-                                    <button type="submit" class="btn btn-success w-100">
-                                        <i class="fa-solid fa-check me-2"></i>Approve partner
-                                    </button>
-                                </form>
-                                <form asp-action="RejectUser" asp-controller="Admin" method="post" class="reject-form">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="userId" value="@Model.UserId" />
-                                    <button type="submit" class="btn btn-outline-danger w-100">
-                                        <i class="fa-solid fa-xmark me-2"></i>Reject registration
-                                    </button>
-                                </form>
-                            </div>
+                            @if (isPending)
+                            {
+                                <p class="text-muted">Confirm that the submitted partner and company information is appropriate before granting access.</p>
+                                <div class="d-grid gap-2 mt-4">
+                                    <form asp-action="ApproveUser" asp-controller="Admin" method="post" class="approve-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@Model.UserId" />
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fa-solid fa-check me-2"></i>Approve partner
+                                        </button>
+                                    </form>
+                                    <form asp-action="RejectUser" asp-controller="Admin" method="post" class="reject-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@Model.UserId" />
+                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                            <i class="fa-solid fa-xmark me-2"></i>Reject registration
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Manage this partner's access to the platform.</p>
+                                <div class="d-grid gap-2 mt-4">
+                                    @if (Model.Status == "Active")
+                                    {
+                                        <form asp-action="UpdateExternalPartnerStatus" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@Model.UserId" />
+                                            <input type="hidden" name="status" value="Inactive" />
+                                            <button type="submit" class="btn btn-outline-danger w-100">
+                                                <i class="fa-solid fa-user-slash me-2"></i>Deactivate account
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (Model.Status == "Inactive")
+                                    {
+                                        <form asp-action="UpdateExternalPartnerStatus" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@Model.UserId" />
+                                            <input type="hidden" name="status" value="Active" />
+                                            <button type="submit" class="btn btn-success w-100">
+                                                <i class="fa-solid fa-user-check me-2"></i>Activate account
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

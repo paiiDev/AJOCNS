@@ -21,5 +21,6 @@ namespace AJOCNS.Domain.Interfaces
         Task<Result<bool>> ApplyForJobAsync(int studentId, ApplyJobDto dto);
         Task<Result<List<ApplicantListDto>>> GetApplicantsByJobIdAsync(int partnerUserId, int jobPostId);
         Task<Result<bool>> UpdateApplicationStatusAsync(int applicationId, string newStatus);
+        Task<Result<List<AppliedJobDto>>> GetAppliedJobsAsync(int userId);
     }
 }

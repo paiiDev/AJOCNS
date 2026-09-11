@@ -1,5 +1,6 @@
 ﻿@model AJOCNS.Shared.DTOs.StudentDashboard.StudentDashboardDto
 @using AJOCNS.Shared.DTOs.Events
+@using AJOCNS.Shared.DTOs.Jobs
 @{
     ViewData["Title"] = "Student Dashboard | AJCONS";
 
@@ -13,6 +14,7 @@
         .ToList();
     var activityTotal = registeredEvents.Count;
     var activityPercent = activityTotal > 0 ? (int)Math.Round((double)completedEvents.Count / activityTotal * 100) : 0;
+    var appliedJobs = ViewBag.AppliedJobs as List<AppliedJobDto> ?? new List<AppliedJobDto>();
 }
 
 <!-- Wrapper consistent with the app shell: content below the top navbar -->
@@ -37,27 +39,28 @@
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
 
-            <!-- AI Career Path Builder banner -->
+            <!-- Applied jobs -->
             <div class="row mb-4">
                 <div class="col-12">
-                    <div class="card border-0 rounded-4 shadow-sm overflow-hidden"
-                         style="background: linear-gradient(135deg, #073d78 0%, #0b5cab 100%);">
-                        <div class="card-body p-4 p-lg-5 text-white position-relative">
-                            <i class="fa-solid fa-robot position-absolute opacity-10" style="font-size:150px; right:-20px; bottom:-20px;"></i>
-                            <div class="row align-items-center position-relative z-1">
-                                <div class="col-md-8 mb-3 mb-md-0">
-                                    <span class="badge bg-light text-primary mb-2 px-3 py-2 rounded-pill fw-semibold">New Feature</span>
-                                    <h2 class="fw-bold mb-2">AI Career Path Builder</h2>
-                                    <p class="text-white-50 mb-0 fs-6">
-                                        Not sure what to learn next? Let our AI analyze your skills and build a personalized 3-month roadmap for your dream IT career.
-                                    </p>
+                    <div class="card border-0 rounded-4 shadow-sm">
+                        <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0"><i class="fa-solid fa-briefcase text-primary me-2"></i>My job applications</h5>
+                            <a asp-controller="Student" asp-action="JobBoard" class="small text-decoration-none">Browse jobs</a>
+                        </div>
+                        <div class="card-body p-4">
+                            @if (!appliedJobs.Any())
+                            {
+                                <p class="text-muted mb-0">You have not applied for any jobs yet.</p>
+                            }
+                            else
+                            {
+                                <div class="row g-3">
+                                    @foreach (var application in appliedJobs.Take(3))
+                                    {
+                                        <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><div class="fw-semibold text-truncate" title="@application.Title">@application.Title</div><small class="text-muted d-block mb-2">@application.CompanyName</small><span class="badge rounded-pill @(application.Status == "Shortlisted" ? "text-bg-success" : application.Status == "Rejected" ? "text-bg-danger" : "text-bg-warning")">@application.Status</span><small class="text-muted d-block mt-2">Applied @application.AppliedDate.ToString("dd MMM yyyy")</small></div></div>
+                                    }
                                 </div>
-                                <div class="col-md-4 text-md-end">
-                                    <a asp-controller="Student" asp-action="CareerBuilder" class="btn btn-light text-primary fw-bold px-4 py-2 rounded-pill shadow-sm">
-                                        <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Build My Path
-                                    </a>
-                                </div>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>

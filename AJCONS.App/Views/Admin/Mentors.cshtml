@@ -124,6 +124,9 @@
                                         </td>
                                         <td class="text-end pe-4">
                                             <div class="d-inline-flex gap-2">
+                                                <a asp-action="MentorDetails" asp-controller="Admin" asp-route-userId="@mentor.UserId" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa-solid fa-eye me-1"></i>Details
+                                                </a>
                                                 @if (isActive)
                                                 {
                                                     <form asp-action="DeactivateMentor" asp-controller="Admin" asp-route-id="@mentor.UserId" method="post" class="d-inline deactivate-form">
