@@ -21,6 +21,35 @@ namespace AJOCNS.Database.Repositories
             return await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User?> GetUserByEmailForEditAsync(string email)
+        {
+            return await _context.Users
+                .IgnoreQueryFilters()
+                .Include(u => u.Mentor)
+                .Include(u => u.ExternalPartner)
+                    .ThenInclude(p => p!.Company)
+                .Include(u => u.ExternalPartner)
+                    .ThenInclude(p => p!.Position)
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<bool> UpdateUserAsync(User user)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
+        }
+
         public async Task<bool> EmailExistsAsync(string email)
         {
             return await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.Email == email);

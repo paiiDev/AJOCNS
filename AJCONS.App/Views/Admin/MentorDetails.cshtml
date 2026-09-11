@@ -121,7 +121,7 @@
                                         </button>
                                     </form>
                                 }
-                                else
+                                else if (Model.Status == "Inactive")
                                 {
                                     <form asp-action="ActivateMentor" asp-controller="Admin" asp-route-id="@Model.UserId" method="post" class="activate-form">
                                         @Html.AntiForgeryToken()
@@ -129,6 +129,12 @@
                                             <i class="fa-solid fa-user-check me-2"></i>Activate account
                                         </button>
                                     </form>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-danger mb-0">
+                                        <i class="fa-solid fa-ban me-2"></i>This account was rejected and cannot be activated.
+                                    </div>
                                 }
                             </div>
                         </div>

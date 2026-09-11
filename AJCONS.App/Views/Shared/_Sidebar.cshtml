@@ -56,6 +56,9 @@
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action is "Job" or "JobBoard" or "JobDetails" ? "active-menu" : "")" asp-controller="Student" asp-action="JobBoard">
                 <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Jobs
             </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action == "Profile" ? "active-menu" : "")" asp-controller="Student" asp-action="Profile">
+                <i class="fa-solid fa-user me-2 text-center" style="width:20px"></i> Profile
+            </a>
         }
         else if (User.IsInRole("Mentor"))
         {

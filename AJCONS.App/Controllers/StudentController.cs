@@ -47,8 +47,16 @@ namespace AJOCNS.App.Controllers
             ViewBag.RegisteredEvents = registeredEvents.IsSuccess ? registeredEvents.Data : new List<EventDto>();
             var appliedJobs = await _jobService.GetAppliedJobsAsync(userId);
             ViewBag.AppliedJobs = appliedJobs.IsSuccess ? appliedJobs.Data : new List<AppliedJobDto>();
+            ViewBag.StudentProfile = result.Data;
 
             return View(result.Data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            var result = await _studentService.GetStudentDashboardAsync(GetCurrentUserId());
+            return result.IsSuccess ? View(result.Data) : NotFound();
         }
 
         [HttpGet]

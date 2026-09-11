@@ -23,6 +23,7 @@ namespace AJOCNS.Database.Repositories
                     .ThenInclude(er => er.Company)
                 .Include(m => m.EmploymentRecords)
                     .ThenInclude(er => er.Position)
+                .Where(m => m.User.Status != "Rejected")
                 .OrderBy(m => m.Name)
                 .ToListAsync();
         }

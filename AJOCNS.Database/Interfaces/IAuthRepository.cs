@@ -7,6 +7,8 @@ namespace ajocns.database.interfaces
     public interface IAuthRepository
     {
         Task<User?> GetUserByEmailAsync(string? email);
+        Task<User?> GetUserByEmailForEditAsync(string email);
+        Task<bool> UpdateUserAsync(User user);
         Task<bool> EmailExistsAsync(string email);
         Task<GraduationRecord?> GetGraduationRecordByGrnOnlyAsync(string grn);
         Task<bool> CreateUserAsync(User user);

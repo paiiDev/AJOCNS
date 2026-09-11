@@ -560,7 +560,8 @@ namespace AJOCNS.App.Controllers
             var result = await _mentorService.GetAllMentorsAsync();
             var mentors = result.IsSuccess ? result.Data : new List<MentorProfileDto>();
             mentors = mentors
-                .Where(m => !string.Equals(m.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                .Where(m => string.Equals(m.Status, "Active", StringComparison.OrdinalIgnoreCase)
+                         || string.Equals(m.Status, "Inactive", StringComparison.OrdinalIgnoreCase))
                 .ToList();
             return View(mentors);
         }
@@ -577,6 +578,14 @@ namespace AJOCNS.App.Controllers
                 return RedirectToAction(nameof(Mentors));
             }
 
+            if (string.Equals(result.Data.Status, "Rejected", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Mentor rejected";
+                TempData["SweetAlert_Message"] = "This mentor registration was rejected and can no longer be managed.";
+                return RedirectToAction(nameof(Mentors));
+            }
+
             return View(result.Data);
         }
 
@@ -590,6 +599,14 @@ namespace AJOCNS.App.Controllers
                 TempData["SweetAlert_Type"] = "error";
                 TempData["SweetAlert_Title"] = "Not Found";
                 TempData["SweetAlert_Message"] = "Mentor account could not be found.";
+                return RedirectToAction("Mentors", "Admin");
+            }
+
+            if (!string.Equals(mentor.Data.Status, "Active", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Cannot deactivate";
+                TempData["SweetAlert_Message"] = "Only active mentors can be deactivated.";
                 return RedirectToAction("Mentors", "Admin");
             }
 
@@ -614,6 +631,14 @@ namespace AJOCNS.App.Controllers
                 TempData["SweetAlert_Type"] = "error";
                 TempData["SweetAlert_Title"] = "Not Found";
                 TempData["SweetAlert_Message"] = "Mentor account could not be found.";
+                return RedirectToAction("Mentors", "Admin");
+            }
+
+            if (!string.Equals(mentor.Data.Status, "Inactive", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Cannot activate";
+                TempData["SweetAlert_Message"] = "Only deactivated mentors can be reactivated. Rejected mentors cannot be activated.";
                 return RedirectToAction("Mentors", "Admin");
             }
 

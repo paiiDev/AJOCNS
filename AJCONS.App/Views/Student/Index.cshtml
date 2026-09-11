@@ -39,33 +39,6 @@
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
 
-            <!-- Applied jobs -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card border-0 rounded-4 shadow-sm">
-                        <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
-                            <h5 class="fw-bold mb-0"><i class="fa-solid fa-briefcase text-primary me-2"></i>My job applications</h5>
-                            <a asp-controller="Student" asp-action="JobBoard" class="small text-decoration-none">Browse jobs</a>
-                        </div>
-                        <div class="card-body p-4">
-                            @if (!appliedJobs.Any())
-                            {
-                                <p class="text-muted mb-0">You have not applied for any jobs yet.</p>
-                            }
-                            else
-                            {
-                                <div class="row g-3">
-                                    @foreach (var application in appliedJobs.Take(3))
-                                    {
-                                        <div class="col-md-4"><div class="border rounded-3 p-3 h-100"><div class="fw-semibold text-truncate" title="@application.Title">@application.Title</div><small class="text-muted d-block mb-2">@application.CompanyName</small><span class="badge rounded-pill @(application.Status == "Shortlisted" ? "text-bg-success" : application.Status == "Rejected" ? "text-bg-danger" : "text-bg-warning")">@application.Status</span><small class="text-muted d-block mt-2">Applied @application.AppliedDate.ToString("dd MMM yyyy")</small></div></div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             @{
                 var gradClass = Model.GraduationStatus.ToLower() switch
                 {
@@ -125,38 +98,15 @@
             </div>
 
             <div class="row g-4">
-                <!-- Profile card -->
                 <div class="col-lg-4">
                     <div class="card border-0 rounded-4 shadow-sm h-100">
-                        <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
-                            <h6 class="fw-bold mb-0"><i class="fa-solid fa-id-card text-primary me-2"></i> My Profile</h6>
+                        <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-0"><i class="fa-solid fa-briefcase text-primary me-2"></i> My Job Applications</h6>
+                            <a asp-controller="Student" asp-action="JobBoard" class="small text-decoration-none">Browse jobs</a>
                         </div>
                         <div class="card-body p-4">
-                            <ul class="list-unstyled mb-4">
-                                <li class="d-flex justify-content-between py-2 border-bottom">
-                                    <span class="text-muted small">SRN</span>
-                                    <span class="fw-semibold small">@Model.Srn</span>
-                                </li>
-                                <li class="d-flex justify-content-between py-2 border-bottom">
-                                    <span class="text-muted small">Name</span>
-                                    <span class="fw-semibold small text-end">@Model.Name</span>
-                                </li>
-                                <li class="d-flex justify-content-between py-2 border-bottom">
-                                    <span class="text-muted small">Email</span>
-                                    <span class="fw-semibold small text-end text-break">@Model.Email</span>
-                                </li>
-                                <li class="d-flex justify-content-between py-2 border-bottom">
-                                    <span class="text-muted small">Phone</span>
-                                    <span class="fw-semibold small">@(string.IsNullOrEmpty(Model.Phone) ? "—" : Model.Phone)</span>
-                                </li>
-                                <li class="d-flex justify-content-between py-2">
-                                    <span class="text-muted small">Major</span>
-                                    <span class="fw-semibold small text-end">@Model.Major</span>
-                                </li>
-                            </ul>
-                            <a href="#" class="btn btn-outline-primary btn-sm w-100">
-                                <i class="fa-solid fa-pen-to-square me-1"></i> Edit profile
-                            </a>
+                            @if (!appliedJobs.Any()) { <p class="text-muted small mb-0">You have not applied for any jobs yet.</p> }
+                            else { foreach (var application in appliedJobs.Take(3)) { <div class="d-flex justify-content-between align-items-center border-bottom py-2"><div class="min-w-0"><div class="fw-semibold text-truncate">@application.Title</div><small class="text-muted">@application.CompanyName</small></div><span class="badge rounded-pill ms-2 @(application.Status == "Shortlisted" ? "text-bg-success" : application.Status == "Rejected" ? "text-bg-danger" : "text-bg-warning")">@application.Status</span></div> } }
                         </div>
                     </div>
                 </div>

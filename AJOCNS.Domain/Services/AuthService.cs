@@ -51,9 +51,47 @@ namespace AJOCNS.Domain.Services
         public async Task<Result<bool>> RegisterMentorAsync(MentorRegistrationDto dto)
         {
             var email = dto.Email.Trim();
-            if (await _authRepo.EmailExistsAsync(email))
+
+            var grn = dto.AlumniGrn?.Trim();
+            if (string.IsNullOrWhiteSpace(grn))
             {
-                return Result<bool>.Failure("An account with this email already exists.");
+                return Result<bool>.Failure("Alumni GRN is required.");
+            }
+
+            var graduationRecord = await _authRepo.GetGraduationRecordByGrnOnlyAsync(grn);
+            if (graduationRecord is null)
+            {
+                return Result<bool>.Failure("No graduation record was found for the provided Alumni GRN. Please enter the GRN printed on your certificate.");
+            }
+
+            if (graduationRecord.GraduationYear != dto.AlumniGraduationYear)
+            {
+                return Result<bool>.Failure("The graduation year does not match the graduation record for this GRN.");
+            }
+
+            var existingUser = await _authRepo.GetUserByEmailForEditAsync(email);
+            if (existingUser is not null)
+            {
+                if (existingUser.Status != "Rejected" || existingUser.Role != "Mentor" || existingUser.Mentor is null)
+                {
+                    return Result<bool>.Failure("An account with this email already exists.");
+                }
+
+                existingUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+                existingUser.IsFirstLogin = true;
+                existingUser.Status = "Pending";
+                existingUser.Mentor.Name = dto.Name.Trim();
+                existingUser.Mentor.Expertise = dto.Expertise;
+                existingUser.Mentor.AlumniGy = dto.AlumniGraduationYear;
+                existingUser.Mentor.AlumniGrn = grn;
+
+                bool isUpdated = await _authRepo.UpdateUserAsync(existingUser);
+                if (!isUpdated)
+                {
+                    return Result<bool>.Failure("Failed to re-submit mentor registration. Please try again.");
+                }
+
+                return Result<bool>.Success(true);
             }
 
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
@@ -72,7 +110,7 @@ namespace AJOCNS.Domain.Services
                     Name = dto.Name.Trim(),
                     Expertise = dto.Expertise,
                     AlumniGy = dto.AlumniGraduationYear,
-                    AlumniGrn = dto.AlumniGrn?.Trim()
+                    AlumniGrn = grn
                 }
             };
 
@@ -88,15 +126,39 @@ namespace AJOCNS.Domain.Services
         public async Task<Result<bool>> RegisterExternalPartnerAsync(ExternalPartnerRegistrationDto dto)
         {
             var email = dto.Email.Trim();
-            if (await _authRepo.EmailExistsAsync(email))
-            {
-                return Result<bool>.Failure("An account with this email already exists.");
-            }
 
             var companyName = dto.CompanyName.Trim();
             if (string.IsNullOrWhiteSpace(companyName))
             {
                 return Result<bool>.Failure("Company is required.");
+            }
+
+            var existingUser = await _authRepo.GetUserByEmailForEditAsync(email);
+            if (existingUser is not null)
+            {
+                if (existingUser.Status != "Rejected" || existingUser.Role != "ExternalPartner" || existingUser.ExternalPartner is null)
+                {
+                    return Result<bool>.Failure("An account with this email already exists.");
+                }
+
+                var resubmitCompany = await _authRepo.GetOrCreateCompanyAsync(companyName);
+                var resubmitPosition = await _authRepo.GetOrCreatePositionAsync("Company Account");
+
+                existingUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+                existingUser.IsFirstLogin = true;
+                existingUser.Status = "Pending";
+                existingUser.ExternalPartner.Name = companyName;
+                existingUser.ExternalPartner.CompanyId = resubmitCompany.CompanyId;
+                existingUser.ExternalPartner.PositionId = resubmitPosition.PositionId;
+                existingUser.ExternalPartner.Phone = dto.Phone;
+
+                bool isUpdated = await _authRepo.UpdateUserAsync(existingUser);
+                if (!isUpdated)
+                {
+                    return Result<bool>.Failure("Failed to re-submit registration. Please try again.");
+                }
+
+                return Result<bool>.Success(true);
             }
 
             var company = await _authRepo.GetOrCreateCompanyAsync(companyName);
@@ -290,7 +352,7 @@ namespace AJOCNS.Domain.Services
 
         public async Task<Result<bool>> RejectUserAsync(int userId)
         {
-            bool updated = await _authRepo.UpdateUserStatusAsync(userId, "Inactive");
+            bool updated = await _authRepo.UpdateUserStatusAsync(userId, "Rejected");
             if (!updated)
             {
                 return Result<bool>.Failure("Failed to reject user.");

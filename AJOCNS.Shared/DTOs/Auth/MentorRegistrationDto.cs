@@ -23,6 +23,7 @@ namespace AJOCNS.Shared.DTOs.Auth
         public string ConfirmPassword { get; set; }
 
         [Required(ErrorMessage = "Alumni GRN is required.")]
+        [RegularExpression(@"^PUPL-\d{4}-\d+$", ErrorMessage = "Invalid GRN format. Format must be like PUPL-2018-29231.")]
         [MaxLength(30)]
         public string AlumniGrn { get; set; }
 
