@@ -77,10 +77,18 @@ namespace AJOCNS.App.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(string? expertise)
+        public async Task<IActionResult> UpdateProfile(MentorProfileEditDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Validation Error";
+                TempData["SweetAlert_Message"] = "Please fill all required fields";
+                return RedirectToAction("Profile");
+            }
+
             var userId = GetCurrentUserId();
-            var result = await _mentorService.UpdateMentorProfileAsync(userId, expertise);
+            var result = await _mentorService.UpdateMentorProfileAsync(userId, dto);
 
             if (result.IsSuccess)
             {

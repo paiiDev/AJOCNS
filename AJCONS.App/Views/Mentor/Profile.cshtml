@@ -15,9 +15,14 @@
                     <h1 class="h2 fw-bold mb-1">My profile</h1>
                     <p class="text-muted mb-0">Manage your professional information and employment history</p>
                 </div>
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-arrow-left me-2"></i>Back to dashboard
-                </a>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-academic" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fa-solid fa-pen me-2"></i>Edit profile
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Back to dashboard
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -39,7 +44,35 @@
             }
 
             <div class="row g-4">
-                <div class="col-lg-12">
+                <div class="col-lg-4">
+                    <div class="card border-0 rounded-4 shadow-sm h-100">
+                        <div class="card-body p-4 text-center">
+                            <div class="mx-auto mb-3 d-flex align-items-center justify-content-center"
+                                 style="width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg, var(--academic-blue), var(--academic-blue-deep));color:#fff;font-size:1.7rem;">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <h5 class="fw-bold mb-1">@Model.Name</h5>
+                            <p class="text-muted small mb-2">@Model.Email</p>
+                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill mb-3">@Model.Status</span>
+                            <hr />
+                            <div class="text-start">
+                                <div class="mb-2 d-flex justify-content-between">
+                                    <span class="text-muted small fw-semibold">Alumni GRN</span>
+                                    <span class="small fw-bold">@Model.AlumniGrn</span>
+                                </div>
+                                <div class="mb-2 d-flex justify-content-between">
+                                    <span class="text-muted small fw-semibold">Graduation year</span>
+                                    <span class="small fw-bold">@Model.AlumniGy</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted small fw-semibold">Expertise</span>
+                                    <span class="small">@(string.IsNullOrWhiteSpace(Model.Expertise) ? "-" : Model.Expertise)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
                     <div class="card border-0 rounded-4 shadow-sm h-100">
                         <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-center ">
                             <h5 class="fw-bold mb-0"><i class="fa-solid fa-briefcase text-primary me-2"></i>Employment records</h5>
@@ -103,6 +136,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Full name</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
                     <div class="mb-3">
                         <label asp-for="Expertise" class="form-label fw-semibold">Expertise / Specialization</label>
                         <textarea asp-for="Expertise" class="form-control" rows="3" placeholder="e.g., Software Engineering, Career Guidance, Project Management..."></textarea>
@@ -298,6 +336,7 @@
 }
 
 @section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Current position checkbox toggles end date

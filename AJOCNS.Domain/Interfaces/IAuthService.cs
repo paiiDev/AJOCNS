@@ -17,5 +17,7 @@ namespace AJOCNS.Domain.Interfaces
         Task<Result<bool>> UpdateExternalPartnerStatusAsync(int userId, string status);
         Task<Result<bool>> ApproveUserAsync(int userId);
         Task<Result<bool>> RejectUserAsync(int userId);
+        Task<Result<ExternalPartnerAdminDto>> GetExternalPartnerProfileAsync(int userId);
+        Task<Result<bool>> UpdateExternalPartnerProfileAsync(int userId, UpdateExternalPartnerProfileDto dto);
     }
 }

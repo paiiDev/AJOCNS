@@ -1,0 +1,73 @@
+@model AJOCNS.Shared.DTOs.Auth.ExternalPartnerAdminDto
+@{
+    ViewData["Title"] = "My Profile | Partner Portal";
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
+                        External partner portal
+                    </div>
+                    <h1 class="h2 fw-bold mb-1">My profile</h1>
+                    <p class="text-muted mb-0">Manage your company and contact information</p>
+                </div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to dashboard
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-6">
+                    <div class="card border-0 rounded-4 shadow-sm">
+                        <div class="card-header bg-white border-0 pt-4 px-4">
+                            <h5 class="fw-bold mb-0"><i class="fa-solid fa-circle-user text-primary me-2"></i>Profile details</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <form asp-action="UpdateProfile" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label fw-semibold">Display name</label>
+                                    <input asp-for="Name" class="form-control" placeholder="e.g., ABC Company" />
+                                    <span asp-validation-for="Name" class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Email</label>
+                                    <input type="text" class="form-control" value="@Model.Email" disabled />
+                                    <div class="form-text">Your login email cannot be changed.</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="CompanyName" class="form-label fw-semibold">Company</label>
+                                    <input asp-for="CompanyName" class="form-control" placeholder="e.g., Tech Info Solutions" />
+                                    <span asp-validation-for="CompanyName" class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Phone" class="form-label fw-semibold">Phone</label>
+                                    <input asp-for="Phone" class="form-control" placeholder="e.g., 09 123 456 789" />
+                                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                                </div>
+                                <div class="mb-4">
+                                    <label asp-for="Expertise" class="form-label fw-semibold">Expertise / Industry</label>
+                                    <textarea asp-for="Expertise" class="form-control" rows="3" placeholder="e.g., Software Development, Human Resources, Manufacturing..."></textarea>
+                                    <div class="form-text">Describe your areas of expertise that would be helpful for students.</div>
+                                </div>
+                                <button type="submit" class="btn btn-academic fw-semibold px-4 rounded-pill">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i>Save changes
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

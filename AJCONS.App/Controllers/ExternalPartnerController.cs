@@ -1,4 +1,5 @@
 using AJOCNS.Domain.Interfaces;
+using AJOCNS.Shared.DTOs.Auth;
 using AJOCNS.Shared.DTOs.Events;
 using AJOCNS.Shared.DTOs.Jobs;
 using Microsoft.AspNetCore.Authorization;
@@ -13,12 +14,14 @@ namespace AJOCNS.App.Controllers
         private readonly IEventService _eventService;
         private readonly IJobService _jobService;
         private readonly IEmailService _emailService;
+        private readonly IAuthService _authService;
 
-        public ExternalPartnerController(IEventService eventService, IJobService jobService, IEmailService emailService)
+        public ExternalPartnerController(IEventService eventService, IJobService jobService, IEmailService emailService, IAuthService authService)
         {
             _eventService = eventService;
             _jobService = jobService;
             _emailService = emailService;
+            _authService = authService;
         }
 
         public IActionResult Index() => View();
@@ -59,6 +62,50 @@ namespace AJOCNS.App.Controllers
             }
 
             return RedirectToAction(nameof(ViewApplicants), new { jobPostId });
+        }
+
+        public async Task<IActionResult> Profile()
+        {
+            var result = await _authService.GetExternalPartnerProfileAsync(GetCurrentUserId());
+            if (!result.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Error";
+                TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Failed to load profile";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(result.Data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(UpdateExternalPartnerProfileDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Validation Error";
+                TempData["SweetAlert_Message"] = "Please fill all required fields";
+                return RedirectToAction(nameof(Profile));
+            }
+
+            var result = await _authService.UpdateExternalPartnerProfileAsync(GetCurrentUserId(), dto);
+
+            if (result.IsSuccess)
+            {
+                TempData["SweetAlert_Type"] = "success";
+                TempData["SweetAlert_Title"] = "Updated";
+                TempData["SweetAlert_Message"] = "Profile updated successfully";
+            }
+            else
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Failed";
+                TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Failed to update profile";
+            }
+
+            return RedirectToAction(nameof(Profile));
         }
 
         private int GetCurrentUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");

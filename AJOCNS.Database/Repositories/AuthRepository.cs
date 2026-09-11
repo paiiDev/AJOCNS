@@ -167,6 +167,17 @@ namespace AJOCNS.Database.Repositories
                 .FirstOrDefaultAsync(u => u.UserId == userId && u.Status == "Pending");
         }
 
+        public async Task<User?> GetExternalPartnerByUserIdForEditAsync(int userId)
+        {
+            return await _context.Users
+                .IgnoreQueryFilters()
+                .Include(u => u.ExternalPartner!)
+                    .ThenInclude(p => p.Company)
+                .Include(u => u.ExternalPartner!)
+                    .ThenInclude(p => p.Position)
+                .FirstOrDefaultAsync(u => u.UserId == userId && u.Role == "ExternalPartner");
+        }
+
         public async Task<bool> UpdateUserStatusAsync(int userId, string status)
         {
             try

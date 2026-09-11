@@ -31,13 +31,14 @@ namespace AJOCNS.Domain.Services
             return Result<List<MentorProfileDto>>.Success(dtos);
         }
 
-        public async Task<Result<MentorProfileDto>> UpdateMentorProfileAsync(int userId, string? expertise)
+        public async Task<Result<MentorProfileDto>> UpdateMentorProfileAsync(int userId, MentorProfileEditDto dto)
         {
             var mentor = await _mentorRepo.GetMentorByUserIdAsync(userId);
             if (mentor is null)
                 return Result<MentorProfileDto>.Failure("Mentor profile not found");
 
-            mentor.Expertise = expertise;
+            mentor.Name = dto.Name.Trim();
+            mentor.Expertise = dto.Expertise;
             var updated = await _mentorRepo.UpdateMentorAsync(mentor);
             if (!updated)
                 return Result<MentorProfileDto>.Failure("Failed to update mentor profile");

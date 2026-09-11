@@ -83,6 +83,14 @@
                                           {
                                               <li><a asp-controller="Student" asp-action="Profile" class="dropdown-item"><i class="fa-solid fa-id-card me-2 text-primary"></i>View profile</a></li>
                                           }
+                                          @if (User.IsInRole("Mentor"))
+                                          {
+                                              <li><a asp-controller="Mentor" asp-action="Profile" class="dropdown-item"><i class="fa-solid fa-id-card me-2 text-primary"></i>View profile</a></li>
+                                          }
+                                          @if (User.IsInRole("ExternalPartner"))
+                                          {
+                                              <li><a asp-controller="ExternalPartner" asp-action="Profile" class="dropdown-item"><i class="fa-solid fa-id-card me-2 text-primary"></i>View profile</a></li>
+                                          }
                                          <li><span class="dropdown-item-text text-muted small">@(User.FindFirstValue(ClaimTypes.Role) ?? "Visitor")</span></li>
                                          <li><hr class="dropdown-divider" /></li>
                                          <li>

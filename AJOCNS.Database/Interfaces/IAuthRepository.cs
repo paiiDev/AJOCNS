@@ -23,5 +23,6 @@ namespace ajocns.database.interfaces
         Task<bool> IsExternalPartnerAsync(int userId);
         Task<User?> GetPendingUserByIdAsync(int userId);
         Task<bool> UpdateUserStatusAsync(int userId, string status);
+        Task<User?> GetExternalPartnerByUserIdForEditAsync(int userId);
     }
 }

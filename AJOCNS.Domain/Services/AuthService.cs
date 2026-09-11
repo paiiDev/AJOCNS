@@ -384,5 +384,57 @@ namespace AJOCNS.Domain.Services
 
             return Result<bool>.Success(true);
         }
+
+        public async Task<Result<ExternalPartnerAdminDto>> GetExternalPartnerProfileAsync(int userId)
+        {
+            var user = await _authRepo.GetExternalPartnerByUserIdForEditAsync(userId);
+            if (user?.ExternalPartner is null)
+            {
+                return Result<ExternalPartnerAdminDto>.Failure("External partner profile was not found.");
+            }
+
+            return Result<ExternalPartnerAdminDto>.Success(new ExternalPartnerAdminDto
+            {
+                UserId = user.UserId,
+                Name = user.ExternalPartner.Name,
+                Email = user.Email,
+                CompanyName = user.ExternalPartner.Company?.CompanyName ?? "-",
+                PositionName = user.ExternalPartner.Position?.Position1 ?? "-",
+                Phone = user.ExternalPartner.Phone,
+                Expertise = user.ExternalPartner.Expertise,
+                Status = user.Status,
+                CreatedAt = MyanmarTime.ToMyanmar(user.CreatedAt)
+            });
+        }
+
+        public async Task<Result<bool>> UpdateExternalPartnerProfileAsync(int userId, UpdateExternalPartnerProfileDto dto)
+        {
+            var user = await _authRepo.GetExternalPartnerByUserIdForEditAsync(userId);
+            if (user?.ExternalPartner is null)
+            {
+                return Result<bool>.Failure("External partner profile was not found.");
+            }
+
+            var companyName = dto.CompanyName?.Trim();
+            if (string.IsNullOrWhiteSpace(companyName))
+            {
+                return Result<bool>.Failure("Company is required.");
+            }
+
+            var company = await _authRepo.GetOrCreateCompanyAsync(companyName);
+
+            user.ExternalPartner.Name = dto.Name.Trim();
+            user.ExternalPartner.CompanyId = company.CompanyId;
+            user.ExternalPartner.Phone = dto.Phone;
+            user.ExternalPartner.Expertise = dto.Expertise;
+
+            bool updated = await _authRepo.UpdateUserAsync(user);
+            if (!updated)
+            {
+                return Result<bool>.Failure("Failed to update profile. Please try again.");
+            }
+
+            return Result<bool>.Success(true);
+        }
     }
 }

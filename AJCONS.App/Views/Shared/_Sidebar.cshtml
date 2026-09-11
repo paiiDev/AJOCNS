@@ -86,6 +86,9 @@
             <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @((controller == "ExternalPartner" && action is "Jobs" or "MyJobPosts" or "ViewApplicants") || (controller == "Job" && action is "CreateJobPost" or "EditJobPost") ? "active-menu" : "")" asp-controller="ExternalPartner" asp-action="MyJobPosts">
                 <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Jobs
             </a>
+            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "ExternalPartner" && action == "Profile" ? "active-menu" : "")" asp-controller="ExternalPartner" asp-action="Profile">
+                <i class="fa-solid fa-user me-2 text-center" style="width:20px"></i> Profile
+            </a>
         }
     </div>
 
