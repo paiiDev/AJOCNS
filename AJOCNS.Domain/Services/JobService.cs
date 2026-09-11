@@ -9,10 +9,12 @@ namespace AJOCNS.Domain.Services
     public class JobService : IJobService
     {
         private readonly IJobRepository _jobRepo;
+        private readonly IEmailService _emailService;
 
-        public JobService(IJobRepository jobRepo)
+        public JobService(IJobRepository jobRepo, IEmailService emailService)
         {
             _jobRepo = jobRepo;
+            _emailService = emailService;
         }
 
         public async Task<Result<List<AppliedJobDto>>> GetAppliedJobsAsync(int userId)
@@ -62,6 +64,31 @@ namespace AJOCNS.Domain.Services
         public async Task<Result<bool>> UpdateApplicationStatusAsync(int applicationId, string newStatus)
         {
             if (newStatus is not ("Shortlisted" or "Rejected" or "Pending")) return Result<bool>.Failure("Invalid application status.");
+
+            if (newStatus == "Rejected")
+            {
+                var application = await _jobRepo.GetApplicationByIdAsync(applicationId);
+                if (application is not null)
+                {
+                    string studentName = application.User.Student?.Name ?? application.User.Email;
+                    string body =
+                        $"<p>Dear {studentName},</p>" +
+                        $"<p>Thank you for applying to the position of <strong>{application.JobPost.Title}</strong> at <strong>{application.JobPost.CompanyName}</strong>.</p>" +
+                        $"<p>After careful consideration, we regret to inform you that your application has <strong>not been shortlisted</strong> for this role.</p>" +
+                        $"<p>We encourage you to keep applying to other opportunities on the PUPL Alumni &amp; Career Network.</p>" +
+                        $"<p>&mdash; PUPL AJOCNS Team</p>";
+
+                    try
+                    {
+                        await _emailService.SendEmailAsync(application.User.Email, $"Application Status — {application.JobPost.Title}", body);
+                    }
+                    catch
+                    {
+                        // email failure should not block the status update
+                    }
+                }
+            }
+
             return await _jobRepo.UpdateApplicationStatusAsync(applicationId, newStatus)
                 ? Result<bool>.Success(true) : Result<bool>.Failure("Application not found.");
         }

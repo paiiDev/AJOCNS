@@ -32,6 +32,14 @@ namespace AJOCNS.Database.Repositories
                 .Where(a => a.JobPostId == jobPostId && a.JobPost.PostedByUserId == partnerUserId)
                 .OrderByDescending(a => a.AppliedDate).ToListAsync();
 
+        public Task<JobApplication?> GetApplicationByIdAsync(int applicationId) =>
+            _context.JobApplications
+                .AsNoTracking()
+                .Include(a => a.JobPost)
+                .Include(a => a.User)
+                    .ThenInclude(u => u.Student)
+                .FirstOrDefaultAsync(a => a.JobApplicationId == applicationId);
+
         public async Task<bool> UpdateApplicationStatusAsync(int applicationId, string status)
         {
             var application = await _context.JobApplications.FindAsync(applicationId);

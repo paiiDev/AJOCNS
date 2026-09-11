@@ -352,11 +352,36 @@ namespace AJOCNS.Domain.Services
 
         public async Task<Result<bool>> RejectUserAsync(int userId)
         {
+            var user = await _authRepo.GetPendingUserByIdAsync(userId);
+            if (user is null)
+            {
+                return Result<bool>.Failure("User not found or no longer pending.");
+            }
+
+            string roleLabel = user.Role == "Mentor" ? "Mentor" : "External Partner";
+            string name = user.Mentor?.Name ?? user.ExternalPartner?.Name ?? "Applicant";
+
             bool updated = await _authRepo.UpdateUserStatusAsync(userId, "Rejected");
             if (!updated)
             {
                 return Result<bool>.Failure("Failed to reject user.");
             }
+
+            string body =
+                $"<p>Dear {name},</p>" +
+                $"<p>We regret to inform you that your application as a <strong>{roleLabel}</strong> on the PUPL Alumni &amp; Career Network (AJOCNS) has been reviewed and <strong>declined</strong>.</p>" +
+                $"<p>If you believe this was an error, please contact us or re-register using the same email address.</p>" +
+                $"<p>&mdash; PUPL AJOCNS Team</p>";
+
+            try
+            {
+                await _emailService.SendEmailAsync(user.Email, "Your AJOCNS Account Application — Not Approved", body);
+            }
+            catch
+            {
+                // email failure should not block rejection
+            }
+
             return Result<bool>.Success(true);
         }
     }

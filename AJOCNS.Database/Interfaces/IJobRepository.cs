@@ -18,6 +18,7 @@ namespace AJOCNS.Database.Interfaces
         Task<int> CountPendingJobPostsAsync();
         Task<bool> CreateApplicationAsync(JobApplication application);
         Task<List<JobApplication>> GetApplicantsByJobIdAsync(int partnerUserId, int jobPostId);
+        Task<JobApplication?> GetApplicationByIdAsync(int applicationId);
         Task<bool> UpdateApplicationStatusAsync(int applicationId, string status);
         Task<List<JobApplication>> GetApplicationsByUserIdAsync(int userId);
     }
