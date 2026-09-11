@@ -202,7 +202,7 @@ namespace AJOCNS.App.Controllers
                 TempData["SweetAlert_Message"] = result.ErrorMessage ?? "Could not delete job post.";
             }
 
-            return RedirectToAction("Index", "Job");
+            return RedirectToAction(User.IsInRole("ExternalPartner") ? "MyJobPosts" : "Index", User.IsInRole("ExternalPartner") ? "ExternalPartner" : "Job");
         }
     }
 }

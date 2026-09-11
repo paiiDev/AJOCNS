@@ -193,8 +193,15 @@ namespace AJOCNS.App.Controllers
             if (!ModelState.IsValid)
                 return RedirectToAction(nameof(JobDetails), new { id = dto.JobPostId });
 
-            await _jobService.ApplyForJobAsync(GetCurrentUserId(), dto);
-            return RedirectToAction(nameof(JobDetails), new { id = dto.JobPostId });
+            var result = await _jobService.ApplyForJobAsync(GetCurrentUserId(), dto);
+
+            TempData["SweetAlert_Type"] = result.IsSuccess ? "success" : "error";
+            TempData["SweetAlert_Title"] = result.IsSuccess ? "Applied!" : "Application Failed";
+            TempData["SweetAlert_Message"] = result.IsSuccess
+                ? "Your application has been submitted successfully."
+                : result.ErrorMessage ?? "Could not submit your application.";
+
+            return RedirectToAction(nameof(JobBoard));
         }
     }
 }
