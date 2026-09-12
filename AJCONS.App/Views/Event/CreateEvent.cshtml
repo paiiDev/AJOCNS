@@ -88,7 +88,7 @@
                                         <label asp-for="EventDate" class="form-label fw-semibold">Event Date &amp; Time <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-text bg-white"><i class="fa-solid fa-calendar-days text-muted"></i></span>
-                                            <input asp-for="EventDate" type="datetime-local" class="form-control" />
+                                            <input asp-for="EventDate" type="datetime-local" step="60" class="form-control" />
                                         </div>
                                         <span asp-validation-for="EventDate" class="text-danger small mt-1 d-block"></span>
                                     </div>

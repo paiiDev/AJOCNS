@@ -41,7 +41,7 @@ namespace AJOCNS.Database.Repositories
             }
             else
             {
-                throw new ArgumentException("Invalid role specified.");
+                return string.Empty;
             }
         }
     }

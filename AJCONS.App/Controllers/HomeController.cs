@@ -30,6 +30,10 @@ namespace AJCONS.App.Controllers
                 {
                     return RedirectToAction("Index", "ExternalPartner");
                 }
+                if (User.IsInRole("Mentor"))
+                {
+                    return RedirectToAction("Index", "Mentor");
+                }
             }
 
                 return View();

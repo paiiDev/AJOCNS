@@ -5,6 +5,7 @@ using AJOCNS.Shared.Common;
 using AJOCNS.Shared.DTOs.Dashboard;
 using AJOCNS.Shared.DTOs.StudentDashboard;
 using AJOCNS.Shared.DTOs.StudentRegistration;
+using Microsoft.Extensions.Configuration;
 
 namespace AJOCNS.Domain.Services
 {
@@ -13,11 +14,13 @@ namespace AJOCNS.Domain.Services
         private readonly IStudentRepository _studentRepo;
         private readonly IEmailService _emailService;
         private readonly IEventRepository _eventRepo;
-        public StudentRegistrationService(IStudentRepository studentRepo, IEmailService emailService, IEventRepository eventRepo)
+        private readonly IConfiguration _config;
+        public StudentRegistrationService(IStudentRepository studentRepo, IEmailService emailService, IEventRepository eventRepo, IConfiguration config)
         {
             _studentRepo = studentRepo;
             _emailService = emailService;
             _eventRepo = eventRepo;
+            _config = config;
         }
 
         public async Task<Result<bool>> RegisterStudentAsync(StudentRegistrationDto studentRegistrationDto)
@@ -67,6 +70,13 @@ namespace AJOCNS.Domain.Services
                 return Result<bool>.Failure("Failed to save student");
             }
 
+            string loginUrl = _config.GetSection("EmailSettings")["LoginUrl"] ?? string.Empty;
+            string loginButton = string.IsNullOrWhiteSpace(loginUrl)
+                ? string.Empty
+                : $"<div style='text-align: center; margin-top: 35px;'>" +
+                  $"<a href='{loginUrl}' style='background-color: #0056b3; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Log In to Portal</a>" +
+                  $"</div>";
+
             string body = $@"
 <div style='font-family: Arial, sans-serif; background-color: #f4f5f7; padding: 40px 20px; color: #333;'>
     <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
@@ -82,17 +92,14 @@ namespace AJOCNS.Domain.Services
             <p>Your student account has been successfully created. Below are your official login credentials:</p>
             
             <!-- Credentials Box -->
-            <div style='background-col or: #f8f9fa; padding: 20px; border-left: 4px solid #0056b3; margin: 25px 0; border-radius: 4px;'>
+            <div style='background-color: #f8f9fa; padding: 20px; border-left: 4px solid #0056b3; margin: 25px 0; border-radius: 4px;'>
                 <p style='margin: 0 0 10px 0;'><strong>Student Registration Number (SRN):</strong> <span style='color: #0056b3;'>{newSRN}</span></p>
                 <p style='margin: 0;'><strong>Temporary Password:</strong> <span>{rawPassword}</span></p>
             </div>
 
             <p>Please use these credentials to log in to the student portal. As a security measure, you will be asked to complete your profile upon your first login.</p>
-            
-            <!-- Login Button -->
-            <div style='text-align: center; margin-top: 35px;'>
-                <a href='https://your-domain.com/login' style='background-color: #0056b3; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Log In to Portal</a>
-            </div>
+
+            {loginButton}
         </div>
 
         <!-- Footer -->
@@ -186,7 +193,7 @@ namespace AJOCNS.Domain.Services
             {
                 ActiveStudents = await _studentRepo.CountActiveStudentsAsync(),
                 ActiveMentors = await _studentRepo.CountActiveMentorsAsync(),
-                PendingApprovals = await _studentRepo.CountPendingEventRegistrationsAsync()
+                PendingApprovals = await _studentRepo.CountPendingUsersAsync()
                     + await _eventRepo.CountPendingEventsAsync(),
                 CareerEventsHosted = await _studentRepo.CountCareerEventsAsync()
             };

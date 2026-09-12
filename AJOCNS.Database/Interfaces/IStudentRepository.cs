@@ -15,7 +15,7 @@ namespace AJOCNS.Database.Interfaces
         Task<List<Student>> GetAllStudentsAsync();
         Task<int> CountActiveStudentsAsync();
         Task<int> CountActiveMentorsAsync();
-        Task<int> CountPendingEventRegistrationsAsync();
+        Task<int> CountPendingUsersAsync();
         Task<int> CountCareerEventsAsync();
         Task<(int Total, int Graduated, int Undergraduate, int Dropout)> GetStudentStatusCountsAsync();
         Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId, string? excludeGraduationStatus = null);

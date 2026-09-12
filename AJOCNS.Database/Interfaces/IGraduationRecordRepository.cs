@@ -9,7 +9,7 @@ namespace AJOCNS.Database.Interfaces
 {
     public interface IGraduationRecordRepository
     {
-        Task<(List<GraduationRecord> Items, int TotalCount)> GetGraduationRecordsPagedAsync(int page, int pageSize, string? degreeCode = null, short? graduationYear = null);
+        Task<(List<GraduationRecord> Items, int TotalCount)> GetGraduationRecordsPagedAsync(int page, int pageSize, string? degreeCode = null, short? graduationYear = null, string? search = null);
         Task<List<short>> GetDistinctGraduationYearsAsync();
         Task<bool> DeleteGraduationRecordAsync(int grecordId);
         Task<GraduationRecord?> GetGraduationRecordByIdAsync(int grecordId);

@@ -178,7 +178,7 @@ namespace AJOCNS.App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GraduationRecords(int page = 1, short? graduationYear = null, string? degreeCode = null)
+        public async Task<IActionResult> GraduationRecords(int page = 1, short? graduationYear = null, string? degreeCode = null, string? search = null)
         {
             const int pageSize = 10;
 
@@ -188,8 +188,9 @@ namespace AJOCNS.App.Controllers
 
             await PopulateDegrees();
             ViewBag.SelectedDegreeCode = degreeCode;
+            ViewBag.Search = search;
 
-            var result = await _graduationRecordService.GetGraduationRecordsPagedAsync(page, pageSize, degreeCode, graduationYear);
+            var result = await _graduationRecordService.GetGraduationRecordsPagedAsync(page, pageSize, degreeCode, graduationYear, search);
             if (!result.IsSuccess)
             {
                 return View(new PagedGraduationRecordDto());

@@ -178,6 +178,23 @@ namespace AJOCNS.Database.Repositories
                 .FirstOrDefaultAsync(u => u.UserId == userId && u.Role == "ExternalPartner");
         }
 
+        public async Task<bool> UpdateGraduationRecordClaimStatusAsync(string grn, string status)
+        {
+            try
+            {
+                var record = await _context.GraduationRecords.FirstOrDefaultAsync(g => g.Grn == grn);
+                if (record is null) return false;
+
+                record.AccStatus = status;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> UpdateUserStatusAsync(int userId, string status)
         {
             try

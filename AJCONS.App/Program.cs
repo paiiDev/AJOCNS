@@ -33,6 +33,7 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IMentorService, MentorService>();
 
 builder.Services.AddHostedService<EventStatusUpdateService>();
+builder.Services.AddHostedService<JobStatusUpdateService>();
 
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -63,8 +64,6 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseStaticFiles();
 
 app.MapControllerRoute(
     name: "default",

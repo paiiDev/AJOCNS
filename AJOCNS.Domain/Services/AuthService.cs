@@ -322,6 +322,12 @@ namespace AJOCNS.Domain.Services
                 }
 
                 user.Mentor.Name = graduationRecord.OfficialName;
+
+                bool claimed = await _authRepo.UpdateGraduationRecordClaimStatusAsync(graduationRecord.Grn, "Active");
+                if (!claimed)
+                {
+                    return Result<bool>.Failure("Failed to update the accreditation status for this GRN. Mentor not approved.");
+                }
             }
 
             bool updated = await _authRepo.UpdateUserStatusAsync(userId, "Active");

@@ -10,7 +10,7 @@ namespace AJOCNS.Domain.Interfaces
 {
     public interface IGraduationRecordService
     {
-        Task<Result<PagedGraduationRecordDto>> GetGraduationRecordsPagedAsync(int page, int pageSize, string? degreeCode = null, short? graduationYear = null);
+        Task<Result<PagedGraduationRecordDto>> GetGraduationRecordsPagedAsync(int page, int pageSize, string? degreeCode = null, short? graduationYear = null, string? search = null);
         Task<Result<List<short>>> GetGraduationYearsAsync();
         Task<Result<bool>> DeleteGraduationRecordAsync(int grecordId);
         Task<Result<EditGraduationRecordDto>> GetGraduationRecordByIdAsync(int grecordId);

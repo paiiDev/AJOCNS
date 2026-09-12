@@ -130,13 +130,37 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.approve-form').forEach(form => {
-                form.addEventListener('submit', event => {
-                    if (!confirm('Approve this external partner?')) event.preventDefault();
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const result = await Swal.fire({
+                        title: 'Approve this external partner?',
+                        text: 'They will be able to log in immediately after approval.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, approve',
+                        cancelButtonText: 'Cancel'
+                    });
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
                 });
             });
+
             document.querySelectorAll('.reject-form').forEach(form => {
-                form.addEventListener('submit', event => {
-                    if (!confirm('Reject this external partner registration?')) event.preventDefault();
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const result = await Swal.fire({
+                        title: 'Reject this registration?',
+                        text: 'Their account will be rejected and they cannot log in.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, reject',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#dc3545'
+                    });
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
                 });
             });
         });

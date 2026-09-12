@@ -25,8 +25,19 @@ namespace AJOCNS.Database.Repositories
 
         public async Task<string?> GetLastSRNAsync()
         {
-            var lastStudent = await _context.Students.OrderByDescending(s => s.Srn).FirstOrDefaultAsync();
-            return lastStudent?.Srn;
+            var srns = await _context.Students.AsNoTracking().Select(s => s.Srn).ToListAsync();
+            string? last = null;
+            int maxNumber = 0;
+            foreach (var srn in srns)
+            {
+                if (string.IsNullOrEmpty(srn) || !srn.StartsWith("PUPL-")) continue;
+                if (int.TryParse(srn.Substring("PUPL-".Length), out int number) && number > maxNumber)
+                {
+                    maxNumber = number;
+                    last = srn;
+                }
+            }
+            return last;
         }
 
         public async Task<bool> SaveStudentAsync(User newUser)
@@ -82,11 +93,11 @@ namespace AJOCNS.Database.Repositories
                 .CountAsync(m => m.User.Status == "Active");
         }
 
-        public async Task<int> CountPendingEventRegistrationsAsync()
+        public async Task<int> CountPendingUsersAsync()
         {
-            return await _context.EventRegistrations
+            return await _context.Users
                 .AsNoTracking()
-                .CountAsync(er => er.Status.ToLower().Contains("pend"));
+                .CountAsync(u => u.Status == "Pending");
         }
 
         public async Task<int> CountCareerEventsAsync()
@@ -179,11 +190,6 @@ namespace AJOCNS.Database.Repositories
                 string nextGrn = await GenerateNextGRN(graduationYear);
                 int grnSequence = int.Parse(nextGrn.Substring(nextGrn.LastIndexOf('-') + 1));
 
-                int? defaultDegreeId = await _context.Degrees
-                    .OrderBy(d => d.DegreeId)
-                    .Select(d => (int?)d.DegreeId)
-                    .FirstOrDefaultAsync();
-
                 foreach (var student in students)
                 {
                     if (!studentStatusPairs.TryGetValue(student.StudentId, out string? status))
@@ -195,7 +201,7 @@ namespace AJOCNS.Database.Repositories
                     {
                         if (!student.GraduationRecords.Any())
                         {
-                            int degreeId = student.Major?.DegreeId ?? defaultDegreeId ?? 0;
+                            int degreeId = student.Major?.DegreeId ?? 0;
                             if (degreeId == 0) continue;
 
                             _context.GraduationRecords.Add(new GraduationRecord

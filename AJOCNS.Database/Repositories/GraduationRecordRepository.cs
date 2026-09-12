@@ -18,7 +18,7 @@ namespace AJOCNS.Database.Repositories
         {
             _context = context;
         }
-        public async Task<(List<GraduationRecord> Items, int TotalCount)> GetGraduationRecordsPagedAsync(int page, int pageSize, string? degreeCode = null, short? graduationYear = null)
+        public async Task<(List<GraduationRecord> Items, int TotalCount)> GetGraduationRecordsPagedAsync(int page, int pageSize, string? degreeCode = null, short? graduationYear = null, string? search = null)
         {
             var query = _context.GraduationRecords.Include(gr => gr.Degree).Include(gr => gr.Student).AsQueryable();
 
@@ -29,6 +29,21 @@ namespace AJOCNS.Database.Repositories
             if(graduationYear.HasValue)
             {
                 query = query.Where(gr => gr.GraduationYear == graduationYear.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim().ToLower();
+                query = query.Where(gr =>
+                    gr.Grn.ToLower().Contains(term) ||
+                    gr.OfficialName.ToLower().Contains(term) ||
+                    (gr.Student != null && gr.Student.Srn.ToLower().Contains(term)) ||
+                    gr.Degree.DegreeName.ToLower().Contains(term) ||
+                    gr.Degree.DegreeCode.ToLower().Contains(term));
+
+                if (short.TryParse(search.Trim(), out var year))
+                {
+                    query = query.Where(gr => gr.GraduationYear == year);
+                }
             }
 
             var totalCount = await query.CountAsync();

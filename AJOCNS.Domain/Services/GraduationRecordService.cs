@@ -21,12 +21,12 @@ namespace AJOCNS.Domain.Services
             _studentRepo = studentRepo;
         }
 
-        public async Task<Result<PagedGraduationRecordDto>> GetGraduationRecordsPagedAsync(int page, int pageSize, string? degreeCode = null, short? graduationYear = null)
+        public async Task<Result<PagedGraduationRecordDto>> GetGraduationRecordsPagedAsync(int page, int pageSize, string? degreeCode = null, short? graduationYear = null, string? search = null)
         {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
 
-            var (items, totalCount) = await _graduationRecordRepo.GetGraduationRecordsPagedAsync(page, pageSize, degreeCode, graduationYear);
+            var (items, totalCount) = await _graduationRecordRepo.GetGraduationRecordsPagedAsync(page, pageSize, degreeCode, graduationYear, search);
 
             if (items is null || !items.Any())
             {

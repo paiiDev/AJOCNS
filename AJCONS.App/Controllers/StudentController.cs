@@ -72,7 +72,10 @@ namespace AJOCNS.App.Controllers
         {
            if(!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Validation Error";
+                TempData["SweetAlert_Message"] = "Please fill in the required fields and ensure the passwords match.";
+                return RedirectToAction(nameof(FirstLoginSetup));
             }
             int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             var result = await _studentService.SetupStudentFirstLoginAsync(userId, dto);
@@ -85,11 +88,6 @@ namespace AJOCNS.App.Controllers
             }
             return RedirectToAction("Index", "Student");
 
-        }
-
-        public IActionResult CareerBuilder()
-        {
-            return View();
         }
 
         public async Task<IActionResult> Event()
