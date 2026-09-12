@@ -3,94 +3,182 @@
     var userName = User.Identity?.Name ?? "Guest";
     var userRole = User.FindFirstValue(ClaimTypes.Role) ?? "Visitor";
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
-    var action = ViewContext.RouteData.Values["action"]?.ToString();
-    var isAdmin = User.IsInRole("Admin");
+    var action     = ViewContext.RouteData.Values["action"]?.ToString();
+    var isAdmin    = User.IsInRole("Admin");
+
+    // Avatar initials
+    var initials = string.Join("", (userName.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                        .Take(2).Select(w => w[0].ToString().ToUpper()));
+    if (string.IsNullOrEmpty(initials) && userName.Length > 0)
+        initials = userName[0].ToString().ToUpper();
+
+    string roleLabel = userRole switch {
+        "Admin"           => "Administrator",
+        "Mentor"          => "Alumni Mentor",
+        "ExternalPartner" => "External Partner",
+        "Student"         => "Student",
+        _                 => userRole
+    };
 }
-<div class="shadow text-white" id="sidebar">
-    <div class="sidebar-heading text-center py-3 fs-5 fw-bold border-bottom border-light border-opacity-25 sticky-top bg-transparent">
-        <a asp-controller="Home" asp-action="Index" class="text-white text-decoration-none d-flex align-items-center justify-content-center gap-2">
-            <img src="~/images/pupl.png" width="30" alt="Logo" />
-            <span>PUPL <small class="fw-normal opacity-75">AJOCNS</small></span>
+<div class="shadow-sm" id="sidebar">
+
+    <!-- Logo / Branding -->
+    <div class="sidebar-heading">
+        <a asp-controller="Home" asp-action="Index">
+            <img src="~/images/pupl.png" width="28" alt="PUPL Logo" />
+            <span>PUPL <small style="font-weight:400;opacity:.65">AJOCNS</small></span>
         </a>
     </div>
 
-    <div class="list-group list-group-flush my-3 px-2">
+    <!-- Navigation -->
+    <div class="flex-grow-1 overflow-auto py-2">
         @if (isAdmin)
         {
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "Index" ? "active-menu" : "")" asp-controller="Admin" asp-action="Index">
-                <i class="fa-solid fa-gauge-high me-2 text-center" style="width:20px"></i> Dashboard
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Event" ? "active-menu" : "")" asp-controller="Event" asp-action="Index">
-                <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Job" ? "active-menu" : "")" asp-controller="Job" asp-action="Index">
-                <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Job Posts
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "StudentManagement" or "EditStudent" or "RegisterNewStudent" ? "active-menu" : "")" asp-controller="Admin" asp-action="StudentManagement">
-                <i class="fa-solid fa-user-graduate me-2 text-center" style="width:20px"></i> Students
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "GraduationRecords" or "EditGraduationRecord" ? "active-menu" : "")" asp-controller="Admin" asp-action="GraduationRecords">
-                <i class="fa-solid fa-file-lines me-2 text-center" style="width:20px"></i> Graduation Records
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "Mentors" ? "active-menu" : "")" asp-controller="Admin" asp-action="Mentors">
-                <i class="fa-solid fa-user-graduate me-2 text-center" style="width:20px"></i> Mentors
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "ExternalPartners" ? "active-menu" : "")" asp-controller="Admin" asp-action="ExternalPartners">
-                <i class="fa-solid fa-building me-2 text-center" style="width:20px"></i> External Partners
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action is "UserApprovals" ? "active-menu" : "")" asp-controller="Admin" asp-action="UserApprovals">
-                <i class="fa-solid fa-circle-check me-2 text-center" style="width:20px"></i> User Approvals
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Admin" && action == "ContentApprovals" ? "active-menu" : "")" asp-controller="Admin" asp-action="ContentApprovals">
-                <i class="fa-solid fa-clipboard-check me-2 text-center" style="width:20px"></i> Post Approvals
-            </a>
+            <!-- Admin overview -->
+            <div class="sidebar-nav-group">
+                <span class="sidebar-nav-label">Overview</span>
+                <a class="sidebar-link @(controller == "Admin" && action == "Index" ? "active-menu" : "")"
+                   asp-controller="Admin" asp-action="Index">
+                    <i class="fa-solid fa-gauge-high"></i> Dashboard
+                </a>
+            </div>
+
+            <div class="sidebar-nav-divider"></div>
+
+            <!-- Management -->
+            <div class="sidebar-nav-group">
+                <span class="sidebar-nav-label">Management</span>
+                <a class="sidebar-link @(controller == "Admin" && action is "StudentManagement" or "EditStudent" or "RegisterNewStudent" ? "active-menu" : "")"
+                   asp-controller="Admin" asp-action="StudentManagement">
+                    <i class="fa-solid fa-user-graduate"></i> Students
+                </a>
+                <a class="sidebar-link @(controller == "Admin" && action is "GraduationRecords" or "EditGraduationRecord" ? "active-menu" : "")"
+                   asp-controller="Admin" asp-action="GraduationRecords">
+                    <i class="fa-solid fa-file-lines"></i> Graduation Records
+                </a>
+                <a class="sidebar-link @(controller == "Admin" && action == "Mentors" ? "active-menu" : "")"
+                   asp-controller="Admin" asp-action="Mentors">
+                    <i class="fa-solid fa-chalkboard-user"></i> Mentors
+                </a>
+                <a class="sidebar-link @(controller == "Admin" && action == "ExternalPartners" ? "active-menu" : "")"
+                   asp-controller="Admin" asp-action="ExternalPartners">
+                    <i class="fa-solid fa-building"></i> External Partners
+                </a>
+            </div>
+
+            <div class="sidebar-nav-divider"></div>
+
+            <!-- Content -->
+            <div class="sidebar-nav-group">
+                <span class="sidebar-nav-label">Content</span>
+                <a class="sidebar-link @(controller == "Event" ? "active-menu" : "")"
+                   asp-controller="Event" asp-action="Index">
+                    <i class="fa-solid fa-calendar-days"></i> Events
+                </a>
+                <a class="sidebar-link @(controller == "Job" ? "active-menu" : "")"
+                   asp-controller="Job" asp-action="Index">
+                    <i class="fa-solid fa-briefcase"></i> Job Posts
+                </a>
+            </div>
+
+            <div class="sidebar-nav-divider"></div>
+
+            <!-- Approvals -->
+            <div class="sidebar-nav-group">
+                <span class="sidebar-nav-label">Approvals</span>
+                <a class="sidebar-link @(controller == "Admin" && action == "UserApprovals" ? "active-menu" : "")"
+                   asp-controller="Admin" asp-action="UserApprovals">
+                    <i class="fa-solid fa-circle-check"></i> User Approvals
+                </a>
+                <a class="sidebar-link @(controller == "Admin" && action == "ContentApprovals" ? "active-menu" : "")"
+                   asp-controller="Admin" asp-action="ContentApprovals">
+                    <i class="fa-solid fa-clipboard-check"></i> Post Approvals
+                </a>
+            </div>
         }
         else if (User.IsInRole("Student"))
         {
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action == "Index" ? "active-menu" : "")" asp-controller="Student" asp-action="Index">
-                <i class="fa-solid fa-house me-2 text-center" style="width:20px"></i> Home
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action == "Event" ? "active-menu" : "")" asp-controller="Student" asp-action="Event">
-                <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action is "Job" or "JobBoard" or "JobDetails" ? "active-menu" : "")" asp-controller="Student" asp-action="JobBoard">
-                <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Jobs
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Student" && action == "Profile" ? "active-menu" : "")" asp-controller="Student" asp-action="Profile">
-                <i class="fa-solid fa-user me-2 text-center" style="width:20px"></i> Profile
-            </a>
+            <div class="sidebar-nav-group">
+                <span class="sidebar-nav-label">Navigation</span>
+                <a class="sidebar-link @(controller == "Student" && action == "Index" ? "active-menu" : "")"
+                   asp-controller="Student" asp-action="Index">
+                    <i class="fa-solid fa-house"></i> Home
+                </a>
+                <a class="sidebar-link @(controller == "Student" && action == "Event" ? "active-menu" : "")"
+                   asp-controller="Student" asp-action="Event">
+                    <i class="fa-solid fa-calendar-days"></i> Events
+                </a>
+                <a class="sidebar-link @(controller == "Student" && action is "Job" or "JobBoard" or "JobDetails" ? "active-menu" : "")"
+                   asp-controller="Student" asp-action="JobBoard">
+                    <i class="fa-solid fa-briefcase"></i> Jobs
+                </a>
+                <a class="sidebar-link @(controller == "Student" && action == "Profile" ? "active-menu" : "")"
+                   asp-controller="Student" asp-action="Profile">
+                    <i class="fa-solid fa-user"></i> Profile
+                </a>
+            </div>
         }
         else if (User.IsInRole("Mentor"))
         {
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Mentor" && action == "Index" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Index">
-                <i class="fa-solid fa-house me-2 text-center" style="width:20px"></i> Home
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @((controller == "Mentor" && action == "Events") || controller == "Event" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Events">
-                <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @((controller == "Mentor" && action is "Jobs" or "ViewApplicants") || controller == "Job" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Jobs">
-                <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Job Posts
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "Mentor" && action == "Profile" ? "active-menu" : "")" asp-controller="Mentor" asp-action="Profile">
-                <i class="fa-solid fa-user me-2 text-center" style="width:20px"></i> Profile
-            </a>
+            <div class="sidebar-nav-group">
+                <span class="sidebar-nav-label">Navigation</span>
+                <a class="sidebar-link @(controller == "Mentor" && action == "Index" ? "active-menu" : "")"
+                   asp-controller="Mentor" asp-action="Index">
+                    <i class="fa-solid fa-house"></i> Home
+                </a>
+                <a class="sidebar-link @((controller == "Mentor" && action == "Events") || controller == "Event" ? "active-menu" : "")"
+                   asp-controller="Mentor" asp-action="Events">
+                    <i class="fa-solid fa-calendar-days"></i> Events
+                </a>
+                <a class="sidebar-link @((controller == "Mentor" && action is "Jobs" or "ViewApplicants") || controller == "Job" ? "active-menu" : "")"
+                   asp-controller="Mentor" asp-action="Jobs">
+                    <i class="fa-solid fa-briefcase"></i> Job Posts
+                </a>
+                <a class="sidebar-link @(controller == "Mentor" && action == "Profile" ? "active-menu" : "")"
+                   asp-controller="Mentor" asp-action="Profile">
+                    <i class="fa-solid fa-user"></i> Profile
+                </a>
+            </div>
         }
         else if (User.IsInRole("ExternalPartner"))
         {
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "ExternalPartner" && action == "Index" ? "active-menu" : "")" asp-controller="ExternalPartner" asp-action="Index">
-                <i class="fa-solid fa-house me-2 text-center" style="width:20px"></i> Home
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @((controller == "ExternalPartner" && action == "Events") || controller == "Event" ? "active-menu" : "")" asp-controller="ExternalPartner" asp-action="Events">
-                <i class="fa-solid fa-calendar-days me-2 text-center" style="width:20px"></i> Events
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @((controller == "ExternalPartner" && action is "Jobs" or "MyJobPosts" or "ViewApplicants") || (controller == "Job" && action is "CreateJobPost" or "EditJobPost") ? "active-menu" : "")" asp-controller="ExternalPartner" asp-action="MyJobPosts">
-                <i class="fa-solid fa-briefcase me-2 text-center" style="width:20px"></i> Jobs
-            </a>
-            <a class="nav-link sidebar-link rounded mb-1 px-3 py-2 @(controller == "ExternalPartner" && action == "Profile" ? "active-menu" : "")" asp-controller="ExternalPartner" asp-action="Profile">
-                <i class="fa-solid fa-user me-2 text-center" style="width:20px"></i> Profile
-            </a>
+            <div class="sidebar-nav-group">
+                <span class="sidebar-nav-label">Navigation</span>
+                <a class="sidebar-link @(controller == "ExternalPartner" && action == "Index" ? "active-menu" : "")"
+                   asp-controller="ExternalPartner" asp-action="Index">
+                    <i class="fa-solid fa-house"></i> Home
+                </a>
+                <a class="sidebar-link @((controller == "ExternalPartner" && action == "Events") || controller == "Event" ? "active-menu" : "")"
+                   asp-controller="ExternalPartner" asp-action="Events">
+                    <i class="fa-solid fa-calendar-days"></i> Events
+                </a>
+                <a class="sidebar-link @((controller == "ExternalPartner" && action is "Jobs" or "MyJobPosts" or "ViewApplicants") || (controller == "Job" && action is "CreateJobPost" or "EditJobPost") ? "active-menu" : "")"
+                   asp-controller="ExternalPartner" asp-action="MyJobPosts">
+                    <i class="fa-solid fa-briefcase"></i> Jobs
+                </a>
+                <a class="sidebar-link @(controller == "ExternalPartner" && action == "Profile" ? "active-menu" : "")"
+                   asp-controller="ExternalPartner" asp-action="Profile">
+                    <i class="fa-solid fa-user"></i> Profile
+                </a>
+            </div>
         }
     </div>
 
+    <!-- Profile Footer -->
+    <div class="sidebar-profile">
+        <div class="sidebar-profile-inner">
+            <span class="avatar">@initials</span>
+            <div class="profile-info">
+                <div class="profile-name">@userName</div>
+                <div class="profile-role">@roleLabel</div>
+            </div>
+            <form id="logoutFormSidebar" asp-controller="Auth" asp-action="Logout" method="post" class="m-0">
+                @Html.AntiForgeryToken()
+                <button type="button" class="sidebar-logout-btn sidebar-logout" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </form>
+        </div>
+    </div>
 
 </div>

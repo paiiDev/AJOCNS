@@ -3,89 +3,130 @@
     ViewData["Title"] = "Admin Dashboard | AJCONS";
     var pendingUsers = ViewBag.PendingUsers as List<PendingUserApprovalDto> ?? new List<PendingUserApprovalDto>();
 }
+
 <div class="content-wrapper bg-transparent">
+
+    <!-- Page Header -->
     <section class="content-header py-4 py-lg-5">
         <div class="container-fluid px-lg-4">
             <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
                 <div>
-                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
-                        Academic
-                        administration
-                    </div>
-                    <h1 class="h2 fw-bold mb-1">System dashboard</h1>
-                    <p class="text-muted mb-0">A clear overview of the AJCONS academic community.</p>
+                    <div class="page-header-label">Academic Administration</div>
+                    <h1 class="page-header-title">System Dashboard</h1>
+                    <p class="page-header-sub">A clear overview of the AJCONS academic community.</p>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
                     <a asp-action="CreateEvent" asp-controller="Event" class="btn btn-academic">
                         <i class="fa-solid fa-calendar-plus me-2"></i>Create event
                     </a>
+                    <a asp-action="RegisterNewStudent" asp-controller="Admin" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-user-plus me-2"></i>Add student
+                    </a>
                 </div>
-              
             </div>
         </div>
     </section>
+
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
+
+            <!-- Stat Cards -->
             <div class="row g-3 mb-4">
+
+                <!-- Students -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="small-box text-bg-primary mb-0 shadow-sm">
-                        <div class="inner">
-                            <h3>@ViewBag.ActiveStudentCount</h3>
-                            <p>Verified students</p>
+                    <div class="stat-card">
+                        <div class="stat-card-body">
+                            <div>
+                                <div class="stat-card-num">@ViewBag.ActiveStudentCount</div>
+                                <div class="stat-card-label">Verified Students</div>
+                            </div>
+                            <div class="stat-card-icon stat-icon-blue">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
                         </div>
-                        <div class="icon"><i class="fa-solid fa-user-graduate"></i></div><a asp-action="StudentManagement" class="small-box-footer">
-                            View directory <i class="fa-solid fa-arrow-circle-right"></i>
+                        <a asp-action="StudentManagement" class="stat-card-footer text-decoration-none stat-footer-blue">
+                            <i class="fa-solid fa-arrow-right fa-xs"></i> View directory
                         </a>
                     </div>
                 </div>
+
+                <!-- Mentors -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="small-box bg-info mb-0 shadow-sm">
-                        <div class="inner">
-                            <h3>@ViewBag.ActiveMentorCount</h3>
-                            <p>Active alumni mentors</p>
+                    <div class="stat-card">
+                        <div class="stat-card-body">
+                            <div>
+                                <div class="stat-card-num">@ViewBag.ActiveMentorCount</div>
+                                <div class="stat-card-label">Active Alumni Mentors</div>
+                            </div>
+                            <div class="stat-card-icon stat-icon-teal">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                            </div>
                         </div>
-                        <div class="icon"><i class="fa-solid fa-people-group"></i></div><a asp-controller="Admin"
-                                                                                           asp-action="Mentors"
-                                                                                            class="small-box-footer">View mentors <i class="fa-solid fa-arrow-circle-right"></i></a>
+                        <a asp-controller="Admin" asp-action="Mentors" class="stat-card-footer text-decoration-none stat-footer-teal">
+                            <i class="fa-solid fa-arrow-right fa-xs"></i> View mentors
+                        </a>
                     </div>
                 </div>
-<div class="col-12 col-sm-6 col-xl-3">
-                    <div class="small-box bg-warning mb-0 shadow-sm">
-                        <div class="inner">
-                            <h3>@(ViewBag.PendingApprovalCount + ViewBag.PendingPostApprovalCount)</h3>
-                            <p>Pending approvals</p>
-                        </div>
-                        <div class="icon"><i class="fa-solid fa-clipboard-check"></i></div><a asp-controller="Admin"
-                                                                                             asp-action="UserApprovals"
-                                                                                              class="small-box-footer">Review queue <i class="fa-solid fa-arrow-circle-right"></i></a>
-                    </div>
-                </div>
+
+                <!-- Pending Approvals -->
                 <div class="col-12 col-sm-6 col-xl-3">
-                    <div class="small-box bg-success mb-0 shadow-sm">
-                        <div class="inner">
-                            <h3>@ViewBag.CareerEventCount</h3>
-                            <p>Career events hosted</p>
+                    <div class="stat-card">
+                        <div class="stat-card-body">
+                            <div>
+                                <div class="stat-card-num">@(ViewBag.PendingApprovalCount + ViewBag.PendingPostApprovalCount)</div>
+                                <div class="stat-card-label">Pending Approvals</div>
+                            </div>
+                            <div class="stat-card-icon stat-icon-amber">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                            </div>
                         </div>
-                        <div class="icon"><i class="fa-solid fa-calendar-days"></i></div><a asp-controller="Event"
-                                                                                             asp-action="Index"
-                                                                                             class="small-box-footer">View events <i class="fa-solid fa-arrow-circle-right"></i></a>
+                        <a asp-controller="Admin" asp-action="UserApprovals" class="stat-card-footer text-decoration-none stat-footer-amber">
+                            <i class="fa-solid fa-arrow-right fa-xs"></i> Review queue
+                        </a>
                     </div>
                 </div>
-            </div>
+
+                <!-- Events -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-card-body">
+                            <div>
+                                <div class="stat-card-num">@ViewBag.CareerEventCount</div>
+                                <div class="stat-card-label">Career Events Hosted</div>
+                            </div>
+                            <div class="stat-card-icon stat-icon-green">
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </div>
+                        </div>
+                        <a asp-controller="Event" asp-action="Index" class="stat-card-footer text-decoration-none stat-footer-green">
+                            <i class="fa-solid fa-arrow-right fa-xs"></i> View events
+                        </a>
+                    </div>
+                </div>
+
+            </div><!-- /stat cards -->
+
+            <!-- Main Content Row -->
             <div class="row g-4">
+
+                <!-- Pending Approvals Table -->
                 <div class="col-lg-8">
-<div class="card adminlte-card h-100">
+                    <div class="adminlte-card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center py-3">
-                            <h3 class="card-title fw-bold mb-0">Pending profile approvals</h3><a asp-controller="Admin"
-                                                                                         asp-action="UserApprovals"
-                                                                                         class="btn btn-sm btn-outline-primary">View all</a>
+                            <h3 class="card-title fw-bold mb-0">
+                                <i class="fa-solid fa-circle-check text-academic me-2"></i>
+                                Pending profile approvals
+                            </h3>
+                            <a asp-controller="Admin" asp-action="UserApprovals"
+                               class="btn btn-sm btn-outline-primary">View all</a>
                         </div>
                         <div class="table-responsive">
                             @if (pendingUsers.Count == 0)
                             {
                                 <div class="text-center py-5 text-muted">
-                                    <i class="fa-solid fa-inbox fs-2 mb-3 d-block"></i>
-                                    No pending user registrations waiting for review.
+                                    <i class="fa-solid fa-inbox fs-2 mb-3 d-block opacity-40"></i>
+                                    <p class="mb-0 small">No pending user registrations waiting for review.</p>
                                 </div>
                             }
                             else
@@ -104,7 +145,8 @@
                                         {
                                             <tr>
                                                 <td class="ps-4">
-                                                    <strong>@user.Name</strong><small class="d-block text-muted">@user.Email</small>
+                                                    <strong>@user.Name</strong>
+                                                    <small class="d-block text-muted">@user.Email</small>
                                                 </td>
                                                 <td>
                                                     @if (user.Role == "Mentor")
@@ -120,11 +162,10 @@
                                                         <span class="badge text-bg-secondary">@user.Role</span>
                                                     }
                                                 </td>
-                                                <td>@user.CreatedAt.ToString("d MMM yyyy")</td>
+                                                <td class="text-muted small">@user.CreatedAt.ToString("d MMM yyyy")</td>
                                                 <td class="text-end pe-4">
-                                                    <a asp-controller="Admin" asp-action="UserApprovals" class="btn btn-sm btn-academic">
-                                                        Review
-                                                    </a>
+                                                    <a asp-controller="Admin" asp-action="UserApprovals"
+                                                       class="btn btn-sm btn-academic">Review</a>
                                                 </td>
                                             </tr>
                                         }
@@ -134,64 +175,73 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Quick Links Panel -->
                 <div class="col-lg-4">
-                    <div class="card adminlte-card h-100">
+                    <div class="adminlte-card h-100">
                         <div class="card-header py-3">
-                            <h3 class="card-title fw-bold mb-0">Academic records</h3>
+                            <h3 class="card-title fw-bold mb-0">
+                                <i class="fa-solid fa-bolt text-academic me-2"></i>
+                                Quick links
+                            </h3>
                         </div>
                         <div class="list-group list-group-flush">
-                            <a asp-action="GraduationRecords"
-                               asp-controller="Admin"
-                               class="list-group-item list-group-item-action d-flex gap-3 py-3">
-                                <i class="fa-solid fa-file-lines text-academic mt-1"></i><span>
-                                    <strong class="d-block">Graduation records</strong><small class="text-muted">
-                                        Review
-                                        verified academic records
-                                    </small>
+
+                            <a asp-action="GraduationRecords" asp-controller="Admin"
+                               class="list-group-item list-group-item-action d-flex gap-3 py-3 px-4">
+                                <span class="stat-card-icon stat-icon-blue flex-shrink-0" style="width:36px;height:36px;font-size:.85rem">
+                                    <i class="fa-solid fa-file-lines"></i>
                                 </span>
-                            </a><a asp-action="StudentManagement"
-                                   asp-controller="Admin"
-                                   class="list-group-item list-group-item-action d-flex gap-3 py-3">
-                                <i class="fa-solid fa-book-open text-academic mt-1"></i><span>
-                                    <strong class="d-block">Majors & degrees</strong><small class="text-muted">
-                                        Maintain
-                                        programme information
-                                    </small>
+                                <span>
+                                    <strong class="d-block" style="font-size:.875rem">Graduation Records</strong>
+                                    <small class="text-muted">Review verified academic records</small>
                                 </span>
-                            </a><a asp-action="StudentManagement"
-                                   asp-controller="Admin"
-                                   class="list-group-item list-group-item-action d-flex gap-3 py-3">
-                                <i class="fa-solid fa-calendar-week text-academic mt-1"></i><span>
-                                    <strong class="d-block">Academic years</strong><small class="text-muted">
-                                        Configure
-                                        current batches
-                                    </small>
+                            </a>
+
+                            <a asp-action="StudentManagement" asp-controller="Admin"
+                               class="list-group-item list-group-item-action d-flex gap-3 py-3 px-4">
+                                <span class="stat-card-icon stat-icon-teal flex-shrink-0" style="width:36px;height:36px;font-size:.85rem">
+                                    <i class="fa-solid fa-book-open"></i>
                                 </span>
-                            </a><a asp-action="ExternalPartners"
-                               asp-controller="Admin"
-                               class="list-group-item list-group-item-action d-flex gap-3 py-3">
-                                <i class="fa-solid fa-building text-academic mt-1"></i><span>
-                                    <strong class="d-block">External partners</strong><small class="text-muted">Manage partner accounts and access</small>
+                                <span>
+                                    <strong class="d-block" style="font-size:.875rem">Majors &amp; Degrees</strong>
+                                    <small class="text-muted">Maintain programme information</small>
                                 </span>
-                            </a><a asp-action="ContentApprovals"
-                                   asp-controller="Admin"
-                                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3 py-3">
-                                <span class="d-flex gap-3">
-                                    <i class="fa-solid fa-clipboard-check text-academic mt-1"></i>
+                            </a>
+
+                            <a asp-action="ExternalPartners" asp-controller="Admin"
+                               class="list-group-item list-group-item-action d-flex gap-3 py-3 px-4">
+                                <span class="stat-card-icon stat-icon-amber flex-shrink-0" style="width:36px;height:36px;font-size:.85rem">
+                                    <i class="fa-solid fa-building"></i>
+                                </span>
+                                <span>
+                                    <strong class="d-block" style="font-size:.875rem">External Partners</strong>
+                                    <small class="text-muted">Manage partner accounts and access</small>
+                                </span>
+                            </a>
+
+                            <a asp-action="ContentApprovals" asp-controller="Admin"
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3 py-3 px-4">
+                                <span class="d-flex gap-3 align-items-center">
+                                    <span class="stat-card-icon stat-icon-green flex-shrink-0" style="width:36px;height:36px;font-size:.85rem">
+                                        <i class="fa-solid fa-clipboard-check"></i>
+                                    </span>
                                     <span>
-                                        <strong class="d-block">Event &amp; post approvals</strong>
-                                         <small class="text-muted">Review event and job details before approval</small>
+                                        <strong class="d-block" style="font-size:.875rem">Event &amp; Post Approvals</strong>
+                                        <small class="text-muted">Review events and job posts</small>
                                     </span>
                                 </span>
                                 @if (ViewBag.PendingPostApprovalCount > 0)
                                 {
-                                    <span class="badge rounded-pill text-bg-warning">@ViewBag.PendingPostApprovalCount</span>
+                                    <span class="badge rounded-pill text-bg-warning ms-auto">@ViewBag.PendingPostApprovalCount</span>
                                 }
                             </a>
+
                         </div>
                     </div>
                 </div>
-            </div>
+
+            </div><!-- /row -->
         </div>
     </section>
 </div>

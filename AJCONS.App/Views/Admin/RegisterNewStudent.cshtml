@@ -1,26 +1,24 @@
-﻿@model AJOCNS.Shared.DTOs.StudentRegistration.StudentRegistrationDto
+@model AJOCNS.Shared.DTOs.StudentRegistration.StudentRegistrationDto
 @{
     ViewData["Title"] = "Register New Student";
     Layout = "_Layout";
 }
 
-<!-- Content Header (Page header) -->
-<section class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1>Register New Student</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item"><a href="#">Student Management</a></li>
-                    <li class="breadcrumb-item active">Register</li>
-                </ol>
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="page-header-label">Academic Administration</div>
+                    <h1 class="page-header-title">Register New Student</h1>
+                    <p class="page-header-sub">Create a new student account in the system.</p>
+                </div>
+                <a asp-action="StudentManagement" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to students
+                </a>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
 <!-- Main content -->
 <section class="content">

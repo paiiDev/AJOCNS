@@ -5,9 +5,18 @@
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
         <div class="container-fluid px-lg-4">
-            <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">Partner directory</div>
-            <h1 class="h2 fw-bold mb-1">External partners</h1>
-            <p class="text-muted mb-0">Review partner accounts and manage their access to the platform.</p>
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="page-header-label">Partner Directory</div>
+                    <h1 class="page-header-title">External Partners</h1>
+                    <p class="page-header-sub">Review partner accounts and manage their access to the platform.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="Index" asp-controller="Admin" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-gauge-high me-2"></i>Dashboard
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
 
