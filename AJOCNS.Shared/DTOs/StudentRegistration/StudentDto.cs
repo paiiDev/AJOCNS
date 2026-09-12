@@ -14,6 +14,8 @@ namespace AJOCNS.Shared.DTOs.StudentRegistration
 
         public string Name { get; set; } = null!;
 
+        public string? Email { get; set; }
+
         public string? Phone { get; set; }
 
         public string? FatherName { get; set; }

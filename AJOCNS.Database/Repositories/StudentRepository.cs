@@ -110,6 +110,7 @@ namespace AJOCNS.Database.Repositories
         public async Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId, string? excludeGraduationStatus)
         {
             var query = _context.Students.AsNoTracking()
+                .Include(s => s.User)
                 .Include(s => s.Major)
                 .Include(s => s.Enrollments).ThenInclude(e => e.Acy)
                 .Include(s => s.GraduationRecords)

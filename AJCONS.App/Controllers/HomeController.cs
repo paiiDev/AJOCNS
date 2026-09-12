@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using AJCONS.App.Models;
+using AJOCNS.Domain.Interfaces;
+using AJOCNS.Shared.DTOs.Events;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AJCONS.App.Controllers
@@ -7,13 +9,15 @@ namespace AJCONS.App.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IEventService _eventService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IEventService eventService)
         {
             _logger = logger;
+            _eventService = eventService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
@@ -36,7 +40,10 @@ namespace AJCONS.App.Controllers
                 }
             }
 
-                return View();
+var eventsResult = await _eventService.GetEventsPagedAsync(1, 3, eventStatus: "Upcoming");
+            ViewBag.UpcomingEvents = eventsResult.IsSuccess ? eventsResult.Data.Events : new List<EventDto>();
+
+            return View();
         }
 
         public IActionResult Privacy()

@@ -87,7 +87,69 @@
             color: var(--primary);
             font-weight: 600;
             padding: 9px 18px;
+            border-radius: 10px;
+            transition: 0.25s ease;
         }
+
+            .btn-login:hover {
+                color: var(--secondary);
+                background: #f0f1ff;
+            }
+
+        .btn-register {
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+            padding: 9px 20px;
+            border-radius: 10px;
+            transition: 0.25s ease;
+            background: transparent;
+        }
+
+            .btn-register:hover {
+                background: var(--primary);
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+            }
+
+        .btn-hero-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: 0.3s ease;
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        }
+
+            .btn-hero-primary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 14px 35px rgba(79, 70, 229, 0.4);
+                color: white;
+            }
+
+        .btn-hero-outline {
+            border: 2px solid #d1d5db;
+            color: var(--dark);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 12px 28px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.3s ease;
+        }
+
+            .btn-hero-outline:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+                background: white;
+                transform: translateY(-3px);
+                box-shadow: 0 12px 30px rgba(79, 70, 229, 0.15);
+            }
 
 
         .btn-primary-custom:hover {
@@ -452,6 +514,17 @@
             .event-preview:hover {
                 transform: translateY(-5px);
                 box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+            }
+
+        .event-link {
+            display: block;
+            height: 100%;
+        }
+
+            .event-link:hover .event-preview {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(15, 23, 42, 0.10);
+                border-color: #c7d2fe;
             }
 
         .event-top {
@@ -1264,7 +1337,7 @@
             </ul>
 
 
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center gap-2">
 
                 <a href="@Url.Action("Login", "Auth")"
                    class="btn btn-login">
@@ -1274,7 +1347,7 @@
                 </a>
 
                 <a href="@Url.Action("Register", "Auth")"
-                   class="btn btn-outline-primary">
+                   class="btn btn-register">
 
                     Register as Mentor
 
@@ -1334,7 +1407,7 @@
                     <div class="hero-actions">
 
                         <a href="#opportunities"
-                           class="btn btn-primary">
+                           class="btn btn-hero-primary">
 
                             Opportunities
 
@@ -1344,7 +1417,7 @@
 
 
                         <a href="#network"
-                           class="btn btn-outline-primary">
+                           class="btn btn-hero-outline">
 
                           See Networks
 
@@ -2000,187 +2073,93 @@
 
             <div class="row g-4">
 
-                <!-- Webinar -->
+                @{
+                    var upcomingEvents = ViewBag.UpcomingEvents as List<AJOCNS.Shared.DTOs.Events.EventDto>
+                                        ?? new List<AJOCNS.Shared.DTOs.Events.EventDto>();
+                }
 
-                <div class="col-md-4">
+                @if (upcomingEvents.Count > 0)
+                {
+                    foreach (var ev in upcomingEvents)
+                    {
+                        <div class="col-md-4">
 
-                    <div class="event-preview">
+                            <a href="@Url.Action("Login", "Auth")" class="text-decoration-none event-link">
+                                <div class="event-preview">
 
-                        <div class="event-top">
+                                    <div class="event-top">
 
-                            <span class="event-type">
-                                Webinar
-                            </span>
+                                        <span class="event-type">
+                                            @ev.EventTypeName
+                                        </span>
 
-                            <div class="event-date">
+                                        <div class="event-date">
 
-                                <strong>18</strong>
+                                            <strong>@ev.EventDate.ToString("dd")</strong>
 
-                                <span>SEP</span>
+                                            <span>@ev.EventDate.ToString("MMM").ToUpperInvariant()</span>
 
-                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="event-body">
+
+                                        @{
+                                            var desc = ev.Description ?? "";
+                                            var summary = desc.Length > 90 ? desc.Substring(0, 90) + "..." : desc;
+                                        }
+
+                                        <h5>
+                                            @ev.EventTitle
+                                        </h5>
+
+                                        <p>
+                                            @summary
+                                        </p>
+
+
+                                        <div class="event-meta">
+
+                                            @if (!string.IsNullOrWhiteSpace(ev.Location))
+                                            {
+                                                <span>
+                                                    <i class="bi bi-geo-alt me-1"></i>
+                                                    @ev.Location
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span>
+                                                    <i class="bi bi-camera-video me-1"></i>
+                                                    @(string.IsNullOrWhiteSpace(ev.EventMode) ? "Online" : ev.EventMode)
+                                                </span>
+                                            }
+
+                                            <span>
+                                                <i class="bi bi-people me-1"></i>
+                                                @(ev.MaxCapacity.HasValue ? ev.MaxCapacity.Value + " နေရာ" : "နေရာ ကန့်သတ်မထား")
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </a>
 
                         </div>
-
-
-                        <div class="event-body">
-
-                            <h5>
-                                Technology နယ်ပယ်တွင်
-                                Career တည်ဆောက်ခြင်း
-                            </h5>
-
-                            <p>
-
-                                Career လမ်းကြောင်းများ၊
-                                Industry Skills များနှင့်
-                                အခွင့်အလမ်းများအကြောင်း
-                                Professionals များထံမှ
-                                လေ့လာနိုင်ပါသည်။
-
-                            </p>
-
-
-                            <div class="event-meta">
-
-                                <span>
-                                    <i class="bi bi-camera-video me-1"></i>
-                                    Online
-                                </span>
-
-                                <span>
-                                    <i class="bi bi-people me-1"></i>
-                                    100 နေရာ
-                                </span>
-
-                            </div>
-
-                        </div>
-
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted mb-0">
+                            မကြာမီ ကျင်းပမည့် Events များ မရှိသေးပါ။
+                        </p>
                     </div>
-
-                </div>
-
-
-                <!-- Job Fair -->
-
-                <div class="col-md-4">
-
-                    <div class="event-preview">
-
-                        <div class="event-top">
-
-                            <span class="event-type">
-                                Job Fair
-                            </span>
-
-                            <div class="event-date">
-
-                                <strong>25</strong>
-
-                                <span>SEP</span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="event-body">
-
-                            <h5>
-                                University Career & Job Fair
-                            </h5>
-
-                            <p>
-
-                                Companies များနှင့်
-                                တိုက်ရိုက်တွေ့ဆုံပြီး
-                                Career Opportunities များကို
-                                ရှာဖွေနိုင်ပါသည်။
-
-                            </p>
-
-
-                            <div class="event-meta">
-
-                                <span>
-                                    <i class="bi bi-geo-alt me-1"></i>
-                                    University Hall
-                                </span>
-
-                                <span>
-                                    <i class="bi bi-people me-1"></i>
-                                    250 နေရာ
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Guest Speaker -->
-
-                <div class="col-md-4">
-
-                    <div class="event-preview">
-
-                        <div class="event-top">
-
-                            <span class="event-type">
-                                Guest Speaker
-                            </span>
-
-                            <div class="event-date">
-
-                                <strong>03</strong>
-
-                                <span>OCT</span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="event-body">
-
-                            <h5>
-                                ဘွဲ့ရကျောင်းသားမှ
-                                Industry Leader အထိ
-                            </h5>
-
-                            <p>
-
-                                အောင်မြင်သော Alumni
-                                Professional တစ်ဦး၏
-                                Career Journey ကို
-                                လေ့လာနိုင်ပါသည်။
-
-                            </p>
-
-
-                            <div class="event-meta">
-
-                                <span>
-                                    <i class="bi bi-camera-video me-1"></i>
-                                    Online
-                                </span>
-
-                                <span>
-                                    <i class="bi bi-people me-1"></i>
-                                    80 နေရာ
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
+                }
 
             </div>
 

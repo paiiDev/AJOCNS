@@ -1,3 +1,116 @@
 @model List<AJOCNS.Shared.DTOs.Jobs.ApplicantListDto>
-@{ ViewData["Title"] = "Job Applicants"; }
-<div class="container py-5"><h1>Job applicants</h1><div class="table-responsive"><table class="table"><thead><tr><th>Student</th><th>Applied</th><th>Cover letter</th><th>Resume</th><th>Status</th><th>Action</th></tr></thead><tbody>@foreach(var applicant in Model){<tr><td>@applicant.StudentName<br /><small>@applicant.StudentEmail</small></td><td>@applicant.AppliedDate.ToString("dd MMM yyyy")</td><td>@applicant.CoverLetter</td><td><a href="@applicant.ResumeUrl" target="_blank">Download CV</a></td><td>@applicant.Status</td><td><form asp-action="UpdateApplicantStatus" method="post" class="d-flex gap-1">@Html.AntiForgeryToken()<input type="hidden" name="applicationId" value="@applicant.ApplicationId" /><input type="hidden" name="jobPostId" value="@Context.Request.Query["jobPostId"]" /><select name="status" class="form-select form-select-sm"><option>Shortlisted</option><option>Rejected</option><option>Pending</option></select><button class="btn btn-sm btn-primary">Save</button></form></td></tr>}</tbody></table></div></div>
+@{
+    ViewData["Title"] = "Job Applicants";
+    var isMentor = User.IsInRole("Mentor");
+    var isAdmin = User.IsInRole("Admin");
+    var backController = isMentor ? "Mentor" : (isAdmin ? "Job" : "ExternalPartner");
+    var backAction = isMentor ? "Jobs" : (isAdmin ? "Index" : "MyJobPosts");
+    var jobPostId = Context.Request.Query["jobPostId"];
+}
+<div class="content-wrapper bg-transparent">
+    <section class="content-header py-4 py-lg-5">
+        <div class="container-fluid px-lg-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div>
+                    <div class="text-uppercase fw-bold small text-primary mb-1" style="letter-spacing:.08em">
+                        @(isMentor ? "Alumni mentor portal" : "Partner workspace")
+                    </div>
+                    <h1 class="h2 fw-bold mb-1">Job applicants</h1>
+                    <p class="text-muted mb-0">Students who have applied to your job post.</p>
+                </div>
+                <a asp-controller="@backController" asp-action="@backAction" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to my job posts
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="content pb-5">
+        <div class="container-fluid px-lg-4">
+            <div class="card adminlte-card">
+                <div class="card-header py-3">
+                    <h3 class="card-title fw-bold mb-0">Applicant list</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Student</th>
+                                <th>Applied</th>
+                                <th>Cover letter</th>
+                                <th>Resume</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Any())
+                            {
+                                foreach (var applicant in Model)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <strong class="d-block">@applicant.StudentName</strong>
+                                            <span class="small text-muted d-inline-flex align-items-center gap-1">
+                                                <i class="fa-solid fa-envelope"></i>@applicant.StudentEmail
+                                            </span>
+                                        </td>
+                                        <td>@applicant.AppliedDate.ToString("dd MMM yyyy")</td>
+                                        <td class="text-truncate" style="max-width:280px">@applicant.CoverLetter</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(applicant.ResumeUrl))
+                                            {
+                                                <a href="@applicant.ResumeUrl" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
+                                                    <i class="fa-solid fa-file-arrow-down me-1"></i>Download CV
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">No resume</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (applicant.Status.ToLower())
+                                            {
+                                                case "shortlisted":
+                                                    <span class="badge text-bg-success">Shortlisted</span>
+                                                    break;
+                                                case "rejected":
+                                                    <span class="badge text-bg-danger">Rejected</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge" style="background:#eaf4ff;color:#073d78">Pending</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <form asp-controller="@backController" asp-action="UpdateApplicantStatus" method="post" class="d-flex justify-content-end gap-2">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="applicationId" value="@applicant.ApplicationId" />
+                                                <input type="hidden" name="jobPostId" value="@jobPostId" />
+                                                <select name="status" class="form-select form-select-sm" style="width:auto;min-width:130px">
+                                                    <option value="Shortlisted" selected="@(applicant.Status == "Shortlisted")">Shortlisted</option>
+                                                    <option value="Rejected" selected="@(applicant.Status == "Rejected")">Rejected</option>
+                                                    <option value="Pending" selected="@(applicant.Status == "Pending")">Pending</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">Save</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="fa-regular fa-inbox fs-2 d-block mb-2"></i>No applications yet. Students will appear here once they apply.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

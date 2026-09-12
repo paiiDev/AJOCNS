@@ -87,6 +87,7 @@
                             <tr>
                                 <th class="ps-4">SRN</th>
                                 <th>Name</th>
+                                <th>Email</th>
                                 <th>Major</th>
                                 <th>Academic Year</th>
                                 <th>Phone</th>
@@ -102,12 +103,24 @@
                                 foreach (var student in Model.Students)
                                 {
                                     <tr>
-                                        <td class="ps-4 text-muted fw-semibold">@student.Srn</td>
+<td class="ps-4 text-muted fw-semibold">@student.Srn</td>
                                         <td>
                                             <div class="d-flex align-items-center gap-2">
-                                               
+                                                
                                                     <strong class="d-block">@student.Name</strong>
                                             </div>
+                                        </td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(student.Email))
+                                            {
+                                                <span class="text-warning fst-italic">Not provided</span>
+                                            }
+                                            else
+                                            {
+                                                <a href="mailto:@student.Email" class="text-decoration-none text-body">
+                                                    <i class="fa-solid fa-envelope text-muted me-1"></i>@student.Email
+                                                </a>
+                                            }
                                         </td>
                                         <td>@student.Major</td>
                                         <td>@(student.AcademicYear ?? "-")</td>
@@ -201,7 +214,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="9" class="text-center py-5 text-muted">
+                                    <td colspan="10" class="text-center py-5 text-muted">
                                         <i class="fa-regular fa-folder-open fs-2 d-block mb-2"></i>No student records
                                         found. Add a student to begin.
                                     </td>

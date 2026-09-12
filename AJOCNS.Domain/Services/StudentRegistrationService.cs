@@ -217,6 +217,7 @@ namespace AJOCNS.Domain.Services
                     {
                         StudentId = s.StudentId,
                         Name = s.Name,
+                        Email = s.User?.Email,
                         Phone = s.Phone,
                         FatherName = s.FatherName,
                         Address = s.Address,

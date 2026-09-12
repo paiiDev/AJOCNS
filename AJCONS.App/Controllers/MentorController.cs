@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace AJOCNS.App.Controllers
+namespace AJCONS.App.Controllers
 {
     [Authorize(Roles = "Mentor")]
     public class MentorController : Controller
@@ -14,12 +14,14 @@ namespace AJOCNS.App.Controllers
         private readonly IMentorService _mentorService;
         private readonly IEventService _eventService;
         private readonly IJobService _jobService;
+        private readonly IEmailService _emailService;
 
-        public MentorController(IMentorService mentorService, IEventService eventService, IJobService jobService)
+        public MentorController(IMentorService mentorService, IEventService eventService, IJobService jobService, IEmailService emailService)
         {
             _mentorService = mentorService;
             _eventService = eventService;
             _jobService = jobService;
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index()
@@ -56,6 +58,37 @@ namespace AJOCNS.App.Controllers
 
             var result = await _jobService.GetJobPostsPagedForUserAsync(userId, page, 10);
             return View(result.IsSuccess ? result.Data : new PagedJobPostDto());
+        }
+
+        public async Task<IActionResult> ViewApplicants(int jobPostId)
+        {
+            var result = await _jobService.GetApplicantsByJobIdAsync(GetCurrentUserId(), jobPostId);
+            return result.IsSuccess ? View("~/Views/ExternalPartner/ViewApplicants.cshtml", result.Data) : NotFound();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateApplicantStatus(int applicationId, string status, int jobPostId)
+        {
+            var applicants = await _jobService.GetApplicantsByJobIdAsync(GetCurrentUserId(), jobPostId);
+            var applicant = applicants.Data?.FirstOrDefault(a => a.ApplicationId == applicationId);
+            if (applicant is null) return Forbid();
+
+            var result = await _jobService.UpdateApplicationStatusAsync(applicationId, status);
+            if (result.IsSuccess && status == "Shortlisted" && applicant.Status != "Shortlisted")
+            {
+                try
+                {
+                    await _emailService.SendEmailAsync(applicant.StudentEmail, "Your job application was shortlisted",
+                        $"<p>Dear {applicant.StudentName},</p><p>Your application has been shortlisted. The company will contact you with next steps.</p>");
+                }
+                catch
+                {
+                    // email failure should not block the status update
+                }
+            }
+
+            return RedirectToAction(nameof(ViewApplicants), new { jobPostId });
         }
 
         public async Task<IActionResult> Profile()
