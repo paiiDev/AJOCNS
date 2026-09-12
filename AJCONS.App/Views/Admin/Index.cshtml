@@ -2,6 +2,10 @@
 @{
     ViewData["Title"] = "Admin Dashboard | AJCONS";
     var pendingUsers = ViewBag.PendingUsers as List<PendingUserApprovalDto> ?? new List<PendingUserApprovalDto>();
+    var activeStudents = ViewBag.ActiveStudentCount ?? 0;
+    var activeMentors = ViewBag.ActiveMentorCount ?? 0;
+    var pendingTotal = (ViewBag.PendingApprovalCount ?? 0) + (ViewBag.PendingPostApprovalCount ?? 0);
+    var careerEvents = ViewBag.CareerEventCount ?? 0;
 }
 
 <div class="content-wrapper bg-transparent">
@@ -15,13 +19,20 @@
                     <h1 class="page-header-title">System Dashboard</h1>
                     <p class="page-header-sub">A clear overview of the AJCONS academic community.</p>
                 </div>
-                <div class="d-flex flex-wrap gap-2">
-                    <a asp-action="CreateEvent" asp-controller="Event" class="btn btn-academic">
-                        <i class="fa-solid fa-calendar-plus me-2"></i>Create event
-                    </a>
-                    <a asp-action="RegisterNewStudent" asp-controller="Admin" class="btn btn-outline-secondary">
-                        <i class="fa-solid fa-user-plus me-2"></i>Add student
-                    </a>
+                <div class="d-flex flex-wrap align-items-end gap-3">
+                    <div class="admin-hero-panel">
+                        <div class="hero-kicker">Admin workload</div>
+                        <div class="hero-number">@pendingTotal</div>
+                        <p class="hero-copy">approval item(s) waiting across accounts and content.</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-action="CreateEvent" asp-controller="Event" class="btn btn-academic">
+                            <i class="fa-solid fa-calendar-plus me-2"></i>Create event
+                        </a>
+                        <a asp-action="RegisterNewStudent" asp-controller="Admin" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-user-plus me-2"></i>Add student
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -38,7 +49,7 @@
                     <div class="stat-card">
                         <div class="stat-card-body">
                             <div>
-                                <div class="stat-card-num">@ViewBag.ActiveStudentCount</div>
+                                <div class="stat-card-num">@activeStudents</div>
                                 <div class="stat-card-label">Verified Students</div>
                             </div>
                             <div class="stat-card-icon stat-icon-blue">
@@ -56,7 +67,7 @@
                     <div class="stat-card">
                         <div class="stat-card-body">
                             <div>
-                                <div class="stat-card-num">@ViewBag.ActiveMentorCount</div>
+                                <div class="stat-card-num">@activeMentors</div>
                                 <div class="stat-card-label">Active Alumni Mentors</div>
                             </div>
                             <div class="stat-card-icon stat-icon-teal">
@@ -74,7 +85,7 @@
                     <div class="stat-card">
                         <div class="stat-card-body">
                             <div>
-                                <div class="stat-card-num">@(ViewBag.PendingApprovalCount + ViewBag.PendingPostApprovalCount)</div>
+                                <div class="stat-card-num">@pendingTotal</div>
                                 <div class="stat-card-label">Pending Approvals</div>
                             </div>
                             <div class="stat-card-icon stat-icon-amber">
@@ -92,7 +103,7 @@
                     <div class="stat-card">
                         <div class="stat-card-body">
                             <div>
-                                <div class="stat-card-num">@ViewBag.CareerEventCount</div>
+                                <div class="stat-card-num">@careerEvents</div>
                                 <div class="stat-card-label">Career Events Hosted</div>
                             </div>
                             <div class="stat-card-icon stat-icon-green">
