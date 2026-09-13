@@ -1,32 +1,120 @@
 @model AJOCNS.Shared.DTOs.Jobs.JobPostDto
-@{ ViewData["Title"] = Model.Title; }
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">Job details</h1>
+@{
+    ViewData["Title"] = Model.Title;
+    var isExternalPartner = string.Equals(Model.PostedByRole, "ExternalPartner", StringComparison.OrdinalIgnoreCase);
+}
+
+<div class="container-fluid px-lg-4 py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <div class="page-header-label">Student Portal</div>
+            <h1 class="page-header-title">Job Details</h1>
+        </div>
         <a asp-controller="Student" asp-action="JobBoard" class="btn btn-outline-secondary">
-            <i class="fa-solid fa-arrow-left me-2"></i>Back to job board
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Job Board
         </a>
     </div>
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h1>@Model.Title</h1>
-            <p class="text-muted">@Model.CompanyName · @Model.JobType · @Model.Location</p>
-            <h5>Description</h5>
-            <p style="white-space:pre-line">@Model.Description</p>
-            <h5>Requirements</h5>
-            <p style="white-space:pre-line">@Model.Requirements</p>
-            @if (string.Equals(Model.PostedByRole, "ExternalPartner", StringComparison.OrdinalIgnoreCase))
+
+    <!-- Job Card -->
+    <div class="content-card mb-4">
+        <div class="card-body p-4 p-lg-5">
+
+            <!-- Title + Company -->
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1" style="font-size:1.6rem;">@Model.Title</h2>
+                    <div class="d-flex align-items-center gap-2" style="color:var(--text-muted,#64748b);">
+                        <i class="fa-solid fa-building"></i>
+                        <span>@Model.CompanyName</span>
+                    </div>
+                </div>
+                @if (isExternalPartner && !Model.IsApplied)
+                {
+                    <button class="btn btn-academic" data-bs-toggle="modal" data-bs-target="#applyJobModal">
+                        <i class="fa-solid fa-paper-plane me-1"></i>Apply Now
+                    </button>
+                }
+                else if (Model.IsApplied)
+                {
+                    <span class="status-pill status-pill-success"><i class="fa-solid fa-check"></i>Applied</span>
+                }
+            </div>
+
+            <!-- Quick Info Grid -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="detail-info-card">
+                        <div class="detail-info-icon" style="background:var(--brand-blue-soft);color:var(--brand-blue);">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <div>
+                            <small class="detail-info-label">Job Type</small>
+                            <strong class="detail-info-value">@(Model.JobType ?? "Not specified")</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="detail-info-card">
+                        <div class="detail-info-icon" style="background:var(--brand-teal-soft);color:var(--brand-teal);">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <small class="detail-info-label">Location</small>
+                            <strong class="detail-info-value">@(Model.Location ?? "Not specified")</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="detail-info-card">
+                        <div class="detail-info-icon" style="background:var(--brand-gold-soft);color:var(--warning);">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </div>
+                        <div>
+                            <small class="detail-info-label">Salary Range</small>
+                            <strong class="detail-info-value">@(Model.SalaryRange ?? "Not disclosed")</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="detail-info-card">
+                        <div class="detail-info-icon" style="background:var(--brand-rose-soft);color:var(--brand-rose);">
+                            <i class="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <div>
+                            <small class="detail-info-label">Closing Date</small>
+                            <strong class="detail-info-value">@Model.ClosingDate.ToString("dd MMM yyyy")</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="detail-section">
+                <h5 class="detail-section-title">
+                    <i class="fa-solid fa-align-left"></i>Description
+                </h5>
+                <div class="detail-section-body" style="white-space:pre-line;">@Model.Description</div>
+            </div>
+
+            <!-- Requirements -->
+            @if (!string.IsNullOrWhiteSpace(Model.Requirements))
             {
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#applyJobModal">Apply now</button>
+                <div class="detail-section">
+                    <h5 class="detail-section-title">
+                        <i class="fa-solid fa-list-check"></i>Requirements
+                    </h5>
+                    <div class="detail-section-body" style="white-space:pre-line;">@Model.Requirements</div>
+                </div>
             }
-            else
-            {
-                <span class="badge text-bg-secondary">Applications are not available for this post</span>
-            }
+
         </div>
     </div>
+
 </div>
-@if (string.Equals(Model.PostedByRole, "ExternalPartner", StringComparison.OrdinalIgnoreCase))
+
+@if (isExternalPartner)
 {
     @await Html.PartialAsync("_ApplyJobModal", Model)
 }

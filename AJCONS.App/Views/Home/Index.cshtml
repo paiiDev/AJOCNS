@@ -32,6 +32,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7c3aed;
+            --dark: #142033;
+            --text: #4b5563;
+            --light-bg: #f5f7fb;
+        }
+
         /* ==========================
                        NAVBAR
                     ========================== */
@@ -181,6 +190,7 @@
             position: relative;
             overflow: hidden;
             padding: 105px 0 95px;
+            background: radial-gradient(circle, rgba(128, 149, 255, 1) 0%, rgba(161, 208, 255, 1) 100%);
         }
 
 
@@ -321,10 +331,11 @@
 
         .section {
             padding: 90px 0;
+            background: #ffffff;
         }
 
         .section-light {
-            background: var(--light-bg);
+            background: linear-gradient(180deg, #f5f7fb 0%, #eef2fa 100%);
         }
 
         .section-heading {
@@ -366,7 +377,41 @@
             border: 1px solid var(--border);
             border-radius: 18px;
             transition: 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+            .feature-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                border-radius: 18px 18px 0 0;
+                z-index: 1;
+            }
+
+            .feature-card::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: 18px;
+                opacity: 0.07;
+                pointer-events: none;
+            }
+
+            .feature-card:nth-child(1)::before { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+            .feature-card:nth-child(1)::after  { background: radial-gradient(circle at 30% 20%, #2563eb, transparent 70%); }
+
+            .feature-card:nth-child(2)::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+            .feature-card:nth-child(2)::after  { background: radial-gradient(circle at 30% 20%, #7c3aed, transparent 70%); }
+
+            .feature-card:nth-child(3)::before { background: linear-gradient(90deg, #0f9f8f, #5eead4); }
+            .feature-card:nth-child(3)::after  { background: radial-gradient(circle at 30% 20%, #0f9f8f, transparent 70%); }
+
+            .feature-card:nth-child(4)::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+            .feature-card:nth-child(4)::after  { background: radial-gradient(circle at 30% 20%, #f59e0b, transparent 70%); }
 
             .feature-card:hover {
                 transform: translateY(-7px);
@@ -382,11 +427,14 @@
             align-items: center;
             justify-content: center;
             border-radius: 15px;
-            background: #eef2ff;
-            color: var(--primary);
             font-size: 1.35rem;
             margin-bottom: 20px;
         }
+
+            .feature-card:nth-child(1) .feature-icon { background: #eff6ff; color: #2563eb; }
+            .feature-card:nth-child(2) .feature-icon { background: #f3e8ff; color: #7c3aed; }
+            .feature-card:nth-child(3) .feature-icon { background: #e8fbf8; color: #0f9f8f; }
+            .feature-card:nth-child(4) .feature-icon { background: #fff7df; color: #d97706; }
 
         .feature-card h5 {
             font-weight: 750;
@@ -412,7 +460,38 @@
             background: white;
             border: 1px solid var(--border);
             transition: 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+            .role-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                border-radius: 20px 20px 0 0;
+                z-index: 1;
+            }
+
+            .role-card::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: 20px;
+                opacity: 0.07;
+                pointer-events: none;
+            }
+
+            .role-card:nth-child(1)::before { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+            .role-card:nth-child(1)::after  { background: radial-gradient(circle at 30% 20%, #2563eb, transparent 70%); }
+
+            .role-card:nth-child(2)::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+            .role-card:nth-child(2)::after  { background: radial-gradient(circle at 30% 20%, #7c3aed, transparent 70%); }
+
+            .role-card:nth-child(3)::before { background: linear-gradient(90deg, #0f9f8f, #5eead4); }
+            .role-card:nth-child(3)::after  { background: radial-gradient(circle at 30% 20%, #0f9f8f, transparent 70%); }
 
             .role-card:hover {
                 transform: translateY(-6px);
@@ -426,11 +505,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #eef2ff, #f5f3ff);
-            color: var(--primary);
             font-size: 1.6rem;
             margin-bottom: 20px;
         }
+
+            .role-card:nth-child(1) .role-icon { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb; }
+            .role-card:nth-child(2) .role-icon { background: linear-gradient(135deg, #f3e8ff, #ede9fe); color: #7c3aed; }
+            .role-card:nth-child(3) .role-icon { background: linear-gradient(135deg, #e8fbf8, #d1fae5); color: #0f9f8f; }
 
         .role-card h4 {
             font-size: 1.25rem;
@@ -712,6 +793,7 @@
 
         .cta-section {
             padding: 90px 0;
+            background: linear-gradient(180deg, #ffffff 0%, #f5f7fb 100%);
         }
 
         .cta-box {

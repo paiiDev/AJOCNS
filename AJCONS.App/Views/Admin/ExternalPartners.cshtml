@@ -23,21 +23,27 @@
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
             <div class="card adminlte-card border-0">
-                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3">
-                    <h3 class="card-title fw-bold mb-0">@(Model.Count) partner account@(Model.Count == 1 ? "" : "s")</h3>
-                    <div class="d-flex flex-wrap gap-2">
-                        <div class="input-group input-group-sm">
+                <div class="card-header d-flex align-items-center gap-3 py-3">
+                    <h3 class="card-title fw-bold mb-0">All partners</h3>
+                    <div class="ms-auto d-flex align-items-center gap-2 flex-shrink-0">
+                        <div class="input-group input-group-sm" style="max-width:200px;">
                             <span class="input-group-text bg-white"><i class="fa-solid fa-search text-muted"></i></span>
-                            <input type="search" id="partnerSearch" class="form-control" placeholder="Search partners..." aria-label="Search external partners" />
+                            <input type="search" id="partnerSearch" class="form-control" placeholder="Search partners..." />
                         </div>
-                        <a asp-action="UserApprovals" class="btn btn-sm btn-outline-primary">Review pending approvals</a>
+                        <span class="status-pill status-pill-info flex-shrink-0">
+                            <i class="fa-solid fa-building"></i>@Model.Count total
+                        </span>
+                        <a asp-action="UserApprovals" class="btn btn-sm btn-outline-primary flex-shrink-0">Review pending</a>
                     </div>
                 </div>
                 @if (Model.Count == 0)
                 {
-                    <div class="text-center py-5 text-muted">
-                        <i class="fa-solid fa-building-circle-check fs-2 mb-3 d-block"></i>
-                        No external partner accounts have been registered yet.
+                    <div class="table-empty">
+                        <div class="empty-icon" style="background:var(--brand-teal-soft);color:var(--brand-teal);">
+                            <i class="fa-solid fa-building-circle-check"></i>
+                        </div>
+                        <h4>No partners yet</h4>
+                        <p>No external partner accounts have been registered yet.</p>
                     </div>
                 }
                 else
@@ -57,23 +63,39 @@
                                 @foreach (var partner in Model)
                                 {
                                     <tr>
-                                        <td class="ps-4">
-                                            <strong>@partner.Name</strong>
-                                            <small class="d-block text-muted">@partner.Email</small>
-                                            @if (!string.IsNullOrWhiteSpace(partner.Phone))
-                                            {
-                                                <small class="d-block text-muted">@partner.Phone</small>
-                                            }
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="table-avatar table-avatar-navy">
+                                                    @partner.Name?.Substring(0, Math.Min(1, partner.Name.Length)).ToUpper()
+                                                </span>
+                                                <div>
+                                                    <span class="table-name">@partner.Name</span>
+                                                    <span class="table-email">@partner.Email</span>
+                                                    @if (!string.IsNullOrWhiteSpace(partner.Phone))
+                                                    {
+                                                        <span class="table-email">@partner.Phone</span>
+                                                    }
+                                                </div>
+                                            </div>
                                         </td>
                                         <td>@partner.CompanyName</td>
                                         <td>@partner.PositionName</td>
                                         <td>
-                                            <span class="badge rounded-pill @(partner.Status == "Active" ? "text-bg-success" : partner.Status == "Pending" ? "text-bg-warning" : "text-bg-secondary")">
-                                                @partner.Status
-                                            </span>
+                                            @if (partner.Status == "Active")
+                                            {
+                                                <span class="status-pill status-pill-success"><i class="fa-solid fa-circle"></i>Active</span>
+                                            }
+                                            else if (partner.Status == "Pending")
+                                            {
+                                                <span class="status-pill status-pill-warning"><i class="fa-solid fa-clock"></i>Pending</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-pill status-pill-muted"><i class="fa-solid fa-circle"></i>Inactive</span>
+                                            }
                                         </td>
-                                        <td class="text-end pe-4">
-                                            <div class="d-inline-flex gap-2">
+                                        <td>
+                                            <div class="table-actions">
                                                 <a asp-action="ExternalPartnerDetails" asp-controller="Admin" asp-route-userId="@partner.UserId" asp-route-returnAction="ExternalPartners" class="btn btn-sm btn-outline-primary">
                                                     <i class="fa-solid fa-eye me-1"></i>Details
                                                 </a>

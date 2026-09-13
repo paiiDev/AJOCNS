@@ -10,6 +10,7 @@ namespace AJOCNS.Database.Interfaces
     public interface IStudentRepository
     {
         Task<bool> EmailExistsAsync(string email);
+        Task<bool> EmailExistsForOtherUserAsync(string email, int currentUserId);
         Task<string?> GetLastSRNAsync(); 
         Task<bool> SaveStudentAsync(User newUser);
         Task<List<Student>> GetAllStudentsAsync();

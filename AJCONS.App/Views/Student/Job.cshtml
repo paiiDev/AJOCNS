@@ -163,7 +163,7 @@
         }
         .job-banner {
             height: 150px;
-            background: linear-gradient(135deg, var(--academic-blue-deep), var(--academic-blue));
+            background: linear-gradient(135deg, var(--brand-blue-deep, #1d4ed8), var(--brand-blue, #2563eb));
         }
         .job-banner-icon {
             position: absolute;
@@ -182,7 +182,7 @@
             top: 12px;
             left: 12px;
             background: rgba(255, 255, 255, .92);
-            color: var(--academic-blue-deep);
+            color: var(--brand-blue-deep, #1d4ed8);
             font-weight: 600;
             padding: .4em .8em;
             border-radius: 50rem;
@@ -204,7 +204,7 @@
         .job-company-circle span {
             font-weight: 800;
             font-size: 1.25rem;
-            color: var(--academic-blue);
+            color: var(--brand-blue, #2563eb);
         }
         .job-close-chip {
             position: absolute;
@@ -221,7 +221,7 @@
             display: block;
             font-size: 1.05rem;
             font-weight: 800;
-            color: var(--academic-blue);
+            color: var(--brand-blue, #2563eb);
         }
         .job-close-chip-month {
             display: block;
@@ -252,9 +252,9 @@
             text-align: center;
         }
         .filter-chip.active {
-            background: var(--academic-blue);
-            border-color: var(--academic-blue);
-            color: #fff;
+            background: var(--brand-blue, #2563eb) !important;
+            border-color: var(--brand-blue, #2563eb) !important;
+            color: #fff !important;
         }
     </style>
 }

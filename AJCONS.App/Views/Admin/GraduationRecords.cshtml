@@ -81,9 +81,8 @@
                                         <td class="ps-4 text-muted fw-semibold">@record.Grn</td>
                                         <td>
                                             <div class="d-flex align-items-center gap-2">
-                                                <span class="avatar rounded-circle text-white p-1 fw-bold"
-                                                      style="background:#0b5cab">GR</span>
-                                                <strong class="d-block">@record.OfficialName</strong>
+                                                <span class="table-avatar table-avatar-blue">GR</span>
+                                                <span class="table-name">@record.OfficialName</span>
                                             </div>
                                         </td>
                                         <td>@record.DegreeName</td>
@@ -92,21 +91,23 @@
                                         <td>
                                             @if (record.AccStatus == "Active")
                                             {
-                                                <span class="badge text-bg-success">@record.AccStatus</span>
+                                                <span class="status-pill status-pill-success"><i class="fa-solid fa-circle"></i>@record.AccStatus</span>
                                             }
                                             else
                                             {
-                                                <span class="badge text-bg-danger">@record.AccStatus</span>
+                                                <span class="status-pill status-pill-danger"><i class="fa-solid fa-circle"></i>@record.AccStatus</span>
                                             }
                                         </td>
-                                        <td class="text-end pe-4 action-cell">
-                                            <a asp-action="EditGraduationRecord" asp-route-id="@record.Id" class="btn btn-sm btn-outline-primary"
-                                               aria-label="Edit @record.OfficialName"><i class="fa-solid fa-pen"></i></a>
-                                            <form asp-action="DeleteGraduationRecord" asp-route-id="@record.Id" method="post" class="d-inline delete-form">
-                                                @Html.AntiForgeryToken()
-                                                <button type="button" class="btn btn-sm btn-outline-danger ms-1 delete-btn"
-                                                        aria-label="Delete @record.OfficialName" data-name="@record.OfficialName"><i class="fa-solid fa-trash"></i></button>
-                                            </form>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a asp-action="EditGraduationRecord" asp-route-id="@record.Id" class="btn btn-sm btn-outline-primary"
+                                                   aria-label="Edit @record.OfficialName"><i class="fa-solid fa-pen"></i></a>
+                                                <form asp-action="DeleteGraduationRecord" asp-route-id="@record.Id" method="post" class="d-inline delete-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="button" class="btn btn-sm btn-outline-danger ms-1 delete-btn"
+                                                            aria-label="Delete @record.OfficialName" data-name="@record.OfficialName"><i class="fa-solid fa-trash"></i></button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 }
@@ -115,8 +116,13 @@
                             {
                                 <tr>
                                     <td colspan="7" class="text-center py-5 text-muted">
-                                        <i class="fa-regular fa-folder-open fs-2 d-block mb-2"></i>No graduation records
-                                        found. Graduate a student to create one.
+                                        <div class="table-empty">
+                                            <div class="empty-icon" style="background:var(--brand-blue-soft);color:var(--brand-blue);">
+                                                <i class="fa-regular fa-folder-open"></i>
+                                            </div>
+                                            <h4>No records found</h4>
+                                            <p>No graduation records found. Graduate a student to create one.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             }

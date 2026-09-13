@@ -12,6 +12,11 @@ namespace AJOCNS.Shared.DTOs.StudentRegistration
         [StringLength(255)]
         public string Name { get; set; } = null!;
 
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email address.")]
+        [StringLength(255)]
+        public string Email { get; set; } = null!;
+
         [Phone(ErrorMessage = "Invalid phone number.")]
         public string? Phone { get; set; }
 

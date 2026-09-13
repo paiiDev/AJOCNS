@@ -1,189 +1,285 @@
 @model AJOCNS.Shared.DTOs.Jobs.JobPostDto
 
 <style>
-    .job-modal-hero {
+    .jm-hero {
         position: relative;
-        min-height: 200px;
-        border-radius: 0;
-        background: linear-gradient(135deg, var(--academic-blue-deep), var(--academic-blue));
+        min-height: 210px;
+        background: linear-gradient(135deg, #1d4ed8, #7c3aed);
         overflow: hidden;
         padding: 2rem 2.25rem 1.5rem;
     }
-    .job-modal-hero-icon {
+    .jm-hero-icon {
         position: absolute;
         right: -20px;
         bottom: -20px;
         font-size: 150px;
         color: rgba(255,255,255,.12);
     }
-    .job-modal-close {
+    .jm-close {
         position: absolute;
-        top: 14px;
-        right: 16px;
+        top: 12px;
+        right: 14px;
         z-index: 3;
-        background: rgba(255,255,255,.25);
+        background: rgba(255,255,255,.2);
         border-radius: 50%;
-        padding: .5rem;
-        color: #fff;
-    }
-    .job-modal-close:hover { background: rgba(255,255,255,.4); }
-    .job-modal-badge {
-        background: rgba(255,255,255,.92);
-        color: var(--academic-blue-deep);
-        font-weight: 600;
-        padding: .45em .9em;
-        border-radius: 50rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,.15);
-    }
-    .job-modal-title { font-size: 1.6rem; margin-bottom: .1rem; text-shadow: 0 2px 6px rgba(0,0,0,.3); }
-    .job-modal-company { font-size: .95rem; opacity: .95; }
-    .job-modal-body { padding: 1.5rem 1.75rem; }
-    .job-modal-fact {
+        width: 36px;
+        height: 36px;
         display: flex;
         align-items: center;
-        gap: .8rem;
-        background: #f6f8fb;
-        border: 1px solid #eef2f6;
-        border-radius: .75rem;
-        padding: .8rem 1rem;
-        height: 100%;
+        justify-content: center;
+        color: #fff;
+        border: none;
+        font-size: 1rem;
+        transition: background .2s;
     }
-    .job-modal-fact-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: .6rem;
-        background: #fff;
+    .jm-close:hover { background: rgba(255,255,255,.35); }
+    .jm-badge {
         display: inline-flex;
         align-items: center;
+        gap: 5px;
+        background: rgba(255,255,255,.92);
+        color: #1d4ed8;
+        font-weight: 600;
+        font-size: .75rem;
+        padding: .4em .85em;
+        border-radius: 50rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+    .jm-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 600;
+        font-size: .75rem;
+        padding: .4em .85em;
+        border-radius: 50rem;
+    }
+    .jm-status-open { background: #dcfce7; color: #166534; }
+    .jm-status-closed { background: #fee2e2; color: #991b1b; }
+    .jm-status-pending { background: #fef3cd; color: #92400e; }
+    .jm-title { font-size: 1.5rem; font-weight: 800; margin-bottom: .15rem; text-shadow: 0 2px 6px rgba(0,0,0,.25); }
+    .jm-company { font-size: .95rem; opacity: .92; }
+    .jm-body { padding: 1.5rem 1.75rem; }
+
+    .jm-fact {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        background: var(--surface, #f7f9fc);
+        border: 1px solid var(--border-light, #edf2f7);
+        border-radius: 12px;
+        padding: .75rem 1rem;
+        height: 100%;
+        transition: box-shadow .2s;
+    }
+    .jm-fact:hover { box-shadow: 0 2px 8px rgba(16,35,63,.06); }
+    .jm-fact-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 6px rgba(24,56,92,.08);
         flex-shrink: 0;
+        font-size: .9rem;
     }
-    .job-modal-fact-label {
+    .jm-fact-label {
         display: block;
-        font-size: .72rem;
+        font-size: .68rem;
         text-transform: uppercase;
-        letter-spacing: .5px;
-        color: #8a94a6;
+        letter-spacing: .05em;
+        color: var(--text-muted, #64748b);
         font-weight: 600;
     }
-    .job-modal-fact-value {
+    .jm-fact-value {
         display: block;
         font-weight: 600;
-        color: #15253a;
-        font-size: .95rem;
+        color: var(--text-primary, #142033);
+        font-size: .9rem;
         word-break: break-word;
     }
-    .job-modal-section-title {
+
+    .jm-section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: .92rem;
         font-weight: 700;
-        color: #15253a;
-        margin-bottom: .5rem;
+        color: var(--text-primary, #142033);
+        margin-bottom: .75rem;
+        padding-bottom: .5rem;
+        border-bottom: 1px solid var(--border-light, #edf2f7);
     }
-    .job-modal-desc {
-        color: #5a6473;
-        line-height: 1.7;
+    .jm-section-title i { color: var(--brand-blue, #2563eb); font-size: .82rem; }
+    .jm-desc {
+        color: var(--text-secondary, #4b5563);
+        line-height: 1.75;
         white-space: pre-line;
-        font-size: .95rem;
+        font-size: .92rem;
     }
-    .job-modal-req {
-        background: #f6f8fb;
-        border: 1px solid #eef2f6;
-        border-radius: .75rem;
+    .jm-req {
+        background: var(--surface, #f7f9fc);
+        border: 1px solid var(--border-light, #edf2f7);
+        border-radius: 12px;
         padding: 1rem 1.25rem;
-        color: #5a6473;
-        line-height: 1.7;
+        color: var(--text-secondary, #4b5563);
+        line-height: 1.75;
         white-space: pre-line;
-        font-size: .95rem;
+        font-size: .92rem;
+    }
+
+    .jm-footer {
+        padding: 1rem 1.75rem;
+        border-top: 1px solid var(--border-light, #edf2f7);
+        background: var(--surface, #f7f9fc);
+        border-radius: 0 0 16px 16px;
     }
 </style>
 
-<div class="job-modal-hero">
-    <i class="fa-solid fa-briefcase job-modal-hero-icon"></i>
-
-    <button type="button" class="btn-close job-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
-    <div class="d-flex flex-wrap gap-2 mb-3">
-        <span class="badge job-modal-badge"><i class="fa-solid fa-tag me-1"></i>@(Model.JobType ?? "General")</span>
-        <span class="badge text-bg-success"><i class="fa-solid fa-check-circle me-1"></i>Open for applications</span>
+<!-- Hero -->
+<div class="jm-hero">
+    <i class="fa-solid fa-briefcase jm-hero-icon"></i>
+    <button type="button" class="jm-close" data-bs-dismiss="modal" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <span class="jm-badge"><i class="fa-solid fa-tag"></i>@(Model.JobType ?? "General")</span>
+        @{
+            var statusClass = Model.Status.ToLower() switch
+            {
+                "open" => "jm-status-open",
+                "closed" => "jm-status-closed",
+                "pending" => "jm-status-pending",
+                _ => "jm-status-open"
+            };
+            var statusIcon = Model.Status.ToLower() switch
+            {
+                "closed" => "fa-lock",
+                "pending" => "fa-clock",
+                _ => "fa-check-circle"
+            };
+            var statusLabel = Model.Status.ToLower() switch
+            {
+                "open" => "Open for applications",
+                "pending" => "Pending approval",
+                _ => Model.Status
+            };
+        }
+        <span class="jm-status @statusClass"><i class="fa-solid @statusIcon"></i>@statusLabel</span>
     </div>
-    <h3 class="job-modal-title fw-bold text-white">@Model.Title</h3>
-    <p class="job-modal-company text-white mb-0"><i class="fa-solid fa-building me-1"></i>@Model.CompanyName</p>
+    <h3 class="jm-title text-white">@Model.Title</h3>
+    <p class="jm-company text-white mb-0"><i class="fa-solid fa-building me-1"></i>@Model.CompanyName</p>
 </div>
 
-<div class="job-modal-body">
+<!-- Body -->
+<div class="jm-body">
+
+    <!-- Applied status -->
+    @if (Model.IsApplied)
+    {
+        <div class="d-flex align-items-center gap-2 mb-4">
+            <span class="status-pill status-pill-success"><i class="fa-solid fa-check"></i>You have applied</span>
+        </div>
+    }
+
+    <!-- Info Grid -->
     <div class="row g-2 mb-4">
         <div class="col-sm-6 col-md-4">
-            <div class="job-modal-fact">
-                <div class="job-modal-fact-icon text-success"><i class="fa-solid fa-money-bill-wave"></i></div>
+            <div class="jm-fact">
+                <div class="jm-fact-icon" style="background:var(--brand-teal-soft,#e8fbf8);color:var(--brand-teal,#0f9f8f);">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
                 <div>
-                    <span class="job-modal-fact-label">Salary</span>
-                    <span class="job-modal-fact-value">@(string.IsNullOrEmpty(Model.SalaryRange) ? "-" : Model.SalaryRange)</span>
+                    <span class="jm-fact-label">Salary</span>
+                    <span class="jm-fact-value">@(string.IsNullOrEmpty(Model.SalaryRange) ? "Not disclosed" : Model.SalaryRange)</span>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-4">
-            <div class="job-modal-fact">
-                <div class="job-modal-fact-icon text-danger"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="jm-fact">
+                <div class="jm-fact-icon" style="background:var(--brand-rose-soft,#fff1f3);color:var(--brand-rose,#e05269);">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
                 <div>
-                    <span class="job-modal-fact-label">Location</span>
-                    <span class="job-modal-fact-value">@(string.IsNullOrEmpty(Model.Location) ? "-" : Model.Location)</span>
+                    <span class="jm-fact-label">Location</span>
+                    <span class="jm-fact-value">@(string.IsNullOrEmpty(Model.Location) ? "Not specified" : Model.Location)</span>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-4">
-            <div class="job-modal-fact">
-                <div class="job-modal-fact-icon text-primary"><i class="fa-solid fa-briefcase"></i></div>
+            <div class="jm-fact">
+                <div class="jm-fact-icon" style="background:var(--brand-blue-soft,#eff6ff);color:var(--brand-blue,#2563eb);">
+                    <i class="fa-solid fa-briefcase"></i>
+                </div>
                 <div>
-                    <span class="job-modal-fact-label">Job Type</span>
-                    <span class="job-modal-fact-value">@(Model.JobType ?? "-")</span>
+                    <span class="jm-fact-label">Job Type</span>
+                    <span class="jm-fact-value">@(Model.JobType ?? "Not specified")</span>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-4">
-            <div class="job-modal-fact">
-                <div class="job-modal-fact-icon text-warning"><i class="fa-regular fa-calendar-check"></i></div>
+            <div class="jm-fact">
+                <div class="jm-fact-icon" style="background:var(--brand-gold-soft,#fff7df);color:var(--warning,#d97706);">
+                    <i class="fa-regular fa-calendar-check"></i>
+                </div>
                 <div>
-                    <span class="job-modal-fact-label">Apply By</span>
-                    <span class="job-modal-fact-value">@Model.ClosingDate.ToString("dd MMM yyyy")</span>
+                    <span class="jm-fact-label">Apply By</span>
+                    <span class="jm-fact-value">@Model.ClosingDate.ToString("dd MMM yyyy")</span>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-4">
-            <div class="job-modal-fact">
-                <div class="job-modal-fact-icon text-primary"><i class="fa-regular fa-clock"></i></div>
+            <div class="jm-fact">
+                <div class="jm-fact-icon" style="background:var(--info-soft,#e0f2fe);color:var(--info,#0284c7);">
+                    <i class="fa-regular fa-clock"></i>
+                </div>
                 <div>
-                    <span class="job-modal-fact-label">Posted On</span>
-                    <span class="job-modal-fact-value">@Model.PostedDate.ToString("dd MMM yyyy")</span>
+                    <span class="jm-fact-label">Posted On</span>
+                    <span class="jm-fact-value">@Model.PostedDate.ToString("dd MMM yyyy")</span>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-4">
-            <div class="job-modal-fact">
-                <div class="job-modal-fact-icon text-secondary"><i class="fa-solid fa-user-tie"></i></div>
+            <div class="jm-fact">
+                <div class="jm-fact-icon" style="background:var(--brand-blue-soft,#eff6ff);color:var(--brand-blue,#2563eb);">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
                 <div>
-                    <span class="job-modal-fact-label">Posted By</span>
-                    <span class="job-modal-fact-value">@(Model.PostedByName ?? "AJCONS")</span>
+                    <span class="jm-fact-label">Posted By</span>
+                    <span class="jm-fact-value">@(Model.PostedByName ?? "AJCONS")</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <h6 class="job-modal-section-title"><i class="fa-solid fa-circle-info me-2"></i>About This Job</h6>
-    <p class="job-modal-desc mb-4">
+    <!-- Description -->
+    <h6 class="jm-section-title"><i class="fa-solid fa-circle-info"></i>About This Job</h6>
+    <p class="jm-desc mb-4">
         @(string.IsNullOrWhiteSpace(Model.Description) ? "No description provided for this job." : Model.Description)
     </p>
 
-    <h6 class="job-modal-section-title"><i class="fa-solid fa-list-check me-2"></i>Requirements</h6>
+    <!-- Requirements -->
+    <h6 class="jm-section-title"><i class="fa-solid fa-list-check"></i>Requirements</h6>
     @if (string.IsNullOrWhiteSpace(Model.Requirements))
     {
-        <p class="job-modal-desc mb-0 text-muted">No specific requirements listed.</p>
+        <p class="jm-desc mb-0" style="color:var(--text-muted,#64748b);">No specific requirements listed.</p>
     }
     else
     {
-        <div class="job-modal-req">@Model.Requirements</div>
+        <div class="jm-req">@Model.Requirements</div>
     }
 </div>
 
-<div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-    <button type="button" class="btn btn-outline-secondary px-4 fw-semibold" data-bs-dismiss="modal">Close</button>
+<!-- Footer -->
+<div class="jm-footer">
+    <div class="d-flex align-items-center justify-content-between">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Close</button>
+        @if (!Model.IsApplied && Model.Status.Equals("Open", StringComparison.OrdinalIgnoreCase))
+        {
+            <button type="button" class="btn btn-academic px-4" data-bs-dismiss="modal"
+                    onclick="document.getElementById('applyJobBtn_@Model.Id')?.click()">
+                <i class="fa-solid fa-paper-plane me-1"></i>Apply Now
+            </button>
+        }
+    </div>
 </div>

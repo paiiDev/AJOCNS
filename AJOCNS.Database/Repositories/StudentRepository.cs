@@ -23,6 +23,12 @@ namespace AJOCNS.Database.Repositories
             return await _context.Users.IgnoreQueryFilters().AnyAsync(u => u.Email == email);
         }
 
+        public async Task<bool> EmailExistsForOtherUserAsync(string email, int currentUserId)
+        {
+            return await _context.Users.IgnoreQueryFilters()
+                .AnyAsync(u => u.Email == email && u.UserId != currentUserId);
+        }
+
         public async Task<string?> GetLastSRNAsync()
         {
             var srns = await _context.Students.AsNoTracking().Select(s => s.Srn).ToListAsync();
@@ -279,6 +285,7 @@ namespace AJOCNS.Database.Repositories
         {
             return await _context.Students
                 .Include(s => s.Major)
+                .Include(s => s.User)
                 .Include(s => s.Enrollments)
                 .Include(s => s.GraduationRecords)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
@@ -333,7 +340,9 @@ namespace AJOCNS.Database.Repositories
         {
             try
             {
-                var existing = await _context.Students.FindAsync(student.StudentId);
+                var existing = await _context.Students
+                    .Include(s => s.User)
+                    .FirstOrDefaultAsync(s => s.StudentId == student.StudentId);
                 if (existing is null) return false;
 
                 existing.Name = student.Name;
@@ -342,6 +351,11 @@ namespace AJOCNS.Database.Repositories
                 existing.Address = student.Address;
                 existing.MajorId = student.MajorId;
                 existing.GraduationStatus = student.GraduationStatus;
+
+                if (existing.User != null && !string.IsNullOrWhiteSpace(student.User?.Email))
+                {
+                    existing.User.Email = student.User.Email;
+                }
 
                 await _context.SaveChangesAsync();
                 return true;

@@ -5,46 +5,53 @@
 }
 
 <style>
-    .event-modal-hero {
+    .ev-hero {
         position: relative;
-        height: 230px;
-        border-radius: 0;
-        background: linear-gradient(135deg, var(--academic-blue-deep), var(--academic-blue));
+        height: 240px;
+        background: linear-gradient(135deg, #1d4ed8, #7c3aed);
         overflow: hidden;
+        border-radius: 0;
     }
-    .event-modal-poster {
+    .ev-hero-poster {
         width: 100%;
-        height: 230px;
+        height: 240px;
         object-fit: cover;
         display: block;
     }
-    .event-modal-hero.no-poster .event-modal-shade {
-        background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.6));
+    .ev-hero.no-poster .ev-shade {
+        background: linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(0,0,0,.65));
     }
-    .event-modal-hero-icon {
+    .ev-hero-icon {
         position: absolute;
         right: -20px;
         bottom: -20px;
-        font-size: 160px;
-        color: rgba(255,255,255,.14);
+        font-size: 150px;
+        color: rgba(255,255,255,.12);
     }
-    .event-modal-shade {
+    .ev-shade {
         position: absolute;
         inset: 0;
-        background: linear-gradient(180deg, rgba(0,0,0,.05) 30%, rgba(0,0,0,.65));
+        background: linear-gradient(180deg, rgba(0,0,0,.05) 20%, rgba(0,0,0,.6));
     }
-    .event-modal-close {
+    .ev-close {
         position: absolute;
-        top: 14px;
-        right: 16px;
+        top: 12px;
+        right: 14px;
         z-index: 3;
-        background: rgba(255,255,255,.25);
+        background: rgba(255,255,255,.2);
         border-radius: 50%;
-        padding: .5rem;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: #fff;
+        border: none;
+        font-size: 1rem;
+        transition: background .2s;
     }
-    .event-modal-close:hover { background: rgba(255,255,255,.4); }
-    .event-modal-hero-content {
+    .ev-close:hover { background: rgba(255,255,255,.35); }
+    .ev-hero-content {
         position: absolute;
         left: 24px;
         right: 24px;
@@ -52,196 +59,275 @@
         z-index: 2;
         color: #fff;
     }
-    .event-modal-badge {
-        background: rgba(255,255,255,.92);
-        color: var(--academic-blue-deep);
-        font-weight: 600;
-        padding: .45em .9em;
-        border-radius: 50rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,.15);
-    }
-    .event-modal-title { font-size: 1.5rem; margin-bottom: .25rem; text-shadow: 0 2px 6px rgba(0,0,0,.3); }
-    .event-modal-date { font-size: .9rem; opacity: .95; }
-    .event-modal-body { padding: 1.5rem 1.75rem; }
-    .event-modal-fact {
-        display: flex;
-        align-items: center;
-        gap: .8rem;
-        background: #f6f8fb;
-        border: 1px solid #eef2f6;
-        border-radius: .75rem;
-        padding: .8rem 1rem;
-        height: 100%;
-    }
-    .event-modal-fact-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: .6rem;
-        background: #fff;
+    .ev-badge {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 6px rgba(24,56,92,.08);
-        flex-shrink: 0;
-    }
-    .event-modal-fact-label {
-        display: block;
-        font-size: .72rem;
-        text-transform: uppercase;
-        letter-spacing: .5px;
-        color: #8a94a6;
+        gap: 5px;
+        background: rgba(255,255,255,.92);
+        color: #1d4ed8;
         font-weight: 600;
+        font-size: 0.75rem;
+        padding: .4em .85em;
+        border-radius: 50rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,.12);
     }
-    .event-modal-fact-value {
-        display: block;
+    .ev-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         font-weight: 600;
-        color: #15253a;
-        font-size: .95rem;
+        font-size: 0.75rem;
+        padding: .4em .85em;
+        border-radius: 50rem;
     }
-    .event-modal-section-title {
-        font-weight: 700;
-        color: #15253a;
-        margin-bottom: .75rem;
-    }
-    .event-modal-desc {
-        color: #5a6473;
-        line-height: 1.7;
-        white-space: pre-line;
-        font-size: .95rem;
-    }
-    .mentor-banner {
+    .ev-status-pending { background: #fef3cd; color: #92400e; }
+    .ev-status-approved, .ev-status-upcoming { background: #dcfce7; color: #166534; }
+    .ev-status-completed { background: #e0e7ff; color: #3730a3; }
+    .ev-status-rejected { background: #fee2e2; color: #991b1b; }
+    .ev-title { font-size: 1.45rem; font-weight: 800; margin-bottom: .25rem; text-shadow: 0 2px 6px rgba(0,0,0,.25); }
+    .ev-date { font-size: .88rem; opacity: .92; }
+    .ev-body { padding: 1.5rem 1.75rem; }
+
+    .ev-fact {
         display: flex;
         align-items: center;
         gap: .75rem;
-        background: linear-gradient(135deg, rgba(24,56,92,.05), rgba(24,56,92,.12));
-        border: 1px solid rgba(24,56,92,.18);
-        border-radius: .85rem;
+        background: var(--surface, #f7f9fc);
+        border: 1px solid var(--border-light, #edf2f7);
+        border-radius: 12px;
+        padding: .75rem 1rem;
+        height: 100%;
+        transition: box-shadow .2s;
+    }
+    .ev-fact:hover { box-shadow: 0 2px 8px rgba(16,35,63,.06); }
+    .ev-fact-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: .9rem;
+    }
+    .ev-fact-label {
+        display: block;
+        font-size: .68rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: var(--text-muted, #64748b);
+        font-weight: 600;
+    }
+    .ev-fact-value {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary, #142033);
+        font-size: .9rem;
+    }
+
+    .ev-section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: .92rem;
+        font-weight: 700;
+        color: var(--text-primary, #142033);
+        margin-bottom: .75rem;
+        padding-bottom: .5rem;
+        border-bottom: 1px solid var(--border-light, #edf2f7);
+    }
+    .ev-section-title i { color: var(--brand-blue, #2563eb); font-size: .82rem; }
+    .ev-desc {
+        color: var(--text-secondary, #4b5563);
+        line-height: 1.75;
+        white-space: pre-line;
+        font-size: .92rem;
+    }
+
+    .ev-reg-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: .82rem;
+        font-weight: 600;
+        color: var(--text-muted, #64748b);
+        background: var(--surface, #f7f9fc);
+        border: 1px solid var(--border-light, #edf2f7);
+        border-radius: 50rem;
+        padding: .35em .9em;
+    }
+
+    /* Mentor section */
+    .ev-mentor-toggle {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        background: linear-gradient(135deg, rgba(37,99,235,.04), rgba(37,99,235,.10));
+        border: 1px solid rgba(37,99,235,.15);
+        border-radius: 12px;
         padding: .65rem 1rem;
         cursor: pointer;
-        transition: background .15s ease;
+        transition: background .15s;
     }
-    .mentor-banner:hover { background: linear-gradient(135deg, rgba(24,56,92,.1), rgba(24,56,92,.18)); }
-    .mentor-banner-avatar {
-        width: 46px;
-        height: 46px;
+    .ev-mentor-toggle:hover { background: linear-gradient(135deg, rgba(37,99,235,.08), rgba(37,99,235,.16)); }
+    .ev-mentor-avatar {
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
-        background: var(--academic-blue);
+        background: var(--brand-blue, #2563eb);
         color: #fff;
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 1.05rem;
+        font-size: 1rem;
         flex-shrink: 0;
     }
-    .mentor-info-card {
-        border: 1px solid #eef2f6;
-        border-radius: .85rem;
+    .ev-mentor-card {
+        border: 1px solid var(--border-light, #edf2f7);
+        border-radius: 12px;
         padding: 1rem 1.25rem;
-        background: #fafbfd;
+        background: var(--surface, #f7f9fc);
     }
-    .mentor-position-chip {
+    .ev-position-chip {
         display: inline-flex;
         align-items: center;
         gap: .4rem;
         background: #fff;
-        border: 1px solid #e8edf3;
+        border: 1px solid var(--border-light, #edf2f7);
         border-radius: 50rem;
         padding: .3rem .8rem;
-        font-size: .8rem;
+        font-size: .78rem;
         font-weight: 600;
-        color: #2c3e5d;
+        color: var(--text-primary, #142033);
+    }
+
+    .ev-footer {
+        padding: 1rem 1.75rem;
+        border-top: 1px solid var(--border-light, #edf2f7);
+        background: var(--surface, #f7f9fc);
+        border-radius: 0 0 16px 16px;
     }
 </style>
 
-<div class="event-modal-hero @(!string.IsNullOrEmpty(Model.PosterImagePath) ? "" : "no-poster")">
+<!-- Hero -->
+<div class="ev-hero @(!string.IsNullOrEmpty(Model.PosterImagePath) ? "" : "no-poster")">
     @if (!string.IsNullOrEmpty(Model.PosterImagePath))
     {
         <img src="@Model.PosterImagePath" alt="Event poster for @Model.EventTitle"
-             class="event-modal-poster"
+             class="ev-hero-poster"
              onerror="this.parentElement.classList.add('no-poster');this.remove()" />
     }
     else
     {
-        <i class="fa-solid fa-calendar-days event-modal-hero-icon"></i>
+        <i class="fa-solid fa-calendar-days ev-hero-icon"></i>
     }
-
-    <div class="event-modal-shade"></div>
-
-    <button type="button" class="btn-close event-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
-    <div class="event-modal-hero-content">
-        <div class="d-flex flex-wrap gap-2 mb-2">
-            <span class="badge event-modal-badge"><i class="fa-solid fa-tag me-1"></i>@Model.EventTypeName</span>
-            @if (Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
-            {
-                <span class="badge text-bg-warning"><i class="fa-solid fa-clock me-1"></i>Pending approval</span>
+    <div class="ev-shade"></div>
+    <button type="button" class="ev-close" data-bs-dismiss="modal" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="ev-hero-content">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <span class="ev-badge"><i class="fa-solid fa-tag"></i>@Model.EventTypeName</span>
+            @{
+                var statusClass = Model.Status.ToLower() switch
+                {
+                    "pending" => "ev-status-pending",
+                    "approved" or "upcoming" => "ev-status-upcoming",
+                    "completed" => "ev-status-completed",
+                    "rejected" => "ev-status-rejected",
+                    _ => "ev-status-upcoming"
+                };
+                var statusIcon = Model.Status.ToLower() switch
+                {
+                    "pending" => "fa-clock",
+                    "rejected" => "fa-xmark",
+                    "completed" => "fa-check-circle",
+                    _ => "fa-check-circle"
+                };
             }
-            else if (Model.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
-            {
-                <span class="badge text-bg-danger"><i class="fa-solid fa-xmark me-1"></i>Rejected</span>
-            }
-            else if (Model.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
-            {
-                <span class="badge text-bg-primary"><i class="fa-solid fa-check-circle me-1"></i>Completed</span>
-            }
-            else
-            {
-                <span class="badge text-bg-success"><i class="fa-solid fa-check-circle me-1"></i>@Model.Status</span>
-            }
+            <span class="ev-status @statusClass"><i class="fa-solid @statusIcon"></i>@Model.Status</span>
         </div>
-        <h3 class="event-modal-title fw-bold">@Model.EventTitle</h3>
-        <p class="event-modal-date mb-0"><i class="fa-regular fa-clock me-1"></i>@Model.EventDate.ToString("dddd, dd MMM yyyy") &middot; @Model.EventDate.ToString("hh:mm tt")</p>
+        <h3 class="ev-title">@Model.EventTitle</h3>
+        <p class="ev-date mb-0">
+            <i class="fa-regular fa-clock me-1"></i>@Model.EventDate.ToString("dddd, dd MMM yyyy") &middot; @Model.EventDate.ToString("hh:mm tt")
+        </p>
     </div>
 </div>
 
-<div class="event-modal-body">
+<!-- Body -->
+<div class="ev-body">
 
+    <!-- Registration count -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <span class="ev-reg-count">
+            <i class="fa-solid fa-users"></i>
+            @Model.RegisteredCount registered
+            @if (Model.MaxCapacity.HasValue)
+            {
+                <span>/ @Model.MaxCapacity.Value slots</span>
+            }
+        </span>
+        @if (Model.IsRegistered)
+        {
+            <span class="status-pill status-pill-success"><i class="fa-solid fa-check"></i>You're registered</span>
+        }
+    </div>
+
+    <!-- Info Grid -->
     <div class="row g-2 mb-4">
         <div class="col-md-6">
-            <div class="event-modal-fact">
-                <div class="event-modal-fact-icon text-danger"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="ev-fact">
+                <div class="ev-fact-icon" style="background:var(--brand-rose-soft,#fff1f3);color:var(--brand-rose,#e05269);">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
                 <div>
-                    <span class="event-modal-fact-label">Location / Mode</span>
-                    <span class="event-modal-fact-value">@(string.IsNullOrEmpty(Model.Location) ? (Model.EventMode ?? "Online") : Model.Location)</span>
+                    <span class="ev-fact-label">Location / Mode</span>
+                    <span class="ev-fact-value">@(string.IsNullOrEmpty(Model.Location) ? (Model.EventMode ?? "Online") : Model.Location)</span>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="event-modal-fact">
-                <div class="event-modal-fact-icon text-primary"><i class="fa-solid fa-user-tie"></i></div>
+            <div class="ev-fact">
+                <div class="ev-fact-icon" style="background:var(--brand-blue-soft,#eff6ff);color:var(--brand-blue,#2563eb);">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
                 <div>
-                    <span class="event-modal-fact-label">Organizer</span>
-                    <span class="event-modal-fact-value">@(Model.CreatedByName ?? "Unknown")</span>
+                    <span class="ev-fact-label">Organizer</span>
+                    <span class="ev-fact-value">@(Model.CreatedByName ?? "Unknown")</span>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="event-modal-fact">
-                <div class="event-modal-fact-icon text-success"><i class="fa-solid fa-users"></i></div>
+            <div class="ev-fact">
+                <div class="ev-fact-icon" style="background:var(--brand-teal-soft,#e8fbf8);color:var(--brand-teal,#0f9f8f);">
+                    <i class="fa-solid fa-users"></i>
+                </div>
                 <div>
-                    <span class="event-modal-fact-label">Capacity</span>
-                    <span class="event-modal-fact-value">@(Model.MaxCapacity?.ToString() ?? "Unlimited")</span>
+                    <span class="ev-fact-label">Capacity</span>
+                    <span class="ev-fact-value">@(Model.MaxCapacity?.ToString() ?? "Unlimited")</span>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="event-modal-fact">
-                <div class="event-modal-fact-icon text-warning"><i class="fa-solid fa-calendar-days"></i></div>
+            <div class="ev-fact">
+                <div class="ev-fact-icon" style="background:var(--brand-gold-soft,#fff7df);color:var(--warning,#d97706);">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
                 <div>
-                    <span class="event-modal-fact-label">Event Type</span>
-                    <span class="event-modal-fact-value">@Model.EventTypeName</span>
+                    <span class="ev-fact-label">Event Mode</span>
+                    <span class="ev-fact-value">@(Model.EventMode ?? "Not specified")</span>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Mentor Info -->
     @if (mentorProfile != null)
     {
-        @* See mentor info toggle *@
-        <div class="mentor-banner mb-3" id="mentorInfoBanner"
-             data-bs-toggle="collapse" data-bs-target="#mentorInfoCard" aria-expanded="false" aria-controls="mentorInfoCard">
-            <div class="mentor-banner-avatar">
+        <div class="ev-mentor-toggle mb-3" id="evMentorToggle"
+             data-bs-toggle="collapse" data-bs-target="#evMentorCard" aria-expanded="false">
+            <div class="ev-mentor-avatar">
                 @{
                     var nameParts = (mentorProfile.Name ?? "Mentor").Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
                     var initials = string.Concat(nameParts.Take(2).Select(w => char.ToUpperInvariant(w[0])));
@@ -250,87 +336,92 @@
                 @initials
             </div>
             <div class="flex-grow-1">
-                <div class="small text-uppercase fw-semibold" style="color:#8a94a6;letter-spacing:.4px;"><i class="fa-solid fa-user-graduate me-1"></i>Posted by an alumni mentor</div>
-                <div class="fw-bold">@mentorProfile.Name</div>
+                <div class="small text-uppercase fw-semibold" style="color:var(--text-muted,#64748b);letter-spacing:.04em;font-size:.7rem;">
+                    <i class="fa-solid fa-user-graduate me-1"></i>Hosted by alumni mentor
+                </div>
+                <div class="fw-bold" style="color:var(--text-primary,#142033);">@mentorProfile.Name</div>
             </div>
-            <i class="fa-solid fa-chevron-down me-1" id="mentorInfoChevron" style="transition: transform .2s ease;"></i>
+            <i class="fa-solid fa-chevron-down" id="evMentorChevron" style="color:var(--text-muted,#64748b);transition:transform .2s;"></i>
         </div>
 
-        <div class="collapse mb-4" id="mentorInfoCard">
-            <div class="mentor-info-card">
-                <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-1">
+        <div class="collapse mb-4" id="evMentorCard">
+            <div class="ev-mentor-card">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
                     <div>
-                        <h6 class="fw-bold mb-1">@mentorProfile.Name</h6>
-                        <div class="small text-muted"><i class="fa-solid fa-at me-1"></i>@mentorProfile.Email</div>
-                        <div class="small text-muted"><i class="fa-solid fa-graduation-cap me-1"></i>Alumni &middot; Class of @mentorProfile.AlumniGy</div>
+                        <h6 class="fw-bold mb-1" style="color:var(--text-primary,#142033);">@mentorProfile.Name</h6>
+                        <div class="small" style="color:var(--text-muted,#64748b);"><i class="fa-solid fa-at me-1"></i>@mentorProfile.Email</div>
+                        <div class="small" style="color:var(--text-muted,#64748b);"><i class="fa-solid fa-graduation-cap me-1"></i>Alumni &middot; Class of @mentorProfile.AlumniGy</div>
                     </div>
-                    <span class="badge text-bg-light border"><i class="fa-solid fa-building me-1"></i>@mentorProfile.CurrentPositions.Count current position(s)</span>
+                    <span class="ev-reg-count"><i class="fa-solid fa-building"></i>@mentorProfile.CurrentPositions.Count position(s)</span>
                 </div>
-
                 @if (!string.IsNullOrWhiteSpace(mentorProfile.Expertise))
                 {
                     <div class="mt-2">
-                        <div class="small text-uppercase fw-semibold" style="color:#8a94a6;letter-spacing:.4px;font-size:.7rem;">Areas of expertise</div>
-                        <div class="mt-1">@mentorProfile.Expertise</div>
+                        <div class="small text-uppercase fw-semibold" style="color:var(--text-muted,#64748b);letter-spacing:.04em;font-size:.68rem;">Areas of expertise</div>
+                        <div class="mt-1" style="color:var(--text-secondary,#4b5563);font-size:.88rem;">@mentorProfile.Expertise</div>
                     </div>
                 }
-
                 @if (mentorProfile.HasEmploymentRecords)
                 {
                     <div class="mt-3 d-flex flex-wrap gap-2">
                         @foreach (var pos in mentorProfile.EmploymentRecords.Where(e => e.IsCurrent))
                         {
-                            <span class="mentor-position-chip"><i class="fa-solid fa-briefcase text-primary"></i>@pos.PositionName &middot; @pos.CompanyName</span>
+                            <span class="ev-position-chip"><i class="fa-solid fa-briefcase" style="color:var(--brand-blue,#2563eb);"></i>@pos.PositionName &middot; @pos.CompanyName</span>
                         }
                         @foreach (var pos in mentorProfile.EmploymentRecords.Where(e => !e.IsCurrent).OrderByDescending(e => e.EndDate))
                         {
-                            <span class="mentor-position-chip text-muted"><i class="fa-solid fa-briefcase"></i>@pos.PositionName &middot; @pos.CompanyName</span>
-                        }
-                        @if (!mentorProfile.EmploymentRecords.Any())
-                        {
-                            <span class="small text-muted">No employment history added yet.</span>
+                            <span class="ev-position-chip" style="color:var(--text-muted,#64748b);"><i class="fa-solid fa-briefcase"></i>@pos.PositionName &middot; @pos.CompanyName</span>
                         }
                     </div>
-                }
-                else
-                {
-                    <div class="small text-muted mt-2">This mentor has not added employment details yet.</div>
                 }
             </div>
         </div>
     }
 
-    <h6 class="event-modal-section-title"><i class="fa-solid fa-circle-info me-2"></i>About This Event</h6>
-    <p class="event-modal-desc">
-        @(string.IsNullOrWhiteSpace(Model.Description) ? "No description provided for this event." : Model.Description)
-    </p>
+    <!-- Description -->
+    <h6 class="ev-section-title"><i class="fa-solid fa-circle-info"></i>About This Event</h6>
+    <p class="ev-desc">@(string.IsNullOrWhiteSpace(Model.Description) ? "No description provided for this event." : Model.Description)</p>
 </div>
 
-<div class="modal-footer bg-light border-top-0 rounded-bottom-4">
-    <button type="button" class="btn btn-outline-secondary px-4 fw-semibold" data-bs-dismiss="modal">Close</button>
-
-    @if (canManage)
-    {
-        <div class="d-flex gap-2 flex-wrap justify-content-end">
-            @if (Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) && User.IsInRole("Admin"))
-            {
-                <form asp-action="RejectEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post">
-                    <button type="submit" class="btn btn-danger px-4 fw-semibold shadow-sm">
-                        <i class="fa-solid fa-xmark me-2"></i>Reject
-                    </button>
-                </form>
-                <form asp-action="ApproveEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post">
-                    <button type="submit" class="btn btn-success px-4 fw-semibold shadow-sm">
-                        <i class="fa-solid fa-check me-2"></i>Approve
-                    </button>
-                </form>
-            }
-            <a asp-action="Registrants" asp-controller="Event" asp-route-id="@Model.Id" class="btn btn-outline-primary px-4 fw-semibold shadow-sm">
-                <i class="fa-solid fa-users me-2"></i>View Registrants
-            </a>
-            <a asp-action="SendZoomLink" asp-controller="Event" asp-route-id="@Model.Id" class="btn btn-success px-4 fw-semibold shadow-sm">
-                <i class="fa-solid fa-video me-2"></i>Send Zoom Link
-            </a>
-        </div>
-    }
+<!-- Footer -->
+<div class="ev-footer">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Close</button>
+        @if (canManage)
+        {
+            <div class="d-flex gap-2 flex-wrap">
+                @if (Model.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase) && User.IsInRole("Admin"))
+                {
+                    <form asp-action="RejectEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-outline-danger px-3">
+                            <i class="fa-solid fa-xmark me-1"></i>Reject
+                        </button>
+                    </form>
+                    <form asp-action="ApproveEvent" asp-controller="Event" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-success px-3">
+                            <i class="fa-solid fa-check me-1"></i>Approve
+                        </button>
+                    </form>
+                }
+                <a asp-action="Registrants" asp-controller="Event" asp-route-id="@Model.Id" class="btn btn-outline-primary px-3">
+                    <i class="fa-solid fa-users me-1"></i>Registrants
+                </a>
+                <a asp-action="SendZoomLink" asp-controller="Event" asp-route-id="@Model.Id" class="btn btn-academic px-3">
+                    <i class="fa-solid fa-video me-1"></i>Send Zoom Link
+                </a>
+            </div>
+        }
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var toggle = document.getElementById('evMentorToggle');
+        var chevron = document.getElementById('evMentorChevron');
+        if (toggle && chevron) {
+            toggle.addEventListener('click', function () {
+                chevron.style.transform = chevron.style.transform === 'rotate(180deg)' ? '' : 'rotate(180deg)';
+            });
+        }
+    });
+</script>

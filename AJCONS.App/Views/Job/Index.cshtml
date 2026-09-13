@@ -10,11 +10,9 @@
         <div class="container-fluid px-lg-4">
             <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
                 <div>
-                    <div class="text-uppercase fw-bold small text-academic mb-1" style="letter-spacing:.08em">
-                        Job management
-                    </div>
-                    <h1 class="h2 fw-bold mb-1">Job posts</h1>
-                    <p class="text-muted mb-0">@Model.TotalCount job post(s) in total.</p>
+                    <div class="page-header-label">Job Management</div>
+                    <h1 class="page-header-title">Job Posts</h1>
+                    <p class="page-header-sub">@Model.TotalCount job post(s) in total.</p>
                 </div>
                 <a asp-action="CreateJobPost" asp-controller="Job" class="btn btn-academic">
                     <i class="fa-solid fa-briefcase me-2"></i>Create job post
@@ -92,32 +90,32 @@
                                             @switch (job.Status.ToLower())
                                             {
                                                 case "closed":
-                                                    <span class="badge text-bg-secondary">Closed</span>
+                                                    <span class="status-pill status-pill-muted"><i class="fa-solid fa-circle"></i>Closed</span>
                                                     break;
                                                 case "open":
-                                                    <span class="badge text-bg-success">Open</span>
+                                                    <span class="status-pill status-pill-success"><i class="fa-solid fa-circle"></i>Open</span>
                                                     break;
                                                 case "pending":
-                                                    <span class="badge text-bg-warning">Pending approval</span>
+                                                    <span class="status-pill status-pill-warning"><i class="fa-solid fa-clock"></i>Pending</span>
                                                     break;
                                                 case "rejected":
-                                                    <span class="badge text-bg-danger">Rejected</span>
+                                                    <span class="status-pill status-pill-danger"><i class="fa-solid fa-circle"></i>Rejected</span>
                                                     break;
                                                 default:
-                                                    <span class="badge" style="background:#eaf4ff;color:#073d78">@job.Status</span>
+                                                    <span class="status-pill status-pill-info"><i class="fa-solid fa-circle"></i>@job.Status</span>
                                                     break;
                                             }
                                         </td>
                                         <td class="text-end pe-4">
-                                            <div class="d-flex justify-content-end gap-1">
-                                                <a asp-action="Details" asp-route-id="@job.Id" class="btn btn-sm btn-outline-info" title="View details for @job.Title" aria-label="View details for @job.Title">
+                                            <div class="table-actions">
+                                                <a asp-action="Details" asp-route-id="@job.Id" class="btn btn-sm btn-outline-primary" title="View details for @job.Title">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
                                                 @if (isAdmin && string.Equals(job.Status, "Pending", StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     <form asp-action="ApproveJobPost" asp-route-id="@job.Id" method="post" class="d-inline">
                                                         @Html.AntiForgeryToken()
-                                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Approve @job.Title">
+                                                        <button type="submit" class="btn btn-sm btn-success" title="Approve @job.Title">
                                                             <i class="fa-solid fa-check"></i>
                                                         </button>
                                                     </form>
@@ -128,15 +126,14 @@
                                                         </button>
                                                     </form>
                                                 }
-                                                <a asp-action="EditJobPost" asp-route-id="@job.Id" class="btn btn-sm btn-outline-primary"
-                                                   title="Edit @job.Title" aria-label="Edit @job.Title">
+                                                <a asp-action="EditJobPost" asp-route-id="@job.Id" class="btn btn-sm btn-outline-secondary"
+                                                   title="Edit @job.Title">
                                                     <i class="fa-solid fa-pen"></i>
                                                 </a>
                                                 <form asp-action="DeleteJobPost" asp-controller="Job" asp-route-id="@job.Id" method="post"
                                                       class="d-inline confirm-delete" data-job-title="@job.Title">
                                                     @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete @job.Title"
-                                                            aria-label="Delete @job.Title">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete @job.Title">
                                                         <i class="fa-solid fa-trash-can"></i>
                                                     </button>
                                                 </form>
@@ -148,8 +145,14 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="8" class="text-center py-5 text-muted">
-                                        <i class="fa-regular fa-folder-open fs-2 d-block mb-2"></i>No job posts found. Create one to begin.
+                                    <td colspan="8">
+                                        <div class="table-empty">
+                                            <div class="empty-icon" style="background:var(--brand-blue-soft);color:var(--brand-blue);">
+                                                <i class="fa-regular fa-folder-open"></i>
+                                            </div>
+                                            <h4>No job posts found</h4>
+                                            <p>Create one to start receiving applications.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             }

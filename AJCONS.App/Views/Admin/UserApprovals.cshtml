@@ -23,27 +23,41 @@
     <section class="content pb-5">
         <div class="container-fluid px-lg-4">
             <div class="card adminlte-card">
-                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 py-3">
+                <div class="card-header d-flex align-items-center gap-3 py-3">
                     <h3 class="card-title fw-bold mb-0">Pending registrations</h3>
-                    <div class="d-flex flex-wrap align-items-center gap-2">
-                        <div class="input-group input-group-sm">
+                    <div class="ms-auto d-flex align-items-center gap-2 flex-shrink-0">
+                        <div class="input-group input-group-sm" style="max-width:220px;">
                             <span class="input-group-text bg-white"><i class="fa-solid fa-search text-muted"></i></span>
                             <input type="search" id="approvalSearch" class="form-control" placeholder="Search applicants..." aria-label="Search pending applicants" />
                         </div>
-                        <span class="badge rounded-pill text-bg-warning">@pendingUsers.Count waiting</span>
+                        <span class="status-pill status-pill-warning flex-shrink-0">
+                            <i class="fa-solid fa-clock"></i>@pendingUsers.Count waiting
+                        </span>
                     </div>
                 </div>
                 <div class="px-4 pt-3 approval-filters" role="group" aria-label="Filter approvals by role">
-                    <a asp-action="UserApprovals" asp-route-role="All" class="btn btn-sm rounded-pill me-1 mb-2 @(ViewBag.SelectedRole == "All" ? "btn-primary active" : "btn-outline-secondary")">All</a>
-                    <a asp-action="UserApprovals" asp-route-role="Mentor" class="btn btn-sm rounded-pill me-1 mb-2 @(ViewBag.SelectedRole == "Mentor" ? "btn-primary active" : "btn-outline-info")">Alumni Mentors</a>
-                    <a asp-action="UserApprovals" asp-route-role="ExternalPartner" class="btn btn-sm rounded-pill mb-2 @(ViewBag.SelectedRole == "ExternalPartner" ? "btn-primary active" : "btn-outline-primary")">External Partners</a>
+                    <a asp-action="UserApprovals" asp-route-role="All"
+                       class="filter-pill @(ViewBag.SelectedRole == "All" ? "active" : "")">
+                        All
+                    </a>
+                    <a asp-action="UserApprovals" asp-route-role="Mentor"
+                       class="filter-pill @(ViewBag.SelectedRole == "Mentor" ? "active" : "")">
+                        Alumni Mentors
+                    </a>
+                    <a asp-action="UserApprovals" asp-route-role="ExternalPartner"
+                       class="filter-pill @(ViewBag.SelectedRole == "ExternalPartner" ? "active" : "")">
+                        External Partners
+                    </a>
                 </div>
                 <div class="table-responsive">
                     @if (pendingUsers.Count == 0)
                     {
-                        <div class="text-center py-5 text-muted">
-                            <i class="fa-solid fa-inbox fs-2 mb-3 d-block"></i>
-                            No pending user registrations to review.
+                        <div class="table-empty">
+                            <div class="empty-icon" style="background:var(--brand-blue-soft);color:var(--brand-blue);">
+                                <i class="fa-solid fa-inbox"></i>
+                            </div>
+                            <h4>All caught up</h4>
+                            <p>No pending user registrations to review.</p>
                         </div>
                     }
                     else
@@ -61,29 +75,42 @@
                                 @foreach (var user in pendingUsers)
                                 {
                                     <tr data-role="@user.Role">
-                                        <td class="ps-4">
-                                            <strong>@user.Name</strong>
-                                            <small class="d-block text-muted">@user.Email</small>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="table-avatar @(user.Role == "Mentor" ? "table-avatar-teal" : "table-avatar-navy")">
+                                                    @user.Name?.Substring(0, Math.Min(1, user.Name.Length)).ToUpper()
+                                                </span>
+                                                <div>
+                                                    <span class="table-name">@user.Name</span>
+                                                    <span class="table-email">@user.Email</span>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td>
                                             @if (user.Role == "Mentor")
                                             {
-                                                <span class="badge text-bg-info">Alumni Mentor</span>
+                                                <span class="status-pill status-pill-info">
+                                                    <i class="fa-solid fa-circle"></i>Alumni Mentor
+                                                </span>
                                             }
                                             else if (user.Role == "ExternalPartner")
                                             {
-                                                <span class="badge text-bg-primary">External Partner</span>
+                                                <span class="status-pill status-pill-purple">
+                                                    <i class="fa-solid fa-circle"></i>External Partner
+                                                </span>
                                             }
                                             else
                                             {
-                                                <span class="badge text-bg-secondary">@user.Role</span>
+                                                <span class="status-pill status-pill-muted">
+                                                    <i class="fa-solid fa-circle"></i>@user.Role
+                                                </span>
                                             }
                                         </td>
-                                        <td>@user.CreatedAt.ToString("d MMM yyyy, hh:mm tt")</td>
-                                        <td class="text-end pe-4">
-                                            @if (user.Role == "Mentor")
-                                            {
-                                                <div class="d-inline-flex gap-2">
+                                        <td class="table-detail">@user.CreatedAt.ToString("d MMM yyyy, hh:mm tt")</td>
+                                        <td>
+                                            <div class="table-actions">
+                                                @if (user.Role == "Mentor")
+                                                {
                                                     <form asp-action="VerifyUser" asp-controller="Admin" method="post" class="d-inline verify-form">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="userId" value="@user.UserId" />
@@ -98,14 +125,12 @@
                                                             <i class="fa-solid fa-xmark me-1"></i>Reject
                                                         </button>
                                                     </form>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="d-inline-flex gap-2">
-                                                     <a asp-action="ExternalPartnerDetails" asp-controller="Admin" asp-route-userId="@user.UserId" class="btn btn-sm btn-outline-primary">
-                                                         <i class="fa-solid fa-eye me-1"></i>Details
-                                                     </a>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-action="ExternalPartnerDetails" asp-controller="Admin" asp-route-userId="@user.UserId" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fa-solid fa-eye me-1"></i>Details
+                                                    </a>
                                                     <form asp-action="ApproveUser" asp-controller="Admin" method="post" class="d-inline approve-form">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="userId" value="@user.UserId" />
@@ -120,8 +145,8 @@
                                                             <i class="fa-solid fa-xmark me-1"></i>Reject
                                                         </button>
                                                     </form>
-                                                </div>
-                                            }
+                                                }
+                                            </div>
                                         </td>
                                     </tr>
                                 }

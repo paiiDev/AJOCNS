@@ -1,9 +1,113 @@
 @model AJOCNS.Shared.DTOs.Jobs.UpdateJobPostDto
-@{ ViewData["Title"] = "Job Post Details"; }
-<div class="container-fluid px-4 py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4"><div><div class="text-uppercase small fw-bold text-primary">Job management</div><h1 class="fw-bold mb-0">Job post details</h1></div><a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-2"></i>Back to job posts</a></div>
-    <div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4 p-lg-5"><h2 class="fw-bold">@Model.Title</h2><p class="text-muted"><i class="fa-solid fa-building me-2"></i>@Model.CompanyName</p>
-        <div class="row g-3 mb-4"><div class="col-md-4"><div class="bg-light rounded-3 p-3"><small class="text-muted d-block">Job type</small><strong>@(Model.JobType ?? "-")</strong></div></div><div class="col-md-4"><div class="bg-light rounded-3 p-3"><small class="text-muted d-block">Location</small><strong>@(Model.Location ?? "-")</strong></div></div><div class="col-md-4"><div class="bg-light rounded-3 p-3"><small class="text-muted d-block">Closing date</small><strong>@Model.ClosingDate.ToString("dd MMM yyyy, HH:mm")</strong></div></div></div>
-        <h5>Description</h5><p class="mb-4" style="white-space:pre-line">@Model.Description</p><h5>Requirements</h5><p class="mb-0" style="white-space:pre-line">@(Model.Requirements ?? "No requirements provided.")</p>
-    </div></div>
+@{
+    ViewData["Title"] = "Job Post Details";
+    var isAdmin = User.IsInRole("Admin");
+    var isMentor = User.IsInRole("Mentor");
+    var isPartner = User.IsInRole("ExternalPartner");
+}
+
+<div class="container-fluid px-lg-4 py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <div class="page-header-label">Job Management</div>
+            <h1 class="page-header-title">Job Post Details</h1>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-2"></i>Back to Job Posts
+        </a>
+    </div>
+
+    <!-- Job Card -->
+    <div class="content-card mb-4">
+        <div class="card-body p-4 p-lg-5">
+
+            <!-- Title + Company -->
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1" style="font-size:1.6rem;">@Model.Title</h2>
+                    <div class="d-flex align-items-center gap-2 text-muted">
+                        <i class="fa-solid fa-building"></i>
+                        <span>@Model.CompanyName</span>
+                    </div>
+                </div>
+                @if (isAdmin || isMentor || isPartner)
+                {
+                    <a asp-action="EditJobPost" asp-route-id="@Model.Id" class="btn btn-sm btn-academic">
+                        <i class="fa-solid fa-pen me-1"></i>Edit Post
+                    </a>
+                }
+            </div>
+
+            <!-- Quick Info Grid -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="detail-info-card">
+                        <div class="detail-info-icon" style="background:var(--brand-blue-soft);color:var(--brand-blue);">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <div>
+                            <small class="detail-info-label">Job Type</small>
+                            <strong class="detail-info-value">@(Model.JobType ?? "Not specified")</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="detail-info-card">
+                        <div class="detail-info-icon" style="background:var(--brand-teal-soft);color:var(--brand-teal);">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <small class="detail-info-label">Location</small>
+                            <strong class="detail-info-value">@(Model.Location ?? "Not specified")</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="detail-info-card">
+                        <div class="detail-info-icon" style="background:var(--brand-gold-soft);color:var(--warning);">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </div>
+                        <div>
+                            <small class="detail-info-label">Salary Range</small>
+                            <strong class="detail-info-value">@(Model.SalaryRange ?? "Not disclosed")</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="detail-info-card">
+                        <div class="detail-info-icon" style="background:var(--brand-rose-soft);color:var(--brand-rose);">
+                            <i class="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <div>
+                            <small class="detail-info-label">Closing Date</small>
+                            <strong class="detail-info-value">@Model.ClosingDate.ToString("dd MMM yyyy")</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="detail-section">
+                <h5 class="detail-section-title">
+                    <i class="fa-solid fa-align-left"></i>Description
+                </h5>
+                <div class="detail-section-body" style="white-space:pre-line;">@Model.Description</div>
+            </div>
+
+            <!-- Requirements -->
+            @if (!string.IsNullOrWhiteSpace(Model.Requirements))
+            {
+                <div class="detail-section">
+                    <h5 class="detail-section-title">
+                        <i class="fa-solid fa-list-check"></i>Requirements
+                    </h5>
+                    <div class="detail-section-body" style="white-space:pre-line;">@Model.Requirements</div>
+                </div>
+            }
+
+        </div>
+    </div>
+
 </div>

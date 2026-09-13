@@ -4,86 +4,72 @@
     Layout = "_Layout";
 }
 
-<div class="content-wrapper bg-transparent">
-    <section class="content-header py-4 py-lg-5">
-        <div class="container-fluid px-lg-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
-                <div>
-                    <div class="page-header-label">Academic Administration</div>
-                    <h1 class="page-header-title">Register New Student</h1>
-                    <p class="page-header-sub">Create a new student account in the system.</p>
-                </div>
-                <a asp-action="StudentManagement" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-arrow-left me-2"></i>Back to students
-                </a>
+<section class="content-header py-4 py-lg-5">
+    <div class="container-fluid px-lg-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+            <div>
+                <div class="page-header-label">Academic Administration</div>
+                <h1 class="page-header-title">Register New Student</h1>
+                <p class="page-header-sub">Create a new student account in the system.</p>
             </div>
+            <a asp-action="StudentManagement" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-2"></i>Back to students
+            </a>
         </div>
-    </section>
+    </div>
+</section>
 
-<!-- Main content -->
-<section class="content">
-    <div class="container-fluid">
+<section class="content pb-5">
+    <div class="container-fluid px-lg-4">
         <div class="row justify-content-center">
-            <!-- Form Column -->
             <div class="col-md-8">
-                <!-- General form elements -->
-                <div class="card card-primary card-outline">
-                    <div class="card-header">
-                        <h3 class="card-title">Student Basic Information</h3>
-                        <div class="card-tools">
-                            <span class="badge badge-info">First-time Setup</span>
-                        </div>
+                <div class="card adminlte-card">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h3 class="card-title fw-bold mb-0">
+                            <i class="fa-solid fa-user-plus me-2 text-academic"></i>Student basic information
+                        </h3>
+                        <span class="status-pill status-pill-info"><i class="fa-solid fa-circle"></i>First-time Setup</span>
                     </div>
-                    <!-- /.card-header -->
-                    <!-- form start -->
-                    <form asp-action="Register" asp-asp-controller="Admin" method="post">
-                        <div class="card-body">
 
+                    <form asp-action="Register" asp-controller="Admin" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="card-body">
                             @if (!ViewData.ModelState.IsValid)
                             {
-                                <div class="alert alert-danger alert-dismissible">
-                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                                    <h5><i class="icon fas fa-ban"></i> Alert!</h5>
-                                    <div asp-validation-summary="All" class="text-white mb-0"></div>
+                                <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger rounded-3" role="alert">
+                                    <div asp-validation-summary="All" class="mb-0 list-unstyled small"></div>
                                 </div>
                             }
 
                             <div class="row">
-                                <!-- Student Name -->
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label asp-for="Name">Full Name <span class="text-danger">*</span></label>
+                                    <div class="mb-3">
+                                        <label asp-for="Name" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                            </div>
-                                            <input asp-for="Name" class="form-control" placeholder="Enter full name">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-user text-muted"></i></span>
+                                            <input asp-for="Name" class="form-control" placeholder="Enter full name" />
                                         </div>
-                                        <span asp-validation-for="Name" class="text-danger font-weight-bold text-sm"></span>
+                                        <span asp-validation-for="Name" class="text-danger small mt-1 d-block"></span>
                                     </div>
                                 </div>
-
-                                <!-- Email -->
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label asp-for="Email">Email Address <span class="text-danger">*</span></label>
+                                    <div class="mb-3">
+                                        <label asp-for="Email" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                            </div>
-                                            <input asp-for="Email" type="email" class="form-control" placeholder="Enter email">
+                                            <span class="input-group-text bg-white"><i class="fa-solid fa-envelope text-muted"></i></span>
+                                            <input asp-for="Email" type="email" class="form-control" placeholder="Enter email" />
                                         </div>
-                                        <span asp-validation-for="Email" class="text-danger font-weight-bold text-sm"></span>
+                                        <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row">
-                                <!-- Major Dropdown -->
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label asp-for="Major_ID">Major / Degree <span class="text-danger">*</span></label>
-                                        <select asp-for="Major_ID" class="form-control custom-select">
+                                    <div class="mb-3">
+                                        <label asp-for="Major_ID" class="form-label fw-semibold">Major / Degree <span class="text-danger">*</span></label>
+                                        <select asp-for="Major_ID" class="form-select">
                                             <option value="">-- Select Major --</option>
                                             @if (ViewBag.FoundationMajors != null && ViewBag.FoundationMajors.IsSuccess)
                                             {
@@ -93,29 +79,25 @@
                                                 }
                                             }
                                         </select>
-                                        <span asp-validation-for="Major_ID" class="text-danger font-weight-bold text-sm"></span>
+                                        <span asp-validation-for="Major_ID" class="text-danger small mt-1 d-block"></span>
                                     </div>
                                 </div>
-
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label asp-for="ACY_ID">Academic Year <span class="text-danger">*</span></label>
-                                        <select asp-for="ACY_ID" class="form-control custom-select">
+                                    <div class="mb-3">
+                                        <label asp-for="ACY_ID" class="form-label fw-semibold">Academic Year <span class="text-danger">*</span></label>
+                                        <select asp-for="ACY_ID" class="form-select">
                                             <option value="">-- Select Academic Year --</option>
                                             @if (ViewBag.AcademicYears != null && ViewBag.AcademicYears.IsSuccess)
                                             {
                                                 foreach (var acs in ViewBag.AcademicYears.Data)
                                                 {
-int currentYear = MyanmarTime.Now.Year;
+                                                    int currentYear = MyanmarTime.Now.Year;
                                                     int academicStartYear = 0;
-
                                                     if (!string.IsNullOrEmpty(acs.AcademicYear) && acs.AcademicYear.Length >= 4)
                                                     {
                                                         int.TryParse(acs.AcademicYear.Substring(0, 4), out academicStartYear);
                                                     }
-
                                                     bool isPastYear = academicStartYear < currentYear;
-
                                                     if (isPastYear)
                                                     {
                                                         <option value="@acs.AcyId" disabled>@acs.AcademicYear (Closed)</option>
@@ -127,38 +109,40 @@ int currentYear = MyanmarTime.Now.Year;
                                                 }
                                             }
                                         </select>
-                                        <span asp-validation-for="ACY_ID" class="text-danger font-weight-bold text-sm"></span>
+                                        <span asp-validation-for="ACY_ID" class="text-danger small mt-1 d-block"></span>
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Graduation Status Dropdown -->
+                            <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label asp-for="GraduationStatus">Programme Status <span class="text-danger">*</span></label>
-                                        <select asp-for="GraduationStatus" class="form-control custom-select">
+                                    <div class="mb-3">
+                                        <label asp-for="GraduationStatus" class="form-label fw-semibold">Programme Status <span class="text-danger">*</span></label>
+                                        <select asp-for="GraduationStatus" class="form-select">
                                             <option value="">-- Select Programme --</option>
                                             <option value="Undergraduate">Undergraduate</option>
                                         </select>
-                                        <span asp-validation-for="GraduationStatus" class="text-danger font-weight-bold text-sm"></span>
+                                        <span asp-validation-for="GraduationStatus" class="text-danger small mt-1 d-block"></span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="mt-3 text-muted text-sm">
-                                <i class="fas fa-info-circle text-info"></i> Note: The student's account will be created automatically. They will need to complete their full profile (Phone, Address, etc.) upon their first login.
+                            <div class="mt-3 p-3 rounded-3" style="background:rgba(14,165,233,.06);border-left:3px solid var(--info,#0ea5e9);">
+                                <small class="text-muted">
+                                    <i class="fa-solid fa-circle-info me-1" style="color:var(--info,#0ea5e9);"></i>
+                                    The student's account will be created automatically. They will need to complete their full profile (Phone, Address, etc.) upon their first login.
+                                </small>
                             </div>
                         </div>
-                        <!-- /.card-body -->
 
-                        <div class="card-footer text-right bg-white">
-                            <a asp-action="StudentManagement" class="btn btn-default mr-2">Cancel</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-user-plus mr-1"></i> Register Student
+                        <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
+                            <a asp-action="StudentManagement" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-academic">
+                                <i class="fa-solid fa-user-plus me-2"></i>Register Student
                             </button>
                         </div>
                     </form>
                 </div>
-                <!-- /.card -->
             </div>
         </div>
     </div>

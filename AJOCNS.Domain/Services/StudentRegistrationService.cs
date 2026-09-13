@@ -320,6 +320,7 @@ namespace AJOCNS.Domain.Services
                 StudentId = student.StudentId,
                 Srn = student.Srn,
                 Name = student.Name,
+                Email = student.User?.Email ?? string.Empty,
                 Phone = student.Phone,
                 FatherName = student.FatherName,
                 Address = student.Address,
@@ -334,18 +335,34 @@ namespace AJOCNS.Domain.Services
 
 
         public async Task<Result<bool>> UpdateStudentAsync(EditStudentDto dto)
-        {            var student = await _studentRepo.GetStudentByIdAsync(dto.StudentId);
+        {
+            var student = await _studentRepo.GetStudentByIdAsync(dto.StudentId);
             if (student is null)
                 return Result<bool>.Failure("Student not found.");
 
             bool isGraduated = student.GraduationRecords != null && student.GraduationRecords.Any();
 
+            if (!string.IsNullOrWhiteSpace(dto.Email) && student.User != null)
+            {
+                bool emailChanged = !string.Equals(student.User.Email?.Trim(), dto.Email.Trim(), StringComparison.OrdinalIgnoreCase);
+                if (emailChanged)
+                {
+                    bool exists = await _studentRepo.EmailExistsForOtherUserAsync(dto.Email.Trim(), student.UserId);
+                    if (exists)
+                        return Result<bool>.Failure("That email address is already in use by another account.");
+                }
+            }
 
             student.Name = dto.Name;
             student.Phone = dto.Phone;
             student.FatherName = dto.FatherName;
             student.Address = dto.Address;
             student.MajorId = dto.MajorId;
+
+            if (student.User != null && !string.IsNullOrWhiteSpace(dto.Email))
+            {
+                student.User.Email = dto.Email.Trim();
+            }
 
             if (!isGraduated)
             {

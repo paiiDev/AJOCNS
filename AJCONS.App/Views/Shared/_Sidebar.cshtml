@@ -56,11 +56,11 @@
                    asp-controller="Admin" asp-action="GraduationRecords">
                     <i class="fa-solid fa-file-lines"></i> Graduation Records
                 </a>
-                <a class="sidebar-link @(controller == "Admin" && action == "Mentors" ? "active-menu" : "")"
+                <a class="sidebar-link @(controller == "Admin" && action is "Mentors" or "MentorDetails" ? "active-menu" : "")"
                    asp-controller="Admin" asp-action="Mentors">
                     <i class="fa-solid fa-chalkboard-user"></i> Mentors
                 </a>
-                <a class="sidebar-link @(controller == "Admin" && action == "ExternalPartners" ? "active-menu" : "")"
+                <a class="sidebar-link @(controller == "Admin" && action is "ExternalPartners" or "ExternalPartnerDetails" ? "active-menu" : "")"
                    asp-controller="Admin" asp-action="ExternalPartners">
                     <i class="fa-solid fa-building"></i> External Partners
                 </a>
@@ -108,7 +108,7 @@
                    asp-controller="Student" asp-action="Event">
                     <i class="fa-solid fa-calendar-days"></i> Events
                 </a>
-                <a class="sidebar-link @(controller == "Student" && action is "Job" or "JobBoard" or "JobDetails" ? "active-menu" : "")"
+                <a class="sidebar-link @((controller == "Student" && action is "Job" or "JobBoard" or "JobDetails") || (controller == "Job" && action == "Details") ? "active-menu" : "")"
                    asp-controller="Student" asp-action="JobBoard">
                     <i class="fa-solid fa-briefcase"></i> Jobs
                 </a>
@@ -152,7 +152,7 @@
                    asp-controller="ExternalPartner" asp-action="Events">
                     <i class="fa-solid fa-calendar-days"></i> Events
                 </a>
-                <a class="sidebar-link @((controller == "ExternalPartner" && action is "Jobs" or "MyJobPosts" or "ViewApplicants") || (controller == "Job" && action is "CreateJobPost" or "EditJobPost") ? "active-menu" : "")"
+                <a class="sidebar-link @((controller == "ExternalPartner" && action is "Jobs" or "MyJobPosts" or "ViewApplicants") || (controller == "Job" && action is "CreateJobPost" or "EditJobPost" or "Details") ? "active-menu" : "")"
                    asp-controller="ExternalPartner" asp-action="MyJobPosts">
                     <i class="fa-solid fa-briefcase"></i> Jobs
                 </a>
