@@ -31,21 +31,58 @@ namespace AJOCNS.Domain.Services
 
         public async Task<Result<bool>> ApplyForJobAsync(int studentId, ApplyJobDto dto)
         {
-            if (dto.Resume is null || dto.Resume.Length == 0 || !string.Equals(Path.GetExtension(dto.Resume.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
+            if (dto.Resume is null || dto.Resume.Length == 0)
                 return Result<bool>.Failure("A PDF resume is required.");
+            if (!string.Equals(Path.GetExtension(dto.Resume.FileName), ".pdf", StringComparison.OrdinalIgnoreCase))
+                return Result<bool>.Failure("Only PDF resumes are accepted.");
+            if (dto.Resume.Length > 10 * 1024 * 1024)
+                return Result<bool>.Failure("Your resume must be smaller than 10 MB.");
+
             var job = await _jobRepo.GetJobPostById(dto.JobPostId);
             if (job is null || job.IsDeleted || job.ClosingDate <= DateTime.UtcNow || !IsOpenStatus(job.Status))
                 return Result<bool>.Failure("This job is no longer accepting applications.");
-            var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "resumes");
-            Directory.CreateDirectory(folder);
+
             var fileName = $"{Guid.NewGuid():N}.pdf";
-            await using (var stream = File.Create(Path.Combine(folder, fileName))) await dto.Resume.CopyToAsync(stream);
+            var resumeUrl = $"/uploads/resumes/{fileName}";
+            try
+            {
+                var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "resumes");
+                Directory.CreateDirectory(folder);
+                await using (var stream = File.Create(Path.Combine(folder, fileName)))
+                    await dto.Resume.CopyToAsync(stream);
+            }
+            catch
+            {
+                return Result<bool>.Failure("Could not save your resume. Please try again.");
+            }
+
             var saved = await _jobRepo.CreateApplicationAsync(new JobApplication
             {
                 JobPostId = dto.JobPostId, UserId = studentId, CoverLetter = dto.CoverLetter.Trim(),
-                ResumeUrl = $"/uploads/resumes/{fileName}", AppliedDate = DateTime.UtcNow, Status = "Pending"
+                ResumeUrl = resumeUrl, AppliedDate = DateTime.UtcNow, Status = "Pending"
             });
-            return saved ? Result<bool>.Success(true) : Result<bool>.Failure("You have already applied for this job.");
+
+            if (!saved)
+            {
+                DeleteResumeFile(resumeUrl);
+                return Result<bool>.Failure("You have already applied for this job.");
+            }
+
+            return Result<bool>.Success(true);
+        }
+
+        private static void DeleteResumeFile(string resumeUrl)
+        {
+            try
+            {
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot",
+                    resumeUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (File.Exists(path)) File.Delete(path);
+            }
+            catch
+            {
+                // best-effort cleanup
+            }
         }
 
         public async Task<Result<List<ApplicantListDto>>> GetApplicantsByJobIdAsync(int partnerUserId, int jobPostId)

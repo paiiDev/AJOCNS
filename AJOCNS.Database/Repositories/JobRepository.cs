@@ -21,10 +21,17 @@ namespace AJOCNS.Database.Repositories
 
         public async Task<bool> CreateApplicationAsync(JobApplication application)
         {
-            if (await _context.JobApplications.AnyAsync(a => a.JobPostId == application.JobPostId && a.UserId == application.UserId)) return false;
-            _context.JobApplications.Add(application);
-            await _context.SaveChangesAsync();
-            return true;
+            try
+            {
+                if (await _context.JobApplications.AnyAsync(a => a.JobPostId == application.JobPostId && a.UserId == application.UserId)) return false;
+                _context.JobApplications.Add(application);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public Task<List<JobApplication>> GetApplicantsByJobIdAsync(int partnerUserId, int jobPostId) =>
@@ -42,11 +49,18 @@ namespace AJOCNS.Database.Repositories
 
         public async Task<bool> UpdateApplicationStatusAsync(int applicationId, string status)
         {
-            var application = await _context.JobApplications.FindAsync(applicationId);
-            if (application is null) return false;
-            application.Status = status;
-            await _context.SaveChangesAsync();
-            return true;
+            try
+            {
+                var application = await _context.JobApplications.FindAsync(applicationId);
+                if (application is null) return false;
+                application.Status = status;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<bool> CreateJobPostAsync(JobPost jobPost)
