@@ -151,6 +151,41 @@ namespace AJOCNS.Database.Repositories
                 .ToListAsync();
         }
 
+        public async Task<(List<User> Items, int TotalCount)> GetExternalPartnersPagedAsync(int page, int pageSize, string? search)
+        {
+            page = page < 1 ? 1 : page;
+            pageSize = pageSize < 1 ? 10 : pageSize;
+
+            var query = _context.Users
+                .AsNoTracking()
+                .Include(u => u.ExternalPartner!)
+                    .ThenInclude(p => p.Company)
+                .Include(u => u.ExternalPartner!)
+                    .ThenInclude(p => p.Position)
+                .Where(u => u.Role == "ExternalPartner" && u.ExternalPartner != null);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
+                query = query.Where(u =>
+                    u.ExternalPartner!.Name.Contains(term) ||
+                    u.Email.Contains(term) ||
+                    u.ExternalPartner!.Company.CompanyName.Contains(term) ||
+                    u.ExternalPartner!.Position.Position1.Contains(term) ||
+                    (u.ExternalPartner!.Phone != null && u.ExternalPartner.Phone.Contains(term)));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<bool> IsExternalPartnerAsync(int userId)
         {
             return await _context.Users.AnyAsync(u => u.UserId == userId && u.Role == "ExternalPartner");

@@ -1,6 +1,7 @@
-@model List<AJOCNS.Shared.DTOs.Mentor.MentorProfileDto>
+@model AJOCNS.Shared.DTOs.Mentor.PagedMentorDto
 @{
     ViewData["Title"] = "Mentors | AJCONS";
+    var searchParam = Context.Request.Query["search"].ToString();
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -26,17 +27,18 @@
                 <div class="card-header d-flex align-items-center gap-3 py-3">
                     <h3 class="card-title fw-bold mb-0"><i class="fa-solid fa-user-graduate me-2"></i>All mentors</h3>
                     <div class="ms-auto d-flex align-items-center gap-2 flex-shrink-0">
-                        <div class="input-group input-group-sm mentor-search" style="max-width:200px;">
+                        <form method="get" class="input-group input-group-sm mentor-search" style="max-width:200px;">
                             <span class="input-group-text bg-white"><i class="fa-solid fa-search text-muted"></i></span>
-                            <input type="search" id="mentorSearch" class="form-control" placeholder="Search mentors..." />
-                        </div>
+                            <input type="search" name="search" value="@searchParam" class="form-control" placeholder="Search mentors..." />
+                            <button type="submit" class="d-none"></button>
+                        </form>
                         <span class="status-pill status-pill-info flex-shrink-0">
-                            <i class="fa-solid fa-users"></i>@Model.Count total
+                            <i class="fa-solid fa-users"></i>@Model.TotalCount total
                         </span>
                     </div>
                 </div>
                 <div class="table-responsive">
-                    @if (Model.Count == 0)
+                    @if (Model.TotalCount == 0)
                     {
                         <div class="table-empty">
                             <div class="empty-icon" style="background:var(--info-soft);color:var(--info);">
@@ -44,6 +46,16 @@
                             </div>
                             <h4>No mentors yet</h4>
                             <p>No alumni mentors have registered yet.</p>
+                        </div>
+                    }
+                    else if (Model.Mentors.Count == 0)
+                    {
+                        <div class="table-empty">
+                            <div class="empty-icon" style="background:var(--info-soft);color:var(--info);">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
+                            <h4>No mentors match your search</h4>
+                            <p>Try a different name, email, expertise, or GRN.</p>
                         </div>
                     }
                     else
@@ -60,7 +72,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var mentor in Model)
+                                @foreach (var mentor in Model.Mentors)
                                 {
                                     var isActive = string.Equals(mentor.Status, "Active", StringComparison.OrdinalIgnoreCase);
                                     var isPending = string.Equals(mentor.Status, "Pending", StringComparison.OrdinalIgnoreCase);
@@ -154,11 +166,33 @@
                                 }
                             </tbody>
                         </table>
-                        <div id="mentorNoResults" class="text-center py-5 text-muted d-none">
-                            <i class="fa-solid fa-magnifying-glass fs-2 mb-3 d-block"></i>No mentors match your search.
-                        </div>
                     }
                 </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="card-footer bg-white py-3">
+                        <nav aria-label="Mentor pagination">
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                                    <a class="page-link" asp-action="Mentors" asp-route-page="@(Model.CurrentPage - 1)" asp-route-search="@(!string.IsNullOrEmpty(searchParam) ? searchParam : null)">Prev</a>
+                                </li>
+                                @for (int i = 1; i <= Model.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                        <a class="page-link" asp-action="Mentors" asp-route-page="@i" asp-route-search="@(!string.IsNullOrEmpty(searchParam) ? searchParam : null)">@i</a>
+                                    </li>
+                                }
+                                <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                                    <a class="page-link" asp-action="Mentors" asp-route-page="@(Model.CurrentPage + 1)" asp-route-search="@(!string.IsNullOrEmpty(searchParam) ? searchParam : null)">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <div class="text-center text-muted small mt-2">
+                            Page @Model.CurrentPage of @Model.TotalPages — showing @Model.Mentors.Count of @Model.TotalCount mentors
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </section>
@@ -167,20 +201,6 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const search = document.getElementById('mentorSearch');
-            const rows = [...document.querySelectorAll('.mentor-table tbody tr')];
-            const empty = document.getElementById('mentorNoResults');
-            search?.addEventListener('input', () => {
-                const term = search.value.trim().toLowerCase();
-                let visible = 0;
-                rows.forEach(row => {
-                    const matches = row.innerText.toLowerCase().includes(term);
-                    row.classList.toggle('d-none', !matches);
-                    if (matches) visible++;
-                });
-                empty?.classList.toggle('d-none', visible !== 0);
-            });
-
             document.querySelectorAll('.deactivate-form').forEach(form => {
                 form.addEventListener('submit', async (event) => {
                     event.preventDefault();

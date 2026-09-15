@@ -13,6 +13,7 @@ namespace AJOCNS.Domain.Interfaces
         Task<Result<RegisterOptionsDto>> GetRegisterOptionsAsync();
         Task<Result<List<PendingUserApprovalDto>>> GetPendingUsersAsync();
         Task<Result<List<ExternalPartnerAdminDto>>> GetExternalPartnersAsync();
+        Task<Result<PagedExternalPartnerDto>> GetExternalPartnersPagedAsync(int page, int pageSize, string? search);
         Task<Result<ExternalPartnerAdminDto>> GetPendingExternalPartnerAsync(int userId);
         Task<Result<bool>> UpdateExternalPartnerStatusAsync(int userId, string status);
         Task<Result<bool>> ApproveUserAsync(int userId);

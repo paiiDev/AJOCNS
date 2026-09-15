@@ -198,10 +198,15 @@ namespace AJOCNS.Domain.Services
                 JobType = jobPost.JobType,
                 Location = jobPost.Location,
                 SalaryRange = jobPost.SalaryRange,
-                ClosingDate = MyanmarTime.ToMyanmar(jobPost.ClosingDate)
+                ClosingDate = TrimSeconds(MyanmarTime.ToMyanmar(jobPost.ClosingDate))
             };
 
             return Result<UpdateJobPostDto>.Success(dto);
+        }
+
+        private static DateTime TrimSeconds(DateTime value)
+        {
+            return new DateTime(value.Ticks - (value.Ticks % TimeSpan.TicksPerMinute), value.Kind);
         }
 
         public async Task<Result<bool>> UpdateJobPostAsync(UpdateJobPostDto dto, int currentUserId, bool isAdmin, DateTime closingDateUtc)

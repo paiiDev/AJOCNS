@@ -7,6 +7,7 @@ namespace AJOCNS.Domain.Interfaces
     {
         Task<Result<MentorProfileDto>> GetMentorProfileAsync(int userId);
         Task<Result<List<MentorProfileDto>>> GetAllMentorsAsync();
+        Task<Result<PagedMentorDto>> GetMentorsPagedAsync(int page, int pageSize, string? search);
         Task<Result<MentorProfileDto>> UpdateMentorProfileAsync(int userId, MentorProfileEditDto dto);
         Task<Result<List<EmploymentRecordDto>>> GetEmploymentRecordsAsync(int mentorId);
         Task<Result<EmploymentRecordDto>> CreateEmploymentRecordAsync(int mentorId, CreateEmploymentRecordDto dto);

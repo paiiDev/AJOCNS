@@ -20,6 +20,7 @@ namespace ajocns.database.interfaces
         Task<Position> GetOrCreatePositionAsync(string positionName);
         Task<List<User>> GetPendingUsersAsync();
         Task<List<User>> GetExternalPartnersAsync();
+        Task<(List<User> Items, int TotalCount)> GetExternalPartnersPagedAsync(int page, int pageSize, string? search);
         Task<bool> IsExternalPartnerAsync(int userId);
         Task<User?> GetPendingUserByIdAsync(int userId);
         Task<bool> UpdateUserStatusAsync(int userId, string status);

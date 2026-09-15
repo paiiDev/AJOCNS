@@ -28,6 +28,41 @@ namespace AJOCNS.Database.Repositories
                 .ToListAsync();
         }
 
+        public async Task<(List<Mentor> Items, int TotalCount)> GetMentorsPagedAsync(int page, int pageSize, string? search)
+        {
+            page = page < 1 ? 1 : page;
+            pageSize = pageSize < 1 ? 10 : pageSize;
+
+            var query = _context.Mentors
+                .AsNoTracking()
+                .Include(m => m.User)
+                .Include(m => m.EmploymentRecords)
+                    .ThenInclude(er => er.Company)
+                .Include(m => m.EmploymentRecords)
+                    .ThenInclude(er => er.Position)
+                .Where(m => m.User.Status == "Active" || m.User.Status == "Inactive");
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim();
+                query = query.Where(m =>
+                    m.Name.Contains(term) ||
+                    m.User.Email.Contains(term) ||
+                    (m.Expertise != null && m.Expertise.Contains(term)) ||
+                    (m.AlumniGrn != null && m.AlumniGrn.Contains(term)));
+            }
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(m => m.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<Mentor?> GetMentorByUserIdAsync(int userId)
         {
             return await _context.Mentors

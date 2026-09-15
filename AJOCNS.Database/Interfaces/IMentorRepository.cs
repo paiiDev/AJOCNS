@@ -6,6 +6,8 @@ namespace AJOCNS.Database.Interfaces
     {
         Task<List<Mentor>> GetAllMentorsAsync();
 
+        Task<(List<Mentor> Items, int TotalCount)> GetMentorsPagedAsync(int page, int pageSize, string? search);
+
         Task<Mentor?> GetMentorByUserIdAsync(int userId);
         Task<Mentor?> GetMentorByIdAsync(int mentorId);
         Task<bool> UpdateMentorAsync(Mentor mentor);

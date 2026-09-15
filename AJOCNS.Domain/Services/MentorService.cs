@@ -31,6 +31,21 @@ namespace AJOCNS.Domain.Services
             return Result<List<MentorProfileDto>>.Success(dtos);
         }
 
+        public async Task<Result<PagedMentorDto>> GetMentorsPagedAsync(int page, int pageSize, string? search)
+        {
+            var (mentors, totalCount) = await _mentorRepo.GetMentorsPagedAsync(page, pageSize, search);
+
+            var dto = new PagedMentorDto
+            {
+                Mentors = mentors.Select(MapToProfileDto).ToList(),
+                CurrentPage = page < 1 ? 1 : page,
+                PageSize = pageSize < 1 ? 10 : pageSize,
+                TotalCount = totalCount
+            };
+
+            return Result<PagedMentorDto>.Success(dto);
+        }
+
         public async Task<Result<MentorProfileDto>> UpdateMentorProfileAsync(int userId, MentorProfileEditDto dto)
         {
             var mentor = await _mentorRepo.GetMentorByUserIdAsync(userId);

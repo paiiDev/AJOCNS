@@ -243,7 +243,29 @@ namespace AJOCNS.Domain.Services
         public async Task<Result<List<ExternalPartnerAdminDto>>> GetExternalPartnersAsync()
         {
             var partners = await _authRepo.GetExternalPartnersAsync();
-            var dtos = partners.Select(u => new ExternalPartnerAdminDto
+            var dtos = partners.Select(MapToExternalPartnerDto).ToList();
+
+            return Result<List<ExternalPartnerAdminDto>>.Success(dtos);
+        }
+
+        public async Task<Result<PagedExternalPartnerDto>> GetExternalPartnersPagedAsync(int page, int pageSize, string? search)
+        {
+            var (partners, totalCount) = await _authRepo.GetExternalPartnersPagedAsync(page, pageSize, search);
+
+            var dto = new PagedExternalPartnerDto
+            {
+                Partners = partners.Select(MapToExternalPartnerDto).ToList(),
+                CurrentPage = page < 1 ? 1 : page,
+                PageSize = pageSize < 1 ? 10 : pageSize,
+                TotalCount = totalCount
+            };
+
+            return Result<PagedExternalPartnerDto>.Success(dto);
+        }
+
+        private static ExternalPartnerAdminDto MapToExternalPartnerDto(User u)
+        {
+            return new ExternalPartnerAdminDto
             {
                 UserId = u.UserId,
                 Name = u.ExternalPartner!.Name,
@@ -254,9 +276,7 @@ namespace AJOCNS.Domain.Services
                 Expertise = u.ExternalPartner.Expertise,
                 Status = u.Status,
                 CreatedAt = MyanmarTime.ToMyanmar(u.CreatedAt)
-            }).ToList();
-
-            return Result<List<ExternalPartnerAdminDto>>.Success(dtos);
+            };
         }
 
         public async Task<Result<bool>> UpdateExternalPartnerStatusAsync(int userId, string status)

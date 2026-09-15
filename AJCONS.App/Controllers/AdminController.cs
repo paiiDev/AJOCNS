@@ -71,10 +71,12 @@ namespace AJOCNS.App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExternalPartners()
+        public async Task<IActionResult> ExternalPartners(int page = 1, string? search = null)
         {
-            var result = await _authService.GetExternalPartnersAsync();
-            return View(result.IsSuccess ? result.Data : new List<ExternalPartnerAdminDto>());
+            const int pageSize = 10;
+            var result = await _authService.GetExternalPartnersPagedAsync(page, pageSize, search);
+            ViewBag.Search = search;
+            return View(result.IsSuccess ? result.Data : new PagedExternalPartnerDto());
         }
 
         [HttpGet]
@@ -559,15 +561,12 @@ namespace AJOCNS.App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Mentors()
+        public async Task<IActionResult> Mentors(int page = 1, string? search = null)
         {
-            var result = await _mentorService.GetAllMentorsAsync();
-            var mentors = result.IsSuccess ? result.Data : new List<MentorProfileDto>();
-            mentors = mentors
-                .Where(m => string.Equals(m.Status, "Active", StringComparison.OrdinalIgnoreCase)
-                         || string.Equals(m.Status, "Inactive", StringComparison.OrdinalIgnoreCase))
-                .ToList();
-            return View(mentors);
+            const int pageSize = 10;
+            var result = await _mentorService.GetMentorsPagedAsync(page, pageSize, search);
+            ViewBag.Search = search;
+            return View(result.IsSuccess ? result.Data : new PagedMentorDto());
         }
 
         [HttpGet]

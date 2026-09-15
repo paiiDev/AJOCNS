@@ -59,7 +59,8 @@ namespace AJOCNS.App.Controllers
         {
             ViewBag.JobTypes = JobTypes;
             var nowMyanmar = MyanmarTime.Now;
-            var defaultClosingDate = nowMyanmar.AddDays(30);
+            var after = nowMyanmar.AddDays(30);
+            var defaultClosingDate = new DateTime(after.Year, after.Month, after.Day, after.Hour, after.Minute, 0);
             return View(new CreateJobPostDto { ClosingDate = defaultClosingDate });
         }
 
