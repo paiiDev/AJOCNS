@@ -57,8 +57,15 @@ namespace AJOCNS.App.Controllers
             var result = await _jobService.UpdateApplicationStatusAsync(applicationId, status);
             if (result.IsSuccess && status == "Shortlisted" && applicant.Status != "Shortlisted")
             {
-                await _emailService.SendEmailAsync(applicant.StudentEmail, "Your job application was shortlisted",
-                    $"<p>Dear {applicant.StudentName},</p><p>Your application has been shortlisted. The company will contact you with next steps.</p>");
+                try
+                {
+                    await _emailService.SendEmailAsync(applicant.StudentEmail, "Your job application was shortlisted",
+                        $"<p>Dear {applicant.StudentName},</p><p>Your application has been shortlisted. The company will contact you with next steps.</p>");
+                }
+                catch
+                {
+                    // email failure should not block the status update
+                }
             }
 
             return RedirectToAction(nameof(ViewApplicants), new { jobPostId });

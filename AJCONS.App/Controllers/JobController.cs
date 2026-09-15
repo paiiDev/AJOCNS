@@ -149,6 +149,16 @@ namespace AJOCNS.App.Controllers
                 return RedirectToAction(User.IsInRole("ExternalPartner") ? "MyJobPosts" : "Index", User.IsInRole("ExternalPartner") ? "ExternalPartner" : "Job");
             }
 
+            int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            bool isAdmin = User.IsInRole("Admin");
+            if (!isAdmin && result.Data.PostedByUserId != currentUserId)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Access Denied";
+                TempData["SweetAlert_Message"] = "You do not have permission to edit this job post.";
+                return RedirectToAction(User.IsInRole("ExternalPartner") ? "MyJobPosts" : "Index", User.IsInRole("ExternalPartner") ? "ExternalPartner" : "Job");
+            }
+
             ViewBag.JobTypes = JobTypes;
             return View(result.Data);
         }

@@ -190,6 +190,7 @@ namespace AJOCNS.Domain.Services
             var dto = new UpdateJobPostDto
             {
                 Id = jobPost.JobPostId,
+                PostedByUserId = jobPost.PostedByUserId,
                 Title = jobPost.Title,
                 CompanyName = jobPost.CompanyName,
                 Description = jobPost.Description,

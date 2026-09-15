@@ -6,5 +6,7 @@ namespace AJOCNS.Shared.DTOs.Jobs
     {
         [Required(ErrorMessage = "Job post id is required.")]
         public int Id { get; set; }
+
+        public int PostedByUserId { get; set; }
     }
 }

@@ -8,5 +8,7 @@ namespace AJOCNS.Shared.DTOs.Events
         public int Id { get; set; }
 
         public string? CurrentPosterPath { get; set; }
+
+        public int CreatedByUserId { get; set; }
     }
 }

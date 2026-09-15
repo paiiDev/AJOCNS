@@ -102,6 +102,7 @@ namespace AJOCNS.Domain.Services
             var dto = new UpdateEventDto
             {
                 Id = ev.EventId,
+                CreatedByUserId = ev.CreatedByUserId,
                 EventTitle = ev.EventTitle,
                 Description = ev.Description,
                 EventTypeId = ev.EventTypeId,
@@ -194,7 +195,7 @@ namespace AJOCNS.Domain.Services
                 EventDate = MyanmarTime.ToMyanmar(result.EventDate),
                 Description = result.Description?? "-",
                 EventMode = result.EventMode?? "-",
-                EventTypeName = result.EventType.EventTypeName ?? "-",
+                EventTypeName = result.EventType?.EventTypeName ?? "-",
                 Location = result.Location?? "-",
                 CreatedByName = GetCreatorName(result.CreatedByUser),
                 MaxCapacity = result.MaxCapacity?? null,

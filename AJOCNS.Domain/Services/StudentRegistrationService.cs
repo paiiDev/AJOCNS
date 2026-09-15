@@ -148,7 +148,7 @@ namespace AJOCNS.Domain.Services
                 Phone = s.Phone,
                 FatherName = s.FatherName,
                 Address = s.Address,
-                Major = s.Major.MajorName,
+                Major = s.Major?.MajorName ?? "-",
                 MajorId = s.MajorId,
                 GraduationStatus = ResolveGraduationStatus(s),
                 Srn = s.Srn

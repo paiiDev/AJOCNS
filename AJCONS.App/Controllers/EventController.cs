@@ -309,6 +309,16 @@ namespace AJOCNS.App.Controllers
                 return RedirectToAction("Index", "Event");
             }
 
+            int currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            bool isAdmin = User.IsInRole("Admin");
+            if (!isAdmin && result.Data.CreatedByUserId != currentUserId)
+            {
+                TempData["SweetAlert_Type"] = "error";
+                TempData["SweetAlert_Title"] = "Access Denied";
+                TempData["SweetAlert_Message"] = "You are not the organizer of this event.";
+                return RedirectToAction("Index", "Event");
+            }
+
             SetBackToEventsUrl();
             await PopulateEventTypes();
             return View(result.Data);
@@ -401,7 +411,13 @@ namespace AJOCNS.App.Controllers
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            string uniqueFileName = Guid.NewGuid().ToString() + "_" + posterImage.FileName;
+            string safeName = Path.GetFileName(posterImage.FileName);
+            if (string.IsNullOrWhiteSpace(safeName))
+            {
+                return null;
+            }
+
+            string uniqueFileName = Guid.NewGuid().ToString("N") + "_" + safeName;
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             try
@@ -426,8 +442,14 @@ namespace AJOCNS.App.Controllers
                 return;
             }
 
+            string eventsFolder = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, "Images", "events"));
             string relativePath = posterPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-            string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, relativePath);
+            string fullPath = Path.GetFullPath(Path.Combine(_webHostEnvironment.WebRootPath, relativePath));
+
+            if (!fullPath.StartsWith(eventsFolder, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
 
             if (System.IO.File.Exists(fullPath))
             {
