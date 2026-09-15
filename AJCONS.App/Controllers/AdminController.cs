@@ -140,6 +140,9 @@ namespace AJOCNS.App.Controllers
             ViewBag.AcademicYears = academicYears;
             ViewBag.SelectedAcyId = acyId;
 
+            await PopulateDegrees();
+            ViewBag.SelectedDegreeId = null;
+
             var studentStats = await _studentRegistrationService.GetStudentStatusStatsAsync();
             ViewBag.StudentStatusStats = studentStats.IsSuccess ? studentStats.Data : null;
 

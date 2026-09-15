@@ -21,7 +21,7 @@ namespace AJOCNS.Database.Interfaces
         Task<(int Total, int Graduated, int Undergraduate, int Dropout)> GetStudentStatusCountsAsync();
         Task<(List<Student> Items, int TotalCount)> GetStudentsPagedAsync(int page, int pageSize, int? majorId, int? acyId, string? excludeGraduationStatus = null);
         Task<bool> BulkUpdateMajorsAsync(Dictionary<int, int> studentMajorPairs);
-        Task<bool> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs, short graduationYear);
+        Task<(bool Succeeded, string ErrorMessage)> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs, short graduationYear, int degreeId);
         Task<List<Major>> GetAllMajorsAsync();
         Task<List<Major>> GetFoundationMajorsAsync();
         Task<List<AcademicYear>> GetAcademicYearsAsync();

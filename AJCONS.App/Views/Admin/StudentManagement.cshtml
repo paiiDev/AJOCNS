@@ -6,6 +6,7 @@
     var selectedAcyId = ViewBag.SelectedAcyId as int?;
     var isGradMode = Context.Request.Query["gradMode"] == "true";
     var gradYearParam = Context.Request.Query["gradYear"].ToString();
+    var gradDegreeParam = Context.Request.Query["degreeId"].ToString();
 }
 <div class="content-wrapper bg-transparent">
     <section class="content-header py-4 py-lg-5">
@@ -235,16 +236,16 @@
                         <nav aria-label="Student pagination">
                             <ul class="pagination pagination-sm justify-content-center mb-0">
                                 <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage - 1)" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId" asp-route-gradMode="@(isGradMode ? "true" : null)" asp-route-gradYear="@(isGradMode ? gradYearParam : null)" asp-route-excludeDropout="@(isGradMode ? true : null)">Prev</a>
+                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage - 1)" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId" asp-route-gradMode="@(isGradMode ? "true" : null)" asp-route-gradYear="@(isGradMode ? gradYearParam : null)" asp-route-degreeId="@(isGradMode ? gradDegreeParam : null)" asp-route-excludeDropout="@(isGradMode ? true : null)">Prev</a>
                                 </li>
                                 @for (int i = 1; i <= Model.TotalPages; i++)
                                 {
                                     <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                        <a class="page-link" asp-action="StudentManagement" asp-route-page="@i" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId" asp-route-gradMode="@(isGradMode ? "true" : null)" asp-route-gradYear="@(isGradMode ? gradYearParam : null)" asp-route-excludeDropout="@(isGradMode ? true : null)">@i</a>
+                                        <a class="page-link" asp-action="StudentManagement" asp-route-page="@i" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId" asp-route-gradMode="@(isGradMode ? "true" : null)" asp-route-gradYear="@(isGradMode ? gradYearParam : null)" asp-route-degreeId="@(isGradMode ? gradDegreeParam : null)" asp-route-excludeDropout="@(isGradMode ? true : null)">@i</a>
                                     </li>
                                 }
                                 <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage + 1)" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId" asp-route-gradMode="@(isGradMode ? "true" : null)" asp-route-gradYear="@(isGradMode ? gradYearParam : null)" asp-route-excludeDropout="@(isGradMode ? true : null)">Next</a>
+                                    <a class="page-link" asp-action="StudentManagement" asp-route-page="@(Model.CurrentPage + 1)" asp-route-majorId="@selectedMajorId" asp-route-acyId="@selectedAcyId" asp-route-gradMode="@(isGradMode ? "true" : null)" asp-route-gradYear="@(isGradMode ? gradYearParam : null)" asp-route-degreeId="@(isGradMode ? gradDegreeParam : null)" asp-route-excludeDropout="@(isGradMode ? true : null)">Next</a>
                                 </li>
                             </ul>
                         </nav>
@@ -269,12 +270,22 @@
         var bulkMode = false;
         var gradMode = false;
         var gradYearInput = '@Context.Request.Query["gradYear"]';
+        var gradDegreeInput = '@Context.Request.Query["degreeId"]';
         var academicYears = [
             @if (ViewBag.AcademicYears != null && ViewBag.AcademicYears.IsSuccess)
             {
                 foreach (var acy in ViewBag.AcademicYears.Data)
                 {
                     @:{ id: @acy.AcyId, name: '@acy.AcademicYear' },
+                }
+            }
+        ];
+        var degrees = [
+            @if (ViewBag.Degrees != null && ViewBag.Degrees.IsSuccess)
+            {
+                foreach (var degree in ViewBag.Degrees.Data)
+                {
+                    @:{ id: @degree.Id, name: '@degree.DegreeName', code: '@degree.DegreeCode' },
                 }
             }
         ];
@@ -370,6 +381,10 @@
                 return '<option value="' + y.id + '">' + y.name + '</option>';
             }).join('');
 
+            var degreeOptionsHtml = degrees.map(function (d) {
+                return '<option value="' + d.id + '">' + d.name + ' (' + d.code + ')</option>';
+            }).join('');
+
             var currentYear = new Date().getFullYear();
 
             Swal.fire({
@@ -378,9 +393,41 @@
                     '<label style="display:block;text-align:left;font-weight:600;font-size:.875rem;margin-bottom:.25rem">Academic Year (Enrollment Year)</label>' +
                     '<select id="swal-acy" class="swal2-input" style="display:flex;width:80%">' +
                     '<option value="">-- Select enrollment year --</option>' + optionsHtml + '</select>' +
+                    '<label style="display:block;text-align:left;font-weight:600;font-size:.875rem;margin-bottom:.25rem">Degree</label>' +
+                    '<select id="swal-degree" class="swal2-input" style="display:flex;width:80%">' +
+                    '<option value="">-- Select degree --</option>' + degreeOptionsHtml + '</select>' +
+                    '<div id="swal-grad-hint" style="display:none;text-align:left;font-size:.8rem;color:#64748b;margin:.25rem auto 0;width:80%"></div>' +
                     '<label style="display:block;text-align:left;font-weight:600;font-size:.875rem;margin-bottom:.25rem">Graduation Year</label>' +
                     '<input id="swal-grad-year" type="number" class="swal2-input" placeholder="e.g. ' + currentYear + '" min="1900" max="2100" style="display:flex;width:80%">',
                 showCancelButton: true,
+                didOpen: function () {
+                    var acySelect = document.getElementById('swal-acy');
+                    var degreeSelect = document.getElementById('swal-degree');
+                    var hint = document.getElementById('swal-grad-hint');
+                    var gradYear = document.getElementById('swal-grad-year');
+
+                    function refreshHint() {
+                        var startYear = parseInt((acySelect.value ? acySelect.options[acySelect.selectedIndex].text : '').substring(0, 4), 10);
+                        var required = getProgramYears(degreeSelect.value, startYear);
+                        if (required && !isNaN(startYear)) {
+                            hint.style.display = 'block';
+                            hint.textContent = degreeSelect.options[degreeSelect.selectedIndex].text + ' is a ' + required + '-year program — expected graduation year ' + (startYear + required + 2) + '.';
+                        } else {
+                            hint.style.display = 'none';
+                            hint.textContent = '';
+                        }
+                    }
+
+                    acySelect.addEventListener('change', refreshHint);
+                    degreeSelect.addEventListener('change', function () {
+                        var startYear = parseInt((acySelect.value ? acySelect.options[acySelect.selectedIndex].text : '').substring(0, 4), 10);
+                        var required = getProgramYears(degreeSelect.value, startYear);
+                        if (required && !isNaN(startYear)) {
+                            gradYear.value = startYear + required + 2;
+                        }
+                        refreshHint();
+                    });
+                },
                 focusConfirm: false,
                 confirmButtonColor: '#0b5cab',
                 cancelButtonColor: '#6c757d',
@@ -388,9 +435,14 @@
                 cancelButtonText: 'Cancel',
                 preConfirm: function () {
                     var acy = document.getElementById('swal-acy').value;
+                    var degreeId = document.getElementById('swal-degree').value;
                     var gradYear = document.getElementById('swal-grad-year').value;
                     if (!acy) {
                         Swal.showValidationMessage('Please select an enrollment year.');
+                        return false;
+                    }
+                    if (!degreeId) {
+                        Swal.showValidationMessage('Please select the degree students will graduate with.');
                         return false;
                     }
                     var year = parseInt(gradYear, 10);
@@ -398,13 +450,38 @@
                         Swal.showValidationMessage('Please enter a valid graduation year.');
                         return false;
                     }
-                    return { acyId: acy, graduationYear: year };
+
+                    var acyName = document.getElementById('swal-acy').options[document.getElementById('swal-acy').selectedIndex].text;
+                    var startYear = parseInt(acyName.substring(0, 4), 10);
+                    var required = getProgramYears(degreeId, startYear);
+                    if (required && !isNaN(startYear)) {
+                        var degreeName = document.getElementById('swal-degree').options[document.getElementById('swal-degree').selectedIndex].text;
+                        if (year !== startYear + required + 2) {
+                            Swal.showValidationMessage(degreeName + ' is a ' + required + '-year program. Enrollment ' + acyName + ' (start ' + startYear + ') expects graduation year ' + (startYear + required + 2) + '.');
+                            return false;
+                        }
+                    }
+                    return { acyId: acy, degreeId: degreeId, graduationYear: year };
                 }
             }).then(function (result) {
                 if (result.isConfirmed && result.value) {
-                    window.location.href = '@Url.Action("StudentManagement", "Admin")' + '?acyId=' + result.value.acyId + '&gradMode=true&gradYear=' + result.value.graduationYear + '&excludeDropout=true';
+                    window.location.href = '@Url.Action("StudentManagement", "Admin")' + '?acyId=' + result.value.acyId + '&gradMode=true&gradYear=' + result.value.graduationYear + '&degreeId=' + result.value.degreeId + '&excludeDropout=true';
                 }
             });
+
+            function getProgramYears(degreeId, startYear) {
+                var degree = degrees.find(function (d) {
+                    return d.id === parseInt(degreeId, 10);
+                });
+                if (!degree) return null;
+                var text = (degree.name + ' ' + degree.code).toLowerCase();
+                if (text.indexOf('computer') >= 0) {
+                    // The 4-year curriculum began with the 2024-2025 enrollment year.
+                    return (startYear >= 2024) ? 4 : null;
+                }
+                if (text.indexOf('engineering') >= 0) return 5;
+                return null;
+            }
         });
 
         @if (isGradMode)
@@ -479,7 +556,13 @@
         function saveGraduations() {
             var graduationYear = parseInt(gradYearInput, 10);
             if (!gradYearInput || isNaN(graduationYear) || graduationYear < 1900 || graduationYear > 2100) {
-                Swal.fire({ icon: 'warning', title: 'Missing graduation year', text: 'Graduation year is missing. Please click Manage Graduation again and enter the enrollment and graduation years.' });
+                Swal.fire({ icon: 'warning', title: 'Missing graduation year', text: 'Graduation year is missing. Please click Manage Graduation again and enter the enrollment, degree, and graduation years.' });
+                return;
+            }
+
+            var degreeId = parseInt(gradDegreeInput, 10);
+            if (!gradDegreeInput || isNaN(degreeId)) {
+                Swal.fire({ icon: 'warning', title: 'Missing degree', text: 'Degree selection is missing. Please click Manage Graduation again and choose the degree.' });
                 return;
             }
 
@@ -504,13 +587,15 @@
                 cancelButtonText: 'Cancel'
             }).then(function (result) {
                 if (!result.isConfirmed) return;
-                postUpdates('@Url.Action("BulkUpdateGraduations", "Admin")', { updates: updates, graduationYear: graduationYear },
+                postUpdates('@Url.Action("BulkUpdateGraduations", "Admin")', { updates: updates, graduationYear: graduationYear, degreeId: degreeId },
                     'Graduation statuses updated. Graduation records were created for newly graduated students.');
             });
         }
 
         function updatingText(graduatingCount, total) {
-            return 'This will mark ' + graduatingCount + ' student(s) as graduated with graduation year ' + gradYearInput + ' (a graduation record will be created automatically) and update ' + total + ' record(s) in total.';
+            var degree = degrees.find(function (d) { return d.id === parseInt(gradDegreeInput, 10); });
+            var degreeLabel = degree ? degree.name + ' (' + degree.code + ')' : 'the selected degree';
+            return 'This will mark ' + graduatingCount + ' student(s) as graduating with degree ' + degreeLabel + ' in graduation year ' + gradYearInput + ' (a graduation record will be created automatically) and update ' + total + ' record(s) in total.';
         }
     </script>
 }

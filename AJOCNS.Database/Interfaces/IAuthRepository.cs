@@ -25,5 +25,6 @@ namespace ajocns.database.interfaces
         Task<bool> UpdateUserStatusAsync(int userId, string status);
         Task<User?> GetExternalPartnerByUserIdForEditAsync(int userId);
         Task<bool> UpdateGraduationRecordClaimStatusAsync(string grn, string status);
+        Task<bool> ApproveUserAndClaimGraduationAsync(int userId, string grn);
     }
 }

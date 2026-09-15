@@ -23,19 +23,34 @@ namespace AJOCNS.Domain.Services
         {
             var emailSettings = _config.GetSection("EmailSettings");
 
-            var mailMessage = new MailMessage
+            string? senderEmail = emailSettings["SenderEmail"];
+            string smtpServer = emailSettings["SmtpServer"] ?? string.Empty;
+            string? senderName = emailSettings["SenderName"];
+            string? appPassword = emailSettings["AppPassword"];
+
+            if (string.IsNullOrWhiteSpace(smtpServer) || string.IsNullOrWhiteSpace(senderEmail) || string.IsNullOrWhiteSpace(appPassword))
             {
-                From = new MailAddress(emailSettings["SenderEmail"], emailSettings["SenderName"]),
+                throw new InvalidOperationException("Email settings (SenderEmail, SmtpServer, AppPassword) are not configured.");
+            }
+
+            if (!int.TryParse(emailSettings["Port"], out int port))
+            {
+                port = 587;
+            }
+
+            using var mailMessage = new MailMessage
+            {
+                From = new MailAddress(senderEmail, senderName ?? string.Empty),
                 Subject = subject,
                 Body = body,
-                IsBodyHtml = true 
+                IsBodyHtml = true
             };
             mailMessage.To.Add(toEmail);
 
-            using var smtpClient = new SmtpClient(emailSettings["SmtpServer"])
+            using var smtpClient = new SmtpClient(smtpServer)
             {
-                Port = int.Parse(emailSettings["Port"]),
-                Credentials = new NetworkCredential(emailSettings["SenderEmail"], emailSettings["AppPassword"]),
+                Port = port,
+                Credentials = new NetworkCredential(senderEmail, appPassword),
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false

@@ -179,7 +179,7 @@ namespace AJOCNS.Database.Repositories
             }
         }
 
-        public async Task<bool> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs, short graduationYear)
+        public async Task<(bool Succeeded, string ErrorMessage)> BulkUpdateGraduationsAsync(Dictionary<int, string> studentStatusPairs, short graduationYear, int degreeId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -189,10 +189,38 @@ namespace AJOCNS.Database.Repositories
                     .Include(s => s.GraduationRecords)
                     .Include(s => s.Major)
                     .ThenInclude(d => d.Degree)
+                    .Include(s => s.Enrollments)
+                    .ThenInclude(e => e.Acy)
                     .Where(s => studentIds.Contains(s.StudentId))
                     .ToListAsync();
 
-                if (students.Count == 0) return false;
+                if (students.Count == 0) return (false, "No matching students were found.");
+
+                List<string> violatingStudents = new List<string>();
+                foreach (var student in students)
+                {
+                    if (!studentStatusPairs.TryGetValue(student.StudentId, out string? status))
+                        continue;
+
+                    if (status == "Graduated")
+                    {
+                        int? expectedGraduationYear = GetExpectedGraduationYear(student);
+                        if (expectedGraduationYear.HasValue && graduationYear != expectedGraduationYear.Value)
+                        {
+                            violatingStudents.Add($"{student.Name} ({student.Major?.MajorName ?? "No major"} — expected {expectedGraduationYear.Value})");
+                        }
+                    }
+                }
+
+                if (violatingStudents.Any())
+                {
+                    await transaction.RollbackAsync();
+                    string prefix = violatingStudents.Count > 3
+                        ? string.Join("; ", violatingStudents.Take(3)) + $" and {violatingStudents.Count - 3} more."
+                        : string.Join("; ", violatingStudents);
+                    return (false,
+                        $"The graduation year does not match the program length for some students. Computer Science / Computer Technology follow a 4-year program (for enrollments from 2024-2025) and Engineering follows a 5-year program. Graduation year = enrollment year + program length + 2 (the program ends the year after the last study year, then graduation follows 1 year later). Offending students: {prefix}");
+                }
 
                 string nextGrn = await GenerateNextGRN(graduationYear);
                 int grnSequence = int.Parse(nextGrn.Substring(nextGrn.LastIndexOf('-') + 1));
@@ -208,9 +236,6 @@ namespace AJOCNS.Database.Repositories
                     {
                         if (!student.GraduationRecords.Any())
                         {
-                            int degreeId = student.Major?.DegreeId ?? 0;
-                            if (degreeId == 0) continue;
-
                             _context.GraduationRecords.Add(new GraduationRecord
                             {
                                 OfficialName = student.Name,
@@ -233,13 +258,52 @@ namespace AJOCNS.Database.Repositories
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return true;
+                return (true, string.Empty);
             }
             catch
             {
                 await transaction.RollbackAsync();
-                return false;
+                return (false, "Failed to update graduation statuses.");
             }
+        }
+
+        private static int? GetExpectedGraduationYear(Student student)
+        {
+            int? enrollmentStartYear = GetEnrollmentStartYear(student);
+            if (!enrollmentStartYear.HasValue)
+                return null;
+
+            string majorName = student.Major?.MajorName;
+            if (string.IsNullOrWhiteSpace(majorName))
+                return null;
+
+            string name = majorName.ToLower();
+            if (name.Contains("computer"))
+            {
+                // The 4-year curriculum began with the 2024-2025 academic year.
+                if (enrollmentStartYear.Value < 2024)
+                    return null;
+
+                return enrollmentStartYear.Value + 4 + 2;
+            }
+
+            if (name.Contains("engineer"))
+                return enrollmentStartYear.Value + 5 + 2;
+
+            return null;
+        }
+
+        private static int? GetEnrollmentStartYear(Student student)
+        {
+            var enrollment = student.Enrollments
+                .OrderByDescending(e => e.ErId)
+                .FirstOrDefault();
+
+            string? academicYear = enrollment?.Acy?.AcademicYear1;
+            if (string.IsNullOrEmpty(academicYear) || academicYear.Length < 4)
+                return null;
+
+            return int.TryParse(academicYear.Substring(0, 4), out int startYear) ? startYear : null;
         }
 
         private async Task<string> GenerateNextGRN(short graduationYear)

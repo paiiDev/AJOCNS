@@ -11,5 +11,8 @@ namespace AJOCNS.Shared.DTOs.StudentRegistration
         [Required(ErrorMessage = "Graduation year is required.")]
         [Range(1900, 2100, ErrorMessage = "Graduation year must be a valid year.")]
         public short GraduationYear { get; set; }
+
+        [Required(ErrorMessage = "Degree is required.")]
+        public int DegreeId { get; set; }
     }
 }

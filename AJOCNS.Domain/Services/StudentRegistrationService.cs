@@ -77,6 +77,8 @@ namespace AJOCNS.Domain.Services
                   $"<a href='{loginUrl}' style='background-color: #0056b3; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Log In to Portal</a>" +
                   $"</div>";
 
+            string safeName = System.Net.WebUtility.HtmlEncode(studentRegistrationDto.Name ?? string.Empty);
+
             string body = $@"
 <div style='font-family: Arial, sans-serif; background-color: #f4f5f7; padding: 40px 20px; color: #333;'>
     <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
@@ -88,7 +90,7 @@ namespace AJOCNS.Domain.Services
 
         <!-- Body -->
         <div style='padding: 30px; line-height: 1.6; font-size: 16px;'>
-            <p>Hello! <strong>{studentRegistrationDto.Name}</strong>,</p>
+            <p>Hello! <strong>{safeName}</strong>,</p>
             <p>Your student account has been successfully created. Below are your official login credentials:</p>
             
             <!-- Credentials Box -->
@@ -110,7 +112,14 @@ namespace AJOCNS.Domain.Services
 
     </div>
 </div>";
-            await _emailService.SendEmailAsync(studentRegistrationDto.Email,"Welcome to AJOCNS", body);
+            try
+            {
+                await _emailService.SendEmailAsync(studentRegistrationDto.Email, "Welcome to AJOCNS", body);
+            }
+            catch
+            {
+                // account was created; delivery failure must not roll back the registration
+            }
 
             return Result<bool>.Success(true);
         }
@@ -255,10 +264,13 @@ namespace AJOCNS.Domain.Services
             if (request is null || request.Updates is null || !request.Updates.Any())
                 return Result<bool>.Failure("No updates provided.");
 
+            if (request.DegreeId <= 0)
+                return Result<bool>.Failure("Degree is required.");
+
             var pairs = request.Updates.ToDictionary(u => u.StudentId, u => u.GraduationStatus);
-            bool saved = await _studentRepo.BulkUpdateGraduationsAsync(pairs, request.GraduationYear);
-            if (!saved)
-                return Result<bool>.Failure("Failed to update graduation statuses.");
+            var result = await _studentRepo.BulkUpdateGraduationsAsync(pairs, request.GraduationYear, request.DegreeId);
+            if (!result.Succeeded)
+                return Result<bool>.Failure(result.ErrorMessage);
 
             return Result<bool>.Success(true);
         }

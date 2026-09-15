@@ -195,6 +195,31 @@ namespace AJOCNS.Database.Repositories
             }
         }
 
+        public async Task<bool> ApproveUserAndClaimGraduationAsync(int userId, string grn)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var record = await _context.GraduationRecords.FirstOrDefaultAsync(g => g.Grn == grn);
+                if (record is null) return false;
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+                if (user is null) return false;
+
+                record.AccStatus = "Active";
+                user.Status = "Active";
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
+        }
+
         public async Task<bool> UpdateUserStatusAsync(int userId, string status)
         {
             try

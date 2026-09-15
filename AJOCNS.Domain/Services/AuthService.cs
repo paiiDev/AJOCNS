@@ -321,19 +321,26 @@ namespace AJOCNS.Domain.Services
                     return Result<bool>.Failure("The name does not match the graduation record for this GRN. Mentor not approved.");
                 }
 
+                if (string.Equals(graduationRecord.AccStatus, "Active", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return Result<bool>.Failure("This GRN is already linked to another account. Mentor not approved.");
+                }
+
                 user.Mentor.Name = graduationRecord.OfficialName;
 
-                bool claimed = await _authRepo.UpdateGraduationRecordClaimStatusAsync(graduationRecord.Grn, "Active");
-                if (!claimed)
+                bool approvedAndClaimed = await _authRepo.ApproveUserAndClaimGraduationAsync(user.UserId, graduationRecord.Grn);
+                if (!approvedAndClaimed)
                 {
-                    return Result<bool>.Failure("Failed to update the accreditation status for this GRN. Mentor not approved.");
+                    return Result<bool>.Failure("Failed to approve the mentor and claim the GRN. Mentor not approved.");
                 }
             }
-
-            bool updated = await _authRepo.UpdateUserStatusAsync(userId, "Active");
-            if (!updated)
+            else
             {
-                return Result<bool>.Failure("Failed to approve user.");
+                bool updated = await _authRepo.UpdateUserStatusAsync(userId, "Active");
+                if (!updated)
+                {
+                    return Result<bool>.Failure("Failed to approve user.");
+                }
             }
 
             string roleLabel = user.Role == "Mentor" ? "Mentor" : "External Partner";
