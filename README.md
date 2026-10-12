@@ -2,11 +2,16 @@
 
 AJOCNS (Alumni Job Opportunities & Career Networking System) is the official ASP.NET Core MVC web application for **PUPL — Polytechnic University (Panglong)**. It connects students, alumni mentors, and external hiring partners: managing student records and graduation, running a career-events calendar, and operating a job board with applications and an admin approval workflow.
 
+<p align="center">
+  <img src="images/full.png" alt="AJCONS — Alumni & Career Network overview" width="100%">
+</p>
+
 ---
 
 ## Table of Contents
 
 - [Features](#features)
+- [Screenshots](#screenshots)
 - [User Roles](#user-roles)
 - [Architecture](#architecture)
 - [Technology Stack](#technology-stack)
@@ -37,6 +42,70 @@ AJOCNS (Alumni Job Opportunities & Career Networking System) is the official ASP
 | **Job Board** | CRUD, approval workflow, open-jobs listing, PDF-resume applications, applicant shortlist/reject with automatic emails, auto-closing of expired posts. |
 | **Mentor & Partner Profiles** | Profile editing, mentor employment-history CRUD with get-or-create companies/positions, partner company/expertise editing. |
 | **Dashboards** | Admin statistics (students, mentors, events, pending counts), student dashboard (profile, events, applications), mentor/partner home pages. |
+
+---
+
+## Screenshots
+
+A walkthrough of the main screens, grouped by area.
+
+### Landing Page
+
+<p align="center">
+  <img src="images/LandingPage_1.png" alt="Landing page — hero" width="49%">
+  <img src="images/LandingPage_2.png" alt="Landing page — features" width="49%">
+  <img src="images/LandingPage_3.png" alt="Landing page — section" width="49%">
+  <img src="images/LandingPage_4.png" alt="Landing page — section" width="49%">
+</p>
+
+### Authentication & Registration
+
+<p align="center">
+  <img src="images/LoginPage.png" alt="Login page" width="49%">
+  <img src="images/AlumniRegister.png" alt="Alumni (mentor) registration" width="49%">
+  <img src="images/ExternalPartnerRegister.png" alt="External partner registration" width="49%">
+</p>
+
+### Admin Dashboard
+
+<p align="center">
+  <img src="images/admindashboard_1.png" alt="Admin dashboard — overview" width="49%">
+  <img src="images/admindashboarad_studentmanagement.png" alt="Admin — student management" width="49%">
+  <img src="images/admindashboarad_mentors.png" alt="Admin — mentor management" width="49%">
+  <img src="images/admindashboard_graduationrecord.png" alt="Admin — graduation records" width="49%">
+  <img src="images/admindashboard_events.png" alt="Admin — events" width="49%">
+  <img src="images/admindashboard_jobposts.png" alt="Admin — job posts" width="49%">
+  <img src="images/admindashboard_postapprovals.png" alt="Admin — post approvals" width="49%">
+  <img src="images/admindashboard_userapprovals.png" alt="Admin — user approvals" width="49%">
+  <img src="images/admindashboard_externalpartners.png" alt="Admin — external partners" width="49%">
+</p>
+
+### Student Dashboard
+
+<p align="center">
+  <img src="images/studentdashboard_1.png" alt="Student dashboard — overview" width="49%">
+  <img src="images/studentdashboard_events.png" alt="Student — events" width="49%">
+  <img src="images/studentdashboard_jobposts.png" alt="Student — job posts" width="49%">
+  <img src="images/studentdashboard_profile.png" alt="Student — profile" width="49%">
+</p>
+
+### Alumni (Mentor) Dashboard
+
+<p align="center">
+  <img src="images/alumnidashboard_1.png" alt="Alumni dashboard — overview" width="49%">
+  <img src="images/alumnidashboard_events.png" alt="Alumni — events" width="49%">
+  <img src="images/alumnidashboard_jobposts.png" alt="Alumni — job posts" width="49%">
+  <img src="images/alumnidashboard_profile.png" alt="Alumni — profile" width="49%">
+</p>
+
+### External Partner Dashboard
+
+<p align="center">
+  <img src="images/externalpartners_1.png" alt="External partner dashboard — overview" width="49%">
+  <img src="images/externalparnters_events.png" alt="External partner — events" width="49%">
+  <img src="images/externalpartners_jobposts.png" alt="External partner — job posts" width="49%">
+  <img src="images/externalpartners_profile.png" alt="External partner — profile" width="49%">
+</p>
 
 ---
 
